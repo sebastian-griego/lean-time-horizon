@@ -24,6 +24,7 @@ python scripts/record_local_qa_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
 ```
@@ -129,10 +130,12 @@ Regenerated outputs:
 - `data/validation_commands.csv`
 - `data/run_results.csv`
 - `data/difficulty_audit.csv`
+- `data/requirement_coverage.csv`
 - `reports/difficulty_audit.md`
 - `reports/accepted_task_review.md`
+- `reports/requirement_coverage.md`
 - `reports/validation_manifest.json`
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/requirement_coverage.md` is a generated requirement-by-requirement evidence audit. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.

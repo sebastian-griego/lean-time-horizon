@@ -180,6 +180,28 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 `reports/accepted_task_review.md` records the per-task reviewer judgment for every row that was marked `accepted_v0` at the start of the hardening pass. It explicitly distinguishes keep, downgrade, and keep-with-caveat recommendations; checks whether buckets are deserved; audits hidden pins and wrong submissions; and lists what must change before each task can be treated as benchmark-grade.
 
+## Requirement Coverage Audit
+
+`reports/requirement_coverage.md` and `data/requirement_coverage.csv` map the repository to playbook-level benchmark requirements. This is a stricter evidence index than the narrative claim ledger.
+
+Status counts:
+
+- `supported`: 20
+- `partial`: 4
+- `not_met`: 2
+
+Partial or unmet requirements:
+
+| id | area | status | evidence | next step |
+| --- | --- | --- | --- | --- |
+| `portfolio_accepted_count` | portfolio | not_met | 6 accepted_v0 tasks; 8 calibration-only tasks; 12 rejected archive tasks. | Add and hard-review more high-quality T2/T3/T4 tasks before claiming a full benchmark. |
+| `time_horizon_spread` | portfolio | partial | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
+| `scaffold_result_comparison` | scaffolds | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
+| `frontier_model_evidence` | runs | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
+| `independent_human_time_review` | calibration | partial | Accepted tasks with manual_review_complete: 6/6; no independent timed solves detected in metadata. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
+| `hosted_qa_env_linter` | qa | not_met | Hosted QA artifacts present: 0/2. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
+
+
 ## Reproducibility Checklist
 
 The intended local regeneration gate is:
@@ -192,6 +214,7 @@ python scripts/record_local_qa_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
 ```
@@ -202,9 +225,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-05-31T20:29:54.563915+00:00`
+Generated at UTC: `2026-05-31T20:56:45.441700+00:00`
 
-Git branch/head at generation: `main` / `76dd259c0d96`. Worktree status at generation: `32 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `835d1faa7d0d`. Worktree status at generation: `7 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -229,8 +252,9 @@ Regeneration commands:
 5. `python scripts/generate_report.py`
 6. `python scripts/export_public_tasks.py --out public_tasks`
 7. `python scripts/validate_public_export.py --out public_tasks`
-8. `python scripts/write_validation_manifest.py --public-export public_tasks`
-9. `python scripts/generate_report.py`
+8. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+9. `python scripts/write_validation_manifest.py --public-export public_tasks`
+10. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -239,7 +263,7 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `451e7a4891e4` |  | 5409 |
+| `README.md` | `de723c0de13b` |  | 5645 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
@@ -249,8 +273,10 @@ Key artifact hashes:
 | `data/scaffold_variants.csv` | `6ddd3f4fb586` | 3 | 379 |
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
 | `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
+| `data/requirement_coverage.csv` | `aa6b233906a6` | 26 | 5954 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
+| `reports/requirement_coverage.md` | `a5eaff99e5dd` |  | 6643 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -259,11 +285,12 @@ Key artifact hashes:
 | `scripts/validate_all.py` | `1a9f7f73a567` |  | 6446 |
 | `scripts/validate_task.py` | `99451d91d763` |  | 9611 |
 | `scripts/audit_difficulty.py` | `0bebfeb74ec4` |  | 10134 |
+| `scripts/audit_requirement_coverage.py` | `8ebb11749953` |  | 25817 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `48e0a6297b31` |  | 27666 |
+| `scripts/generate_report.py` | `a187b16925e7` |  | 29424 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
-| `scripts/write_validation_manifest.py` | `5f0420a45b20` |  | 7874 |
+| `scripts/write_validation_manifest.py` | `e8938e891576` |  | 8076 |
 
 
 ## Threats To Validity

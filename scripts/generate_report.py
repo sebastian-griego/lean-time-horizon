@@ -183,6 +183,43 @@ def evidence_table(rows: list[dict[str, str]], audit_by_id: dict[str, dict[str, 
     return "\n".join(lines)
 
 
+def requirement_coverage_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`data/requirement_coverage.csv` has not been generated yet. Run "
+            "`python scripts/audit_requirement_coverage.py --public-export public_tasks` "
+            "after public export validation, then regenerate this report."
+        )
+    counts = Counter(row.get("status", "unknown") for row in rows)
+    count_md = "\n".join(f"- `{status}`: {counts.get(status, 0)}" for status in ["supported", "partial", "not_met"])
+    gaps = [row for row in rows if row.get("status") != "supported"]
+    if gaps:
+        gap_lines = [
+            "| id | area | status | evidence | next step |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+        for row in gaps:
+            evidence = row.get("evidence", "").replace("|", "/")
+            next_step = row.get("gap_or_next_step", "").replace("|", "/")
+            gap_lines.append(
+                f"| `{row.get('requirement_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+                f"{evidence} | {next_step} |"
+            )
+        gap_md = "\n".join(gap_lines)
+    else:
+        gap_md = "_No partial or unmet requirements recorded._"
+    return f"""`reports/requirement_coverage.md` and `data/requirement_coverage.csv` map the repository to playbook-level benchmark requirements. This is a stricter evidence index than the narrative claim ledger.
+
+Status counts:
+
+{count_md}
+
+Partial or unmet requirements:
+
+{gap_md}
+"""
+
+
 def one_line_command_result(value: object) -> str:
     if not isinstance(value, dict):
         return str(value)
@@ -266,6 +303,7 @@ def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
+    requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
@@ -434,6 +472,10 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 `reports/accepted_task_review.md` records the per-task reviewer judgment for every row that was marked `accepted_v0` at the start of the hardening pass. It explicitly distinguishes keep, downgrade, and keep-with-caveat recommendations; checks whether buckets are deserved; audits hidden pins and wrong submissions; and lists what must change before each task can be treated as benchmark-grade.
 
+## Requirement Coverage Audit
+
+{requirement_coverage_section(requirement_rows)}
+
 ## Reproducibility Checklist
 
 The intended local regeneration gate is:
@@ -446,6 +488,7 @@ python scripts/record_local_qa_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
 ```
