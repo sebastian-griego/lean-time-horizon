@@ -1,0 +1,11 @@
+analysis_set,group_by,group,planned_cells,covered_cells_any,covered_cells_noninfra,rows_total,rows_noninfra,successes,mean_pass_at_k,wilson_low,wilson_high,infra_fail_rows,timeout_rows,notes
+all_provider_smoke_rows,all,all,,,,3,2,1,0.5000,0.0945,0.9055,1,0,"All committed non-local rows, including calibration rows and infra failures. Not a primary benchmark estimate."
+accepted_core_results,all,all,18,1,1,2,1,0,0.0000,0.0000,0.7935,1,0,Committed accepted-core provider rows only. This is far below the planned sweep.
+calibration_smoke_rows,all,all,,,,1,1,1,1.0000,0.2065,1.0000,0,0,Committed calibration-only provider rows. Excluded from accepted-core capability claims.
+primary_plan_coverage,all,all,18,1,1,2,1,0,0.0000,0.0000,0.7935,1,0,Coverage of the planned accepted_v0 x scaffold sweep by committed provider rows.
+primary_plan_coverage,scaffold,one-shot,6,1,1,2,1,0,0.0000,0.0000,0.7935,1,0,Per-scaffold planned-sweep coverage for accepted-core provider rows.
+primary_plan_coverage,scaffold,lookup,6,0,0,0,0,0,0.0000,0.0000,0.0000,0,0,Per-scaffold planned-sweep coverage for accepted-core provider rows.
+primary_plan_coverage,scaffold,lookup_unlimited,6,0,0,0,0,0,0.0000,0.0000,0.0000,0,0,Per-scaffold planned-sweep coverage for accepted-core provider rows.
+accepted_core_results,scaffold,one-shot,,,,2,1,0,0.0000,0.0000,0.7935,1,0,Accepted-core provider rows by scaffold.
+failure_label_counts,failure_label,infra_failure,,,,1,0,0,0.0000,0.0000,0.0000,1,0,1 committed provider row(s) with this primary failure label.
+failure_label_counts,failure_label,proof_debugging,,,,1,1,0,0.0000,0.0000,0.7935,0,0,1 committed provider row(s) with this primary failure label.

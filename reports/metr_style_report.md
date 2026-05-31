@@ -156,6 +156,20 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 The protocol specifies that headline capability claims use accepted-core rows only, local QA is validation evidence only, infra failures are retained but excluded from capability means, and binary task-row means should report numerators, denominators, and Wilson intervals.
 
 
+## Model Result Analysis
+
+`reports/model_run_analysis.md` and `data/model_result_summary.csv` analyze committed provider rows against the planned primary sweep.
+
+- planned accepted-core task/scaffold cells: `18`
+- planned cells with any committed accepted-core provider row: `1`
+- planned cells with a non-infra accepted-core provider row: `1`
+- accepted-core provider rows: `2` total, `1` non-infra
+- accepted-core successes among non-infra provider rows: `0`
+- all committed provider smoke rows: `3` total, `2` non-infra
+
+The committed provider rows are smoke evidence only; the planned primary sweep remains mostly uncovered.
+
+
 ## Committed Run Results
 
 66 local QA rows are committed for reference solutions and plausible wrong submissions. These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -165,9 +179,11 @@ Local QA row status:
 - `expected_failure`: 40
 - `passed`: 26
 
-Real model-sweep rows:
+Accepted-core provider row summary:
 
-- `one-shot`: pass@k mean 0.50 (1/2 rows; Wilson 95% CI 0.09-0.91)
+- `one-shot`: pass@k mean 0.00 (0/1 rows; Wilson 95% CI 0.00-0.79)
+
+All committed non-local rows:
 
 | task | provider | model | scaffold | k | pass@k | failure | transcript |
 | --- | --- | --- | --- | ---: | ---: | --- | --- |
@@ -198,7 +214,7 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 Status counts:
 
-- `supported`: 21
+- `supported`: 22
 - `partial`: 4
 - `not_met`: 2
 
@@ -224,6 +240,7 @@ python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/record_local_qa_results.py
 python scripts/generate_evaluation_protocol.py
+python scripts/analyze_model_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
@@ -238,9 +255,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-05-31T21:25:01.402589+00:00`
+Generated at UTC: `2026-05-31T21:48:55.858680+00:00`
 
-Git branch/head at generation: `main` / `983aa3d8eaba`. Worktree status at generation: `13 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `1301e78eae12`. Worktree status at generation: `10 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -263,12 +280,13 @@ Regeneration commands:
 3. `python scripts/audit_difficulty.py`
 4. `python scripts/record_local_qa_results.py`
 5. `python scripts/generate_evaluation_protocol.py`
-6. `python scripts/generate_report.py`
-7. `python scripts/export_public_tasks.py --out public_tasks`
-8. `python scripts/validate_public_export.py --out public_tasks`
-9. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-10. `python scripts/write_validation_manifest.py --public-export public_tasks`
-11. `python scripts/generate_report.py`
+6. `python scripts/analyze_model_results.py`
+7. `python scripts/generate_report.py`
+8. `python scripts/export_public_tasks.py --out public_tasks`
+9. `python scripts/validate_public_export.py --out public_tasks`
+10. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+11. `python scripts/write_validation_manifest.py --public-export public_tasks`
+12. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -277,7 +295,7 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `5eb99ff54f8d` |  | 5858 |
+| `README.md` | `a8e77523f87d` |  | 6101 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
@@ -286,13 +304,15 @@ Key artifact hashes:
 | `data/failure_label_schema.json` | `ae06ab834c14` |  | 481 |
 | `data/scaffold_variants.csv` | `6ddd3f4fb586` | 3 | 379 |
 | `data/model_sweep_plan.csv` | `c162dd19fb35` | 18 | 4099 |
+| `data/model_result_summary.csv` | `2cfee9603a36` | 10 | 1682 |
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
 | `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
-| `data/requirement_coverage.csv` | `5d0f95f0294e` | 27 | 6315 |
+| `data/requirement_coverage.csv` | `7a4f415311ff` | 28 | 6561 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
-| `reports/requirement_coverage.md` | `23a354b93e64` |  | 7012 |
+| `reports/model_run_analysis.md` | `7ea88a7de75f` |  | 1965 |
+| `reports/requirement_coverage.md` | `cf4d329bab8b` |  | 7274 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -301,15 +321,16 @@ Key artifact hashes:
 | `scripts/validate_all.py` | `1a9f7f73a567` |  | 6446 |
 | `scripts/validate_task.py` | `99451d91d763` |  | 9611 |
 | `scripts/audit_difficulty.py` | `0bebfeb74ec4` |  | 10134 |
-| `scripts/audit_requirement_coverage.py` | `fcce30475722` |  | 27147 |
+| `scripts/audit_requirement_coverage.py` | `6fc9c0dbb0f0` |  | 28047 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
+| `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `4a8ca76d9619` |  | 31379 |
+| `scripts/generate_report.py` | `ae6133ba3df4` |  | 33305 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `b062fa2c283d` |  | 1437 |
-| `scripts/write_validation_manifest.py` | `8d6d3abbee5f` |  | 8312 |
+| `scripts/write_validation_manifest.py` | `b9be2c2f71ab` |  | 8473 |
 
 
 ## Threats To Validity

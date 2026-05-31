@@ -4,7 +4,7 @@ This generated audit maps the local repository state to playbook-level benchmark
 
 ## Status Counts
 
-- `supported`: 21
+- `supported`: 22
 - `partial`: 4
 - `not_met`: 2
 
@@ -27,6 +27,7 @@ This generated audit maps the local repository state to playbook-level benchmark
 | `run_result_semantics` | data | supported | run_results should represent successes_out_of_k and pass@k consistently. | 69 run-result rows checked; semantic errors sample: []. | No gap. |
 | `scaffold_support` | scaffolds | supported | The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants. | 3 scaffold variants configured; runner exposes lookup command: True; runner preserves requested k attempts: True. | No gap. |
 | `evaluation_protocol_plan` | runs | supported | A prospective evaluation protocol should define the primary accepted-task scaffold sweep before broad model runs. | evaluation_protocol.md exists: True; model_sweep_plan rows: 18; planned scaffolds: ["lookup", "lookup_unlimited", "one-shot"]. | No gap. |
+| `model_result_analysis` | runs | supported | Committed provider rows should be analyzed separately from local QA and against the planned primary sweep. | model_run_analysis.md exists: True; model_result_summary rows: 10; primary coverage rows: 1. | No gap. |
 | `scaffold_result_comparison` | scaffolds | partial | The report should compare real model performance across scaffolds, ideally pass@10. | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `transcript_failure_workflow` | runs | supported | Run rows should link transcripts and carry failure labels for review. | run_results rows: 69; local QA rows: 66; model rows: 3. | No gap for workflow; broader model sweeps are still needed. |
 | `frontier_model_evidence` | runs | partial | Frontier/open-model runs should provide evidence beyond local QA. | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |

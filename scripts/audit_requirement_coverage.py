@@ -179,6 +179,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
+    model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     task_dirs = discover_task_dirs()
     accepted = [task for task in metadata if task.get("acceptance_status") == "accepted_v0"]
     calibration = [task for task in metadata if task.get("acceptance_status") == "calibration_only"]
@@ -353,6 +354,17 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(protocol_ok),
         f"evaluation_protocol.md exists: {(ROOT / 'reports' / 'evaluation_protocol.md').exists()}; model_sweep_plan rows: {len(model_sweep_plan)}; planned scaffolds: {compact_json(sorted(planned_scaffolds))}.",
         "No gap." if protocol_ok else "Generate an accepted_v0 x scaffold sweep plan and protocol before broad model runs.",
+    ))
+
+    analysis_ok = (ROOT / "reports" / "model_run_analysis.md").exists() and bool(model_result_summary)
+    primary_rows = [row_data for row_data in model_result_summary if row_data.get("analysis_set") == "primary_plan_coverage" and row_data.get("group_by") == "all"]
+    requirement_rows.append(row(
+        "model_result_analysis",
+        "runs",
+        "Committed provider rows should be analyzed separately from local QA and against the planned primary sweep.",
+        status_from_bool(analysis_ok),
+        f"model_run_analysis.md exists: {(ROOT / 'reports' / 'model_run_analysis.md').exists()}; model_result_summary rows: {len(model_result_summary)}; primary coverage rows: {len(primary_rows)}.",
+        "No gap." if analysis_ok else "Generate model result analysis before interpreting provider rows.",
     ))
 
     scaffold_results_ok = len({row_data.get("scaffold") for row_data in non_infra_model_rows}) >= 3 and any(int(row_data.get("k", "1")) >= 10 for row_data in non_infra_model_rows if row_data.get("k", "1").isdigit())

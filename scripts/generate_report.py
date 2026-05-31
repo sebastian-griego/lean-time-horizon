@@ -254,6 +254,29 @@ The protocol specifies that headline capability claims use accepted-core rows on
 """
 
 
+def model_analysis_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/model_run_analysis.md` has not been generated yet. Run "
+            "`python scripts/analyze_model_results.py`, then regenerate this report."
+        )
+    by_id = {(row.get("analysis_set"), row.get("group_by"), row.get("group")): row for row in rows}
+    primary = by_id.get(("primary_plan_coverage", "all", "all"), {})
+    accepted = by_id.get(("accepted_core_results", "all", "all"), {})
+    smoke = by_id.get(("all_provider_smoke_rows", "all", "all"), {})
+    return f"""`reports/model_run_analysis.md` and `data/model_result_summary.csv` analyze committed provider rows against the planned primary sweep.
+
+- planned accepted-core task/scaffold cells: `{primary.get('planned_cells', 0)}`
+- planned cells with any committed accepted-core provider row: `{primary.get('covered_cells_any', 0)}`
+- planned cells with a non-infra accepted-core provider row: `{primary.get('covered_cells_noninfra', 0)}`
+- accepted-core provider rows: `{accepted.get('rows_total', 0)}` total, `{accepted.get('rows_noninfra', 0)}` non-infra
+- accepted-core successes among non-infra provider rows: `{accepted.get('successes', 0)}`
+- all committed provider smoke rows: `{smoke.get('rows_total', 0)}` total, `{smoke.get('rows_noninfra', 0)}` non-infra
+
+The committed provider rows are smoke evidence only; the planned primary sweep remains mostly uncovered.
+"""
+
+
 def one_line_command_result(value: object) -> str:
     if not isinstance(value, dict):
         return str(value)
@@ -339,8 +362,10 @@ def main() -> int:
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
+    model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
+    metadata_by_id = {row["task_id"]: row for row in metadata}
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
     calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
     rejected = [row for row in metadata if row.get("acceptance_status", "").startswith("rejected_")]
@@ -358,15 +383,16 @@ def main() -> int:
         write_bar_svg(figures / "run_rows_by_model.svg", "Committed QA/model rows by source", dict(Counter(row["model"] for row in run_rows)), "rows")
     write_scatter_svg(figures / "task_minutes_by_bucket.svg", "Release-task human time estimates", release)
 
-    model_summary = summarize_model_results(run_rows)
     model_rows = [row for row in run_rows if row.get("qa_stage") != "local_qa"]
+    accepted_model_rows = [row for row in model_rows if metadata_by_id.get(row.get("task_id", ""), {}).get("acceptance_status") == "accepted_v0"]
+    model_summary = summarize_model_results(accepted_model_rows)
     infra_model_rows = [row for row in model_rows if row.get("infra_fail_count") not in {"", "0", 0}]
     model_failure_counts = Counter(row.get("failure_label", "unknown") for row in model_rows if row.get("failure_label") != "none")
     model_md = "\n".join(
         f"- `{scaffold}`: pass@k mean {stats['mean']:.2f} "
         f"({int(stats['successes'])}/{int(stats['n'])} rows; Wilson 95% CI {stats['ci_low']:.2f}-{stats['ci_high']:.2f})"
         for scaffold, stats in sorted(model_summary.items())
-    ) or "- No real provider model-sweep rows are committed. Local QA rows are validation evidence only."
+    ) or "- No accepted-core non-infra provider rows are committed. Local QA rows are validation evidence only."
     local_rows = [row for row in run_rows if row.get("qa_stage") == "local_qa"]
     local_md = f"{len(local_rows)} local QA rows are committed for reference solutions and plausible wrong submissions." if local_rows else "No local QA rows are committed yet."
     local_status_counts = Counter(row.get("qa_findings_status", "unknown") for row in local_rows)
@@ -482,6 +508,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {evaluation_protocol_section(model_sweep_plan)}
 
+## Model Result Analysis
+
+{model_analysis_section(model_result_summary)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -490,9 +520,11 @@ Local QA row status:
 
 {local_status_md}
 
-Real model-sweep rows:
+Accepted-core provider row summary:
 
 {model_md}
+
+All committed non-local rows:
 
 {model_run_table(model_rows)}
 
@@ -526,6 +558,7 @@ python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/record_local_qa_results.py
 python scripts/generate_evaluation_protocol.py
+python scripts/analyze_model_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
