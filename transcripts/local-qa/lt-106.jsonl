@@ -1,0 +1,2 @@
+{"task_id": "lt-106", "split": "test", "scaffold": "one-shot", "model": "reference_solution", "attempt_index": 1, "score": 1, "primary_failure_label": "none", "feedback_excerpt": "", "timestamp_utc": 1780195410}
+{"task_id": "lt-106", "split": "test", "scaffold": "one-shot", "model": "plausible_wrong:Reversed", "attempt_index": 1, "score": 0, "primary_failure_label": "hidden_pin_failure", "feedback_excerpt": "Task.lean:12:13: error: unsolved goals\ncase cons\nhead\u271d : Nat\ntail\u271d : List Nat\n\u22a2 False\n", "timestamp_utc": 1780195411}

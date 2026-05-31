@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lean Time-Horizon run result",
+  "type": "object",
+  "required": [
+    "task_id",
+    "split",
+    "family",
+    "scaffold",
+    "model",
+    "model_version",
+    "job_id",
+    "attempts_total",
+    "attempts_completed",
+    "successes_out_of_10",
+    "timeout_count",
+    "infra_fail_count",
+    "score_values",
+    "transcript_link",
+    "failure_label",
+    "qa_stage",
+    "qa_findings_status"
+  ],
+  "properties": {
+    "task_id": {"type": "string"},
+    "split": {"enum": ["dev", "test"]},
+    "family": {"type": "string"},
+    "scaffold": {"enum": ["one-shot", "lookup", "lookup_unlimited"]},
+    "model": {"type": "string"},
+    "model_version": {"type": "string"},
+    "job_id": {"type": "string"},
+    "attempts_total": {"type": "integer", "minimum": 0},
+    "attempts_completed": {"type": "integer", "minimum": 0},
+    "successes_out_of_10": {"type": "integer", "minimum": 0, "maximum": 10},
+    "timeout_count": {"type": "integer", "minimum": 0},
+    "infra_fail_count": {"type": "integer", "minimum": 0},
+    "score_values": {"type": "string"},
+    "transcript_link": {"type": "string"},
+    "failure_label": {"type": "string"},
+    "qa_stage": {"type": "string"},
+    "qa_findings_status": {"type": "string"}
+  }
+}

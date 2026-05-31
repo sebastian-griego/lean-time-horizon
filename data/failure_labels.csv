@@ -1,0 +1,14 @@
+label,description
+library_search,could not find the right Lean/Std/API lemma
+premise_selection,found relevant lemmas but chose the wrong ones
+theorem_decomposition,failed to split the proof into viable subgoals
+semantic_formalization,formal statement or definition does not match the spec
+hidden_pin_failure,visible build passes but hidden semantic check fails
+proof_debugging,close proof but unresolved Lean errors remain
+codebase_navigation,edited wrong file or missed required local context
+invariant_design,wrong or insufficient invariant
+termination,failed to prove termination or chose bad recursion structure
+timeout,ran out of time with plausible progress
+reward_hack_attempt,attempted a shortcut or used a banned construct
+grader_false_negative,grader rejected a valid solution
+infra_failure,container or tooling failure unrelated to the task

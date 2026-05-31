@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2160" height="420" viewBox="0 0 2160 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="1080.0" y="28" text-anchor="middle" font-family="Arial" font-size="18" fill="#111">Committed run-result rows by model/source</text>
+<line x1="80" y1="330" x2="2130" y2="330" stroke="#333"/>
+<line x1="80" y1="50" x2="80" y2="330" stroke="#333"/>
+<text x="20" y="210.0" transform="rotate(-90 20 210.0)" text-anchor="middle" font-family="Arial" font-size="12" fill="#333">rows</text>
+<rect x="95.9" y="50.0" width="82.0" height="280.0" fill="#3b82f6"/>
+<text x="136.9" y="44.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">20</text>
+<text x="136.9" y="348" text-anchor="end" transform="rotate(-35 136.9 348)" font-family="Arial" font-size="11" fill="#333">reference_solution</text>
+<rect x="209.8" y="302.0" width="82.0" height="28.0" fill="#3b82f6"/>
+<text x="250.8" y="296.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
+<text x="250.8" y="348" text-anchor="end" transform="rotate(-35 250.8 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:Weakened</text>
+<rect x="323.7" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="364.7" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="364.7" y="348" text-anchor="end" transform="rotate(-35 364.7 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:OldApiProof</text>
+<rect x="437.6" y="288.0" width="82.0" height="42.0" fill="#3b82f6"/>
+<text x="478.6" y="282.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">3</text>
+<text x="478.6" y="348" text-anchor="end" transform="rotate(-35 478.6 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:Vacuous</text>
+<rect x="551.5" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="592.5" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="592.5" y="348" text-anchor="end" transform="rotate(-35 592.5 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:IdentityProjection</text>
+<rect x="665.4" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="706.4" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="706.4" y="348" text-anchor="end" transform="rotate(-35 706.4 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:WeakHelper</text>
+<rect x="779.3" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="820.3" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="820.3" y="348" text-anchor="end" transform="rotate(-35 820.3 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:AllSomeOnly</text>
+<rect x="893.2" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="934.2" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="934.2" y="348" text-anchor="end" transform="rotate(-35 934.2 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:LeafOnly</text>
+<rect x="1007.1" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1048.1" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1048.1" y="348" text-anchor="end" transform="rotate(-35 1048.1 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:EmptyOnly</text>
+<rect x="1120.9" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1161.9" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1161.9" y="348" text-anchor="end" transform="rotate(-35 1161.9 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:SingleIncrementOnly</text>
+<rect x="1234.8" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1275.8" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1275.8" y="348" text-anchor="end" transform="rotate(-35 1275.8 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:Reversed</text>
+<rect x="1348.7" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1389.7" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1389.7" y="348" text-anchor="end" transform="rotate(-35 1389.7 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:SpendAlwaysSubtract</text>
+<rect x="1462.6" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1503.6" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1503.6" y="348" text-anchor="end" transform="rotate(-35 1503.6 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:OnlySmallGrad</text>
+<rect x="1576.5" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1617.5" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1617.5" y="348" text-anchor="end" transform="rotate(-35 1617.5 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:NoUpperClip</text>
+<rect x="1690.4" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1731.4" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1731.4" y="348" text-anchor="end" transform="rotate(-35 1731.4 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:ProjectionAdd</text>
+<rect x="1804.3" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1845.3" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1845.3" y="348" text-anchor="end" transform="rotate(-35 1845.3 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:ReverseAppend</text>
+<rect x="1918.2" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="1959.2" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="1959.2" y="348" text-anchor="end" transform="rotate(-35 1959.2 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:IdentityMap</text>
+<rect x="2032.1" y="316.0" width="82.0" height="14.0" fill="#3b82f6"/>
+<text x="2073.1" y="310.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<text x="2073.1" y="348" text-anchor="end" transform="rotate(-35 2073.1 348)" font-family="Arial" font-size="11" fill="#333">plausible_wrong:NeedsExtraHyp</text>
+</svg>

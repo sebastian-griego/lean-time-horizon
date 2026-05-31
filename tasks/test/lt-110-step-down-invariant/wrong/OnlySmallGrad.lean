@@ -1,0 +1,21 @@
+import Std
+
+namespace LT110
+
+def stepDown (x grad : Nat) : Nat :=
+  x - grad
+
+def repeatTwo (x g1 g2 : Nat) : Nat :=
+  stepDown (stepDown x g1) g2
+
+theorem stepDown_le (x grad : Nat) (h : grad ≤ x) :
+    stepDown x grad ≤ x := by
+  unfold stepDown
+  omega
+
+theorem repeatTwo_le (x g1 g2 : Nat) :
+    repeatTwo x g1 g2 ≤ x := by
+  unfold repeatTwo
+  omega
+
+end LT110

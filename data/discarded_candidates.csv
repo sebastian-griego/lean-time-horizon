@@ -1,0 +1,9 @@
+candidate_id,proposed_family,proposed_domain,rejection_stage,rejection_reason
+cand-001,direct_theorem_proving,synthetic_nat_arithmetic,design_review,too close to one-line omega arithmetic and weak diagnostic value
+cand-002,algorithm_correctness,list_sort_membership,design_review,would need a sorting library or long bespoke development that exceeded the current Lean/Std scope
+cand-003,informal_spec_to_formal,unique_argmin_spec,design_review,semantic pins risked becoming brittle without Mathlib order/algebra support
+cand-004,proof_repair_codebase,large_api_migration,design_review,too large for the 20-task local-validation target without a shared support codebase
+cand-005,invariant_verification_ml_optimization,real_vector_gradient_step,design_review,requires rationals/reals support outside the pinned Std-only environment
+cand-006,small_formal_library_construction,finite_map_lookup_insert,design_review,diagnostic signal overlapped with list membership tasks and hidden pins were weaker than alternatives
+cand-007,algorithm_correctness,binary_search_index,design_review,index arithmetic was promising but needed more QA than available for the first accepted batch
+cand-008,informal_spec_to_formal,subsequence_relation,design_review,human-time estimate likely T3 and hidden negative pins required a larger auxiliary lemma set

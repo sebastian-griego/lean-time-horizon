@@ -1,0 +1,4 @@
+scaffold,lookup,iterative_compile_feedback,submission_limit,description
+one-shot,false,false,1,One submission with no repository or API lookup beyond the prompt and public scaffold.
+lookup,true,false,1,Read-only Lean/Std lookup is available before a single submission.
+lookup_unlimited,true,true,unlimited,Read-only lookup plus iterative compile/debug submissions until timeout.

@@ -1,0 +1,36 @@
+{
+  "task_id": "lt-109",
+  "title": "bounded budget spend invariant",
+  "split": "test",
+  "family": "invariant_verification_ml_optimization",
+  "domain": "resource_budget_update",
+  "source_type": "authored",
+  "human_time_bucket": "T1",
+  "human_minutes_p50": 30,
+  "human_minutes_p90": 60,
+  "human_estimate_confidence": "medium; conditional arithmetic invariant proof",
+  "skills": [
+    "case split on conditionals",
+    "invariant preservation",
+    "natural-number arithmetic"
+  ],
+  "scaffolds": [
+    "one-shot",
+    "lookup",
+    "lookup_unlimited"
+  ],
+  "expected_failure_modes": [
+    "changes overspend semantics",
+    "proves only subtracting branch",
+    "misses repeated-spend invariant"
+  ],
+  "scaffold_sensitivity": "medium; compile feedback helps conditional branch and arithmetic cleanup",
+  "qa_status": "local_only",
+  "axiom_audit_declarations": [
+    "LT109.spend_le_budget",
+    "LT109.spend_exact_zero",
+    "LT109.spend_zero_budget"
+  ],
+  "extra_forbidden": [],
+  "timeout_seconds": 60
+}

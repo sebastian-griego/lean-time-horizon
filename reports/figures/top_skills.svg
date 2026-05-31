@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="600.0" y="28" text-anchor="middle" font-family="Arial" font-size="18" fill="#111">Most common required skills</text>
+<line x1="80" y1="330" x2="1170" y2="330" stroke="#333"/>
+<line x1="80" y1="50" x2="80" y2="330" stroke="#333"/>
+<text x="20" y="210.0" transform="rotate(-90 20 210.0)" text-anchor="middle" font-family="Arial" font-size="12" fill="#333">tasks</text>
+<rect x="95.3" y="50.0" width="78.5" height="280.0" fill="#3b82f6"/>
+<text x="134.5" y="44.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">5</text>
+<text x="134.5" y="348" text-anchor="end" transform="rotate(-35 134.5 348)" font-family="Arial" font-size="11" fill="#333">arithmetic normalization</text>
+<rect x="204.3" y="106.0" width="78.5" height="224.0" fill="#3b82f6"/>
+<text x="243.5" y="100.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">4</text>
+<text x="243.5" y="348" text-anchor="end" transform="rotate(-35 243.5 348)" font-family="Arial" font-size="11" fill="#333">semantic formalization</text>
+<rect x="313.3" y="162.0" width="78.5" height="168.0" fill="#3b82f6"/>
+<text x="352.5" y="156.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">3</text>
+<text x="352.5" y="348" text-anchor="end" transform="rotate(-35 352.5 348)" font-family="Arial" font-size="11" fill="#333">codebase navigation</text>
+<rect x="422.3" y="162.0" width="78.5" height="168.0" fill="#3b82f6"/>
+<text x="461.5" y="156.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">3</text>
+<text x="461.5" y="348" text-anchor="end" transform="rotate(-35 461.5 348)" font-family="Arial" font-size="11" fill="#333">invariant preservation</text>
+<rect x="531.3" y="218.0" width="78.5" height="112.0" fill="#3b82f6"/>
+<text x="570.5" y="212.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
+<text x="570.5" y="348" text-anchor="end" transform="rotate(-35 570.5 348)" font-family="Arial" font-size="11" fill="#333">induction</text>
+<rect x="640.3" y="218.0" width="78.5" height="112.0" fill="#3b82f6"/>
+<text x="679.5" y="212.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
+<text x="679.5" y="348" text-anchor="end" transform="rotate(-35 679.5 348)" font-family="Arial" font-size="11" fill="#333">simp normalization</text>
+<rect x="749.3" y="218.0" width="78.5" height="112.0" fill="#3b82f6"/>
+<text x="788.5" y="212.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
+<text x="788.5" y="348" text-anchor="end" transform="rotate(-35 788.5 348)" font-family="Arial" font-size="11" fill="#333">case analysis</text>
+<rect x="858.3" y="218.0" width="78.5" height="112.0" fill="#3b82f6"/>
+<text x="897.5" y="212.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
+<text x="897.5" y="348" text-anchor="end" transform="rotate(-35 897.5 348)" font-family="Arial" font-size="11" fill="#333">recursive proof repair</text>
+<rect x="967.3" y="218.0" width="78.5" height="112.0" fill="#3b82f6"/>
+<text x="1006.5" y="212.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
+<text x="1006.5" y="348" text-anchor="end" transform="rotate(-35 1006.5 348)" font-family="Arial" font-size="11" fill="#333">existential witnesses</text>
+<rect x="1076.3" y="218.0" width="78.5" height="112.0" fill="#3b82f6"/>
+<text x="1115.5" y="212.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
+<text x="1115.5" y="348" text-anchor="end" transform="rotate(-35 1115.5 348)" font-family="Arial" font-size="11" fill="#333">edge-case rejection</text>
+</svg>

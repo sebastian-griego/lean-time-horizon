@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lean Time-Horizon failure label",
+  "type": "object",
+  "required": ["task_id", "run_id", "primary_label", "rationale"],
+  "properties": {
+    "task_id": {"type": "string"},
+    "run_id": {"type": "string"},
+    "primary_label": {"type": "string"},
+    "secondary_labels": {"type": "array", "items": {"type": "string"}},
+    "rationale": {"type": "string"},
+    "transcript_link": {"type": "string"}
+  }
+}

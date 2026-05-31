@@ -1,0 +1,36 @@
+{
+  "task_id": "lt-115",
+  "title": "direct proof by repeated right cancellation",
+  "split": "test",
+  "family": "direct_theorem_proving",
+  "domain": "nat_arithmetic_cancellation",
+  "source_type": "authored",
+  "human_time_bucket": "T1",
+  "human_minutes_p50": 20,
+  "human_minutes_p90": 45,
+  "human_estimate_confidence": "medium; short theorem once the cancellation lemma is found",
+  "skills": [
+    "library search",
+    "premise selection",
+    "theorem application"
+  ],
+  "scaffolds": [
+    "one-shot",
+    "lookup",
+    "lookup_unlimited"
+  ],
+  "expected_failure_modes": [
+    "cannot find Nat.add_right_cancel",
+    "adds unnecessary zero hypothesis",
+    "uses forbidden omega shortcut"
+  ],
+  "scaffold_sensitivity": "high; lookup should strongly improve discovery of the cancellation lemma",
+  "qa_status": "local_only",
+  "axiom_audit_declarations": [
+    "LT115.add_right_cancel_twice"
+  ],
+  "extra_forbidden": [
+    "omega"
+  ],
+  "timeout_seconds": 60
+}
