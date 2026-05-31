@@ -230,13 +230,34 @@ Accepted-core quality rows:
 | `lt-206` | accepted_core_with_caveat | T2 | 60 | true | semantic | 2 | maybe | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. |
 
 
+## Hidden Pin Coverage Audit
+
+`reports/pin_coverage_audit.md` and `data/pin_coverage_audit.csv` make hidden-check evidence inspectable by separating public-stage wrong failures from wrong submissions that actually reach `PinCheck.lean`.
+
+- pin coverage grades: `{"pins_not_exercised_by_wrongs": 5, "semantic_examples_exercised": 3, "semantic_pins_exercised": 3, "signature_plus_hidden_failure": 15}`
+- accepted-core tasks with at least one hidden-pin wrong failure: `4/6`
+- accepted-core wrong failures at public stage: `6`
+- accepted-core wrong failures at hidden-pin stage: `5`
+
+Accepted-core hidden-pin coverage:
+
+| task | grade | shape checks | positive examples | negative examples | public-stage wrongs | hidden-pin wrongs | note |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `lt-201` | pins_not_exercised_by_wrongs | 4 | 6 | 0 | 2 | 0 | Accepted row needs a caveat: current wrong submissions fail before hidden pins run. |
+| `lt-203` | semantic_pins_exercised | 4 | 3 | 2 | 0 | 2 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
+| `lt-202` | pins_not_exercised_by_wrongs | 5 | 2 | 0 | 2 | 0 | Accepted row needs a caveat: current wrong submissions fail before hidden pins run. |
+| `lt-204` | signature_plus_hidden_failure | 6 | 6 | 0 | 1 | 1 | Accepted row lacks negative hidden examples; review semantic pin strength before freeze. |
+| `lt-205` | semantic_pins_exercised | 8 | 4 | 1 | 1 | 1 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
+| `lt-206` | semantic_pins_exercised | 5 | 4 | 2 | 0 | 1 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
+
+
 ## Requirement Coverage Audit
 
 `reports/requirement_coverage.md` and `data/requirement_coverage.csv` map the repository to the committed checklist in `data/benchmark_requirements.csv`. This is a stricter evidence index than the narrative claim ledger.
 
 Status counts:
 
-- `supported`: 23
+- `supported`: 24
 - `partial`: 4
 - `not_met`: 2
 
@@ -244,7 +265,7 @@ Freeze relevance counts:
 
 - `required_for_locked_benchmark`: supported 2, partial 4, not_met 2
 - `required_for_release_artifact`: supported 14
-- `required_for_research_report`: supported 7
+- `required_for_research_report`: supported 8
 
 Partial or unmet requirements:
 
@@ -268,6 +289,7 @@ python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
 python scripts/record_local_qa_results.py
+python scripts/audit_pin_coverage.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py
@@ -284,9 +306,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-05-31T22:37:09.247317+00:00`
+Generated at UTC: `2026-05-31T23:01:44.665568+00:00`
 
-Git branch/head at generation: `main` / `d919605eca92`. Worktree status at generation: `11 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `59dc6f83aabb`. Worktree status at generation: `11 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -309,14 +331,15 @@ Regeneration commands:
 3. `python scripts/audit_difficulty.py`
 4. `python scripts/generate_task_quality_matrix.py`
 5. `python scripts/record_local_qa_results.py`
-6. `python scripts/generate_evaluation_protocol.py`
-7. `python scripts/analyze_model_results.py`
-8. `python scripts/generate_report.py`
-9. `python scripts/export_public_tasks.py --out public_tasks`
-10. `python scripts/validate_public_export.py --out public_tasks`
-11. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-12. `python scripts/write_validation_manifest.py --public-export public_tasks`
-13. `python scripts/generate_report.py`
+6. `python scripts/audit_pin_coverage.py`
+7. `python scripts/generate_evaluation_protocol.py`
+8. `python scripts/analyze_model_results.py`
+9. `python scripts/generate_report.py`
+10. `python scripts/export_public_tasks.py --out public_tasks`
+11. `python scripts/validate_public_export.py --out public_tasks`
+12. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+13. `python scripts/write_validation_manifest.py --public-export public_tasks`
+14. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -325,9 +348,9 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `b6c8377832dc` |  | 6466 |
+| `README.md` | `7ade4107f158` |  | 6699 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
-| `data/benchmark_requirements.csv` | `6edcfd6733e7` | 29 | 5635 |
+| `data/benchmark_requirements.csv` | `7772fc352a57` | 30 | 5873 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
@@ -339,13 +362,15 @@ Key artifact hashes:
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
 | `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
 | `data/task_quality_matrix.csv` | `5c6891423804` | 26 | 16869 |
-| `data/requirement_coverage.csv` | `7f162f75d798` | 29 | 8983 |
+| `data/pin_coverage_audit.csv` | `c9d78f916dae` | 26 | 6514 |
+| `data/requirement_coverage.csv` | `9c3c6c8ebc83` | 30 | 9339 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
+| `reports/pin_coverage_audit.md` | `26b6cb10ed91` |  | 2544 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
 | `reports/model_run_analysis.md` | `7ea88a7de75f` |  | 1965 |
-| `reports/requirement_coverage.md` | `fc9918a7dde7` |  | 8778 |
+| `reports/requirement_coverage.md` | `5f52d3dd82e8` |  | 9087 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -355,16 +380,17 @@ Key artifact hashes:
 | `scripts/validate_task.py` | `99451d91d763` |  | 9611 |
 | `scripts/audit_difficulty.py` | `0bebfeb74ec4` |  | 10134 |
 | `scripts/generate_task_quality_matrix.py` | `129d2715090b` |  | 13165 |
-| `scripts/audit_requirement_coverage.py` | `2a328d400ab5` |  | 31110 |
+| `scripts/audit_pin_coverage.py` | `91d9de6011db` |  | 11828 |
+| `scripts/audit_requirement_coverage.py` | `ba3317ba99ec` |  | 32786 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `358f3231aa6d` |  | 36495 |
+| `scripts/generate_report.py` | `54b7e1725915` |  | 38818 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `b062fa2c283d` |  | 1437 |
-| `scripts/write_validation_manifest.py` | `de34bba2ff48` |  | 8687 |
+| `scripts/write_validation_manifest.py` | `d06bd573951a` |  | 8840 |
 
 
 ## Threats To Validity

@@ -326,6 +326,43 @@ Accepted-core quality rows:
 """
 
 
+def pin_coverage_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/pin_coverage_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_pin_coverage.py` after local QA transcripts are regenerated, "
+            "then regenerate this report."
+        )
+    grade_counts = Counter(row.get("pin_coverage_grade", "unknown") for row in rows)
+    accepted = [row for row in rows if row.get("acceptance_status") == "accepted_v0"]
+    accepted_with_hidden = sum(1 for row in accepted if int(row.get("wrongs_failing_hidden_pin_stage", "0") or 0) > 0)
+    accepted_hidden = sum(int(row.get("wrongs_failing_hidden_pin_stage", "0") or 0) for row in accepted)
+    accepted_public = sum(int(row.get("wrongs_failing_public_stage", "0") or 0) for row in accepted)
+    table_lines = [
+        "| task | grade | shape checks | positive examples | negative examples | public-stage wrongs | hidden-pin wrongs | note |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for row in accepted:
+        note = row.get("review_note", "").replace("|", "/")
+        table_lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('pin_coverage_grade', '')} | "
+            f"{row.get('theorem_shape_checks', '')} | {row.get('positive_examples', '')} | "
+            f"{row.get('negative_examples', '')} | {row.get('wrongs_failing_public_stage', '')} | "
+            f"{row.get('wrongs_failing_hidden_pin_stage', '')} | {note} |"
+        )
+    return f"""`reports/pin_coverage_audit.md` and `data/pin_coverage_audit.csv` make hidden-check evidence inspectable by separating public-stage wrong failures from wrong submissions that actually reach `PinCheck.lean`.
+
+- pin coverage grades: `{compact_json(dict(sorted(grade_counts.items())))}`
+- accepted-core tasks with at least one hidden-pin wrong failure: `{accepted_with_hidden}/{len(accepted)}`
+- accepted-core wrong failures at public stage: `{accepted_public}`
+- accepted-core wrong failures at hidden-pin stage: `{accepted_hidden}`
+
+Accepted-core hidden-pin coverage:
+
+{chr(10).join(table_lines)}
+"""
+
+
 def one_line_command_result(value: object) -> str:
     if not isinstance(value, dict):
         return str(value)
@@ -410,6 +447,7 @@ def main() -> int:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -598,6 +636,10 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 {task_quality_section(task_quality_rows)}
 
+## Hidden Pin Coverage Audit
+
+{pin_coverage_section(pin_coverage_rows)}
+
 ## Requirement Coverage Audit
 
 {requirement_coverage_section(requirement_rows)}
@@ -612,6 +654,7 @@ python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
 python scripts/record_local_qa_results.py
+python scripts/audit_pin_coverage.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py

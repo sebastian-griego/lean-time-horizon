@@ -208,6 +208,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -489,6 +490,37 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(quality_ok),
         f"task_quality_matrix rows: {len(task_quality)}; metadata rows: {len(metadata)}; report exists: {(ROOT / 'reports' / 'task_quality_matrix.md').exists()}.",
         "No gap." if quality_ok else "Regenerate scripts/generate_task_quality_matrix.py after difficulty audit.",
+    ))
+
+    accepted_pin_rows = [row_data for row_data in pin_coverage if row_data.get("acceptance_status") == "accepted_v0"]
+    pin_fields = set(pin_coverage[0].keys()) if pin_coverage else set()
+    required_pin_fields = {
+        "pin_coverage_grade",
+        "wrongs_failing_public_stage",
+        "wrongs_failing_hidden_pin_stage",
+        "theorem_shape_checks",
+        "negative_examples",
+    }
+    accepted_with_hidden = sum(
+        int(row_data.get("wrongs_failing_hidden_pin_stage", "0"))
+        for row_data in accepted_pin_rows
+        if row_data.get("wrongs_failing_hidden_pin_stage", "0").isdigit()
+    )
+    pin_audit_ok = (
+        bool(pin_coverage)
+        and len(pin_coverage) == len(metadata)
+        and len(accepted_pin_rows) == len(accepted)
+        and accepted_with_hidden > 0
+        and required_pin_fields.issubset(pin_fields)
+        and (ROOT / "reports" / "pin_coverage_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "pin_coverage_audit",
+        "reporting",
+        "Hidden-pin audit should distinguish public-stage wrong failures from wrong submissions that reach semantic pins.",
+        status_from_bool(pin_audit_ok, partial=bool(pin_coverage)),
+        f"pin_coverage rows: {len(pin_coverage)}; accepted rows: {len(accepted_pin_rows)}; accepted hidden-pin wrong failures: {accepted_with_hidden}; report exists: {(ROOT / 'reports' / 'pin_coverage_audit.md').exists()}.",
+        "No gap." if pin_audit_ok else "Regenerate scripts/audit_pin_coverage.py after local QA transcripts and inspect accepted rows without hidden-pin wrong failures.",
     ))
 
     human_independent_ok = "independent" in " ".join(task.get("human_estimate_confidence", "").lower() for task in metadata)

@@ -23,6 +23,7 @@ report_from_committed_data,reporting,The METR-style report and plots should rege
 difficulty_audit_report,reporting,"Difficulty audit should include proof length, tactic profile, automation dominance, hidden-pin strength, and model-solvability estimates.",required_for_research_report,User hard-review requirement.
 manual_accepted_task_review,reporting,Accepted tasks should have hard reviewer-style notes and benchmark-grade caveats.,required_for_research_report,User accepted-task review requirement.
 task_quality_matrix,reporting,"Reviewer-facing task quality matrix should join metadata, difficulty signals, caveats, and next-review actions.",required_for_research_report,Research-report quality requirement for task-level auditability.
+pin_coverage_audit,reporting,"Hidden-pin audit should distinguish public-stage wrong failures from wrong submissions that reach semantic pins.",required_for_research_report,Research-report quality requirement for semantic-check evidence.
 independent_human_time_review,calibration,"Human-time estimates should be separately reviewed or measured, not inferred from model pass rates.",required_for_locked_benchmark,Playbook human time estimates process.
 hosted_qa_env_linter,qa,Hosted Taiga/Env Linter QA should be run before delivery/freeze.,required_for_locked_benchmark,Playbook hosted QA loop.
 reproducibility_manifest,reproducibility,"A clean regeneration trail should record toolchain, commands, counts, and artifact hashes.",required_for_research_report,Report-quality reproducibility requirement.
