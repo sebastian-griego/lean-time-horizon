@@ -178,6 +178,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
+    model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     task_dirs = discover_task_dirs()
     accepted = [task for task in metadata if task.get("acceptance_status") == "accepted_v0"]
     calibration = [task for task in metadata if task.get("acceptance_status") == "calibration_only"]
@@ -332,14 +333,26 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if semantics_ok else "Fix successes_out_of_k, k, or pass_at_k rows.",
     ))
 
-    scaffold_support_ok = len(scaffold_rows) >= 3 and "LEAN_LOOKUP_COMMAND" in run_model_sweep and "lookup_unlimited" in read_text(ROOT / "data" / "scaffold_variants.csv")
+    scaffold_support_ok = len(scaffold_rows) >= 3 and "LEAN_LOOKUP_COMMAND" in run_model_sweep and "lookup_unlimited" in read_text(ROOT / "data" / "scaffold_variants.csv") and "attempts_allowed = args.attempts" in run_model_sweep
     requirement_rows.append(row(
         "scaffold_support",
         "scaffolds",
         "The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants.",
         status_from_bool(scaffold_support_ok),
-        f"{len(scaffold_rows)} scaffold variants configured; runner exposes lookup command: {'LEAN_LOOKUP_COMMAND' in run_model_sweep}.",
+        f"{len(scaffold_rows)} scaffold variants configured; runner exposes lookup command: {'LEAN_LOOKUP_COMMAND' in run_model_sweep}; runner preserves requested k attempts: {'attempts_allowed = args.attempts' in run_model_sweep}.",
         "No gap." if scaffold_support_ok else "Complete scaffold CSV and runner adapter support.",
+    ))
+
+    planned_scaffolds = {row_data.get("scaffold") for row_data in model_sweep_plan}
+    planned_tasks = {row_data.get("task_id") for row_data in model_sweep_plan}
+    protocol_ok = (ROOT / "reports" / "evaluation_protocol.md").exists() and len(model_sweep_plan) >= len(accepted) * max(1, len(scaffold_rows)) and planned_scaffolds.issuperset({row_data.get("scaffold") for row_data in scaffold_rows}) and planned_tasks.issuperset({task.get("task_id") for task in accepted})
+    requirement_rows.append(row(
+        "evaluation_protocol_plan",
+        "runs",
+        "A prospective evaluation protocol should define the primary accepted-task scaffold sweep before broad model runs.",
+        status_from_bool(protocol_ok),
+        f"evaluation_protocol.md exists: {(ROOT / 'reports' / 'evaluation_protocol.md').exists()}; model_sweep_plan rows: {len(model_sweep_plan)}; planned scaffolds: {compact_json(sorted(planned_scaffolds))}.",
+        "No gap." if protocol_ok else "Generate an accepted_v0 x scaffold sweep plan and protocol before broad model runs.",
     ))
 
     scaffold_results_ok = len({row_data.get("scaffold") for row_data in non_infra_model_rows}) >= 3 and any(int(row_data.get("k", "1")) >= 10 for row_data in non_infra_model_rows if row_data.get("k", "1").isdigit())
@@ -348,7 +361,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "scaffolds",
         "The report should compare real model performance across scaffolds, ideally pass@10.",
         status_from_bool(scaffold_results_ok, partial=bool(non_infra_model_rows)),
-        f"Non-infra model rows: {len(non_infra_model_rows)}; scaffolds observed: {compact_json(sorted({row_data.get('scaffold') for row_data in non_infra_model_rows}))}.",
+        f"Non-infra model rows: {len(non_infra_model_rows)}; scaffolds observed: {compact_json(sorted({row_data.get('scaffold') for row_data in non_infra_model_rows}))}; planned rows: {len(model_sweep_plan)}.",
         "Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims.",
     ))
 

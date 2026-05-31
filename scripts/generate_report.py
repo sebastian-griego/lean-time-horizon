@@ -103,6 +103,16 @@ def write_scatter_svg(path: Path, title: str, rows: list[dict[str, str]]) -> Non
     path.write_text("\n".join(parts), encoding="utf-8")
 
 
+def wilson_interval(successes: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    if n <= 0:
+        return 0.0, 0.0
+    p = successes / n
+    denom = 1 + z * z / n
+    center = (p + z * z / (2 * n)) / denom
+    margin = z * math.sqrt((p * (1 - p) + z * z / (4 * n)) / n) / denom
+    return max(0.0, center - margin), min(1.0, center + margin)
+
+
 def summarize_model_results(rows: list[dict[str, str]]) -> dict[str, dict[str, float]]:
     grouped: dict[str, list[float]] = defaultdict(list)
     for row in rows:
@@ -117,14 +127,18 @@ def summarize_model_results(rows: list[dict[str, str]]) -> dict[str, dict[str, f
             grouped[row["scaffold"]].append(float(row["pass_at_k"]))
         except (KeyError, ValueError):
             continue
-    return {
-        scaffold: {
+    summary: dict[str, dict[str, float]] = {}
+    for scaffold, values in grouped.items():
+        successes = sum(1 for value in values if value > 0)
+        low, high = wilson_interval(successes, len(values))
+        summary[scaffold] = {
             "mean": sum(values) / len(values) if values else 0.0,
-            "n": len(values),
-            "ci95": 1.96 * math.sqrt((sum((v - (sum(values) / len(values))) ** 2 for v in values) / len(values)) / len(values)) if len(values) > 1 else 0.0,
+            "successes": float(successes),
+            "n": float(len(values)),
+            "ci_low": low,
+            "ci_high": high,
         }
-        for scaffold, values in grouped.items()
-    }
+    return summary
 
 
 def bullets(counter: Counter[str]) -> str:
@@ -220,6 +234,26 @@ Partial or unmet requirements:
 """
 
 
+def evaluation_protocol_section(plan_rows: list[dict[str, str]]) -> str:
+    if not plan_rows:
+        return (
+            "`reports/evaluation_protocol.md` has not been generated yet. Run "
+            "`python scripts/generate_evaluation_protocol.py`, then regenerate this report."
+        )
+    scaffold_counts = Counter(row.get("scaffold", "unknown") for row in plan_rows)
+    task_count = len({row.get("task_id") for row in plan_rows})
+    k_values = sorted({row.get("planned_k", "") for row in plan_rows})
+    return f"""`reports/evaluation_protocol.md` defines the planned primary analysis before broad model sweeps are run. The primary plan is accepted-core tasks crossed with the scaffold ladder at fixed `k`.
+
+- planned task count: `{task_count}`
+- planned rows in `data/model_sweep_plan.csv`: `{len(plan_rows)}`
+- planned k values: `{', '.join(k_values)}`
+- scaffold row counts: `{compact_json(dict(sorted(scaffold_counts.items())))}`
+
+The protocol specifies that headline capability claims use accepted-core rows only, local QA is validation evidence only, infra failures are retained but excluded from capability means, and binary task-row means should report numerators, denominators, and Wilson intervals.
+"""
+
+
 def one_line_command_result(value: object) -> str:
     if not isinstance(value, dict):
         return str(value)
@@ -304,6 +338,7 @@ def main() -> int:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
+    model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
@@ -328,7 +363,8 @@ def main() -> int:
     infra_model_rows = [row for row in model_rows if row.get("infra_fail_count") not in {"", "0", 0}]
     model_failure_counts = Counter(row.get("failure_label", "unknown") for row in model_rows if row.get("failure_label") != "none")
     model_md = "\n".join(
-        f"- `{scaffold}`: pass@k mean {stats['mean']:.2f} over {int(stats['n'])} task rows, CI proxy {stats['ci95']:.2f}"
+        f"- `{scaffold}`: pass@k mean {stats['mean']:.2f} "
+        f"({int(stats['successes'])}/{int(stats['n'])} rows; Wilson 95% CI {stats['ci_low']:.2f}-{stats['ci_high']:.2f})"
         for scaffold, stats in sorted(model_summary.items())
     ) or "- No real provider model-sweep rows are committed. Local QA rows are validation evidence only."
     local_rows = [row for row in run_rows if row.get("qa_stage") == "local_qa"]
@@ -442,6 +478,10 @@ The axiom policy allows only the standard Lean axioms documented in `docs/axiom_
 
 The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches local Lean task files and installed Std/Mathlib files when available. External model runners receive `PROMPT_PATH`, `MODEL`, `TASK_ID`, `ATTEMPT_INDEX`, `SCAFFOLD`, `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES`.
 
+## Evaluation Protocol
+
+{evaluation_protocol_section(model_sweep_plan)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -485,6 +525,7 @@ lake build
 python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/record_local_qa_results.py
+python scripts/generate_evaluation_protocol.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks

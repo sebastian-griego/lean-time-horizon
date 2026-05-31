@@ -21,6 +21,7 @@ lake build
 python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/record_local_qa_results.py
+python scripts/generate_evaluation_protocol.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
@@ -130,12 +131,14 @@ Regenerated outputs:
 - `data/validation_commands.csv`
 - `data/run_results.csv`
 - `data/difficulty_audit.csv`
+- `data/model_sweep_plan.csv`
 - `data/requirement_coverage.csv`
 - `reports/difficulty_audit.md`
 - `reports/accepted_task_review.md`
+- `reports/evaluation_protocol.md`
 - `reports/requirement_coverage.md`
 - `reports/validation_manifest.json`
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/requirement_coverage.md` is a generated requirement-by-requirement evidence audit. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/evaluation_protocol.md` defines the planned primary model-sweep analysis before broad runs. `reports/requirement_coverage.md` is a generated requirement-by-requirement evidence audit. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.

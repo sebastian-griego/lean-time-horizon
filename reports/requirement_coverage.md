@@ -4,7 +4,7 @@ This generated audit maps the local repository state to playbook-level benchmark
 
 ## Status Counts
 
-- `supported`: 20
+- `supported`: 21
 - `partial`: 4
 - `not_met`: 2
 
@@ -25,8 +25,9 @@ This generated audit maps the local repository state to playbook-level benchmark
 | `metadata_completeness` | data | supported | Task metadata should include family, domain, human-time, skills, scaffold sensitivity, and failure modes. | 26 task metadata rows checked; missing fields sample: []. | No gap. |
 | `schemas_present` | data | supported | Task metadata, run results, and failure labels should have schemas. | Schema files present: run=True, failure=True, metadata=True. | No gap. |
 | `run_result_semantics` | data | supported | run_results should represent successes_out_of_k and pass@k consistently. | 69 run-result rows checked; semantic errors sample: []. | No gap. |
-| `scaffold_support` | scaffolds | supported | The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants. | 3 scaffold variants configured; runner exposes lookup command: True. | No gap. |
-| `scaffold_result_comparison` | scaffolds | partial | The report should compare real model performance across scaffolds, ideally pass@10. | Non-infra model rows: 2; scaffolds observed: ["one-shot"]. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
+| `scaffold_support` | scaffolds | supported | The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants. | 3 scaffold variants configured; runner exposes lookup command: True; runner preserves requested k attempts: True. | No gap. |
+| `evaluation_protocol_plan` | runs | supported | A prospective evaluation protocol should define the primary accepted-task scaffold sweep before broad model runs. | evaluation_protocol.md exists: True; model_sweep_plan rows: 18; planned scaffolds: ["lookup", "lookup_unlimited", "one-shot"]. | No gap. |
+| `scaffold_result_comparison` | scaffolds | partial | The report should compare real model performance across scaffolds, ideally pass@10. | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `transcript_failure_workflow` | runs | supported | Run rows should link transcripts and carry failure labels for review. | run_results rows: 69; local QA rows: 66; model rows: 3. | No gap for workflow; broader model sweeps are still needed. |
 | `frontier_model_evidence` | runs | partial | Frontier/open-model runs should provide evidence beyond local QA. | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `public_export_no_hidden_leak` | integrity | supported | Public export should include public assets and exclude hidden references and wrong submissions. | Public export exists: True; exported tasks: 14; hidden/wrong paths: 0. | No gap. |

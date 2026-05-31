@@ -172,11 +172,12 @@ def main() -> int:
         labels: list[str] = []
         feedback = ""
         transcript_path = transcript_root / f"{metadata['task_id']}.jsonl"
-        attempts_allowed = args.attempts if args.scaffold == "lookup_unlimited" else min(args.attempts, 1)
+        attempts_allowed = args.attempts
         with tempfile.TemporaryDirectory(prefix=f"{metadata['task_id']}-", dir=ROOT / "tmp") as td:
             job_dir = Path(td)
             for attempt in range(1, attempts_allowed + 1):
-                prompt = build_prompt(task, args.scaffold, feedback)
+                prompt = build_prompt(task, args.scaffold, feedback if args.scaffold == "lookup_unlimited" else "")
+                detail_for_transcript = ""
                 try:
                     solution = call_provider(args.provider, args.model, prompt, task, job_dir, attempt, args.scaffold)
                     submission = job_dir / f"attempt-{attempt}.lean"
@@ -188,13 +189,17 @@ def main() -> int:
                         label = "none"
                         feedback = ""
                     else:
-                        feedback = str(result["detail"])
-                        label = classify_failure(feedback)
+                        detail = str(result["detail"])
+                        detail_for_transcript = detail
+                        feedback = detail if args.scaffold == "lookup_unlimited" else ""
+                        label = classify_failure(detail)
                     labels.append(label)
                 except Exception as exc:
                     completed += 1
                     label = "infra_failure"
-                    feedback = str(exc)
+                    detail = str(exc)
+                    detail_for_transcript = detail
+                    feedback = detail if args.scaffold == "lookup_unlimited" else ""
                     labels.append(label)
                 with transcript_path.open("a", encoding="utf-8") as f:
                     f.write(json.dumps({
@@ -205,12 +210,9 @@ def main() -> int:
                         "attempt_index": attempt,
                         "score": 1 if labels[-1] == "none" else 0,
                         "primary_failure_label": labels[-1],
-                        "feedback_excerpt": feedback[-1000:],
+                        "feedback_excerpt": detail_for_transcript[-1000:],
                         "timestamp_utc": int(time.time()),
                     }) + "\n")
-                if labels[-1] == "none":
-                    break
-
         rows.append(
             {
                 "task_id": metadata["task_id"],

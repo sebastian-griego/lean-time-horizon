@@ -144,6 +144,18 @@ The axiom policy allows only the standard Lean axioms documented in `docs/axiom_
 
 The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches local Lean task files and installed Std/Mathlib files when available. External model runners receive `PROMPT_PATH`, `MODEL`, `TASK_ID`, `ATTEMPT_INDEX`, `SCAFFOLD`, `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES`.
 
+## Evaluation Protocol
+
+`reports/evaluation_protocol.md` defines the planned primary analysis before broad model sweeps are run. The primary plan is accepted-core tasks crossed with the scaffold ladder at fixed `k`.
+
+- planned task count: `6`
+- planned rows in `data/model_sweep_plan.csv`: `18`
+- planned k values: `10`
+- scaffold row counts: `{"lookup": 6, "lookup_unlimited": 6, "one-shot": 6}`
+
+The protocol specifies that headline capability claims use accepted-core rows only, local QA is validation evidence only, infra failures are retained but excluded from capability means, and binary task-row means should report numerators, denominators, and Wilson intervals.
+
+
 ## Committed Run Results
 
 66 local QA rows are committed for reference solutions and plausible wrong submissions. These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -155,7 +167,7 @@ Local QA row status:
 
 Real model-sweep rows:
 
-- `one-shot`: pass@k mean 0.50 over 2 task rows, CI proxy 0.69
+- `one-shot`: pass@k mean 0.50 (1/2 rows; Wilson 95% CI 0.09-0.91)
 
 | task | provider | model | scaffold | k | pass@k | failure | transcript |
 | --- | --- | --- | --- | ---: | ---: | --- | --- |
@@ -186,7 +198,7 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 Status counts:
 
-- `supported`: 20
+- `supported`: 21
 - `partial`: 4
 - `not_met`: 2
 
@@ -196,7 +208,7 @@ Partial or unmet requirements:
 | --- | --- | --- | --- | --- |
 | `portfolio_accepted_count` | portfolio | not_met | 6 accepted_v0 tasks; 8 calibration-only tasks; 12 rejected archive tasks. | Add and hard-review more high-quality T2/T3/T4 tasks before claiming a full benchmark. |
 | `time_horizon_spread` | portfolio | partial | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
-| `scaffold_result_comparison` | scaffolds | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
+| `scaffold_result_comparison` | scaffolds | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `frontier_model_evidence` | runs | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | calibration | partial | Accepted tasks with manual_review_complete: 6/6; no independent timed solves detected in metadata. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `hosted_qa_env_linter` | qa | not_met | Hosted QA artifacts present: 0/2. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
@@ -211,6 +223,7 @@ lake build
 python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/record_local_qa_results.py
+python scripts/generate_evaluation_protocol.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
@@ -225,9 +238,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-05-31T20:56:45.441700+00:00`
+Generated at UTC: `2026-05-31T21:25:01.402589+00:00`
 
-Git branch/head at generation: `main` / `835d1faa7d0d`. Worktree status at generation: `7 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `983aa3d8eaba`. Worktree status at generation: `13 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -249,12 +262,13 @@ Regeneration commands:
 2. `python scripts/validate_all.py`
 3. `python scripts/audit_difficulty.py`
 4. `python scripts/record_local_qa_results.py`
-5. `python scripts/generate_report.py`
-6. `python scripts/export_public_tasks.py --out public_tasks`
-7. `python scripts/validate_public_export.py --out public_tasks`
-8. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-9. `python scripts/write_validation_manifest.py --public-export public_tasks`
-10. `python scripts/generate_report.py`
+5. `python scripts/generate_evaluation_protocol.py`
+6. `python scripts/generate_report.py`
+7. `python scripts/export_public_tasks.py --out public_tasks`
+8. `python scripts/validate_public_export.py --out public_tasks`
+9. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+10. `python scripts/write_validation_manifest.py --public-export public_tasks`
+11. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -263,20 +277,22 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `de723c0de13b` |  | 5645 |
+| `README.md` | `5eb99ff54f8d` |  | 5858 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
-| `data/run_results_schema.json` | `0edbd2b61e00` |  | 1436 |
+| `data/run_results_schema.json` | `5b41a198997f` |  | 1799 |
 | `data/failure_label_schema.json` | `ae06ab834c14` |  | 481 |
 | `data/scaffold_variants.csv` | `6ddd3f4fb586` | 3 | 379 |
+| `data/model_sweep_plan.csv` | `c162dd19fb35` | 18 | 4099 |
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
 | `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
-| `data/requirement_coverage.csv` | `aa6b233906a6` | 26 | 5954 |
+| `data/requirement_coverage.csv` | `5d0f95f0294e` | 27 | 6315 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
-| `reports/requirement_coverage.md` | `a5eaff99e5dd` |  | 6643 |
+| `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
+| `reports/requirement_coverage.md` | `23a354b93e64` |  | 7012 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -285,12 +301,15 @@ Key artifact hashes:
 | `scripts/validate_all.py` | `1a9f7f73a567` |  | 6446 |
 | `scripts/validate_task.py` | `99451d91d763` |  | 9611 |
 | `scripts/audit_difficulty.py` | `0bebfeb74ec4` |  | 10134 |
-| `scripts/audit_requirement_coverage.py` | `8ebb11749953` |  | 25817 |
+| `scripts/audit_requirement_coverage.py` | `fcce30475722` |  | 27147 |
+| `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `a187b16925e7` |  | 29424 |
+| `scripts/generate_report.py` | `4a8ca76d9619` |  | 31379 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
-| `scripts/write_validation_manifest.py` | `e8938e891576` |  | 8076 |
+| `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
+| `scripts/lean_lookup.py` | `b062fa2c283d` |  | 1437 |
+| `scripts/write_validation_manifest.py` | `8d6d3abbee5f` |  | 8312 |
 
 
 ## Threats To Validity
