@@ -287,6 +287,45 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 """
 
 
+def task_quality_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/task_quality_matrix.md` has not been generated yet. Run "
+            "`python scripts/generate_task_quality_matrix.py`, then regenerate this report."
+        )
+    grade_counts = Counter(row.get("benchmark_grade_status", "unknown") for row in rows)
+    role_counts = Counter(row.get("release_role", "unknown") for row in rows)
+    accepted = [row for row in rows if row.get("release_role") == "accepted_core"]
+    accepted_caveats = [row for row in accepted if row.get("benchmark_grade_status") == "accepted_core_with_caveat"]
+    automation = [row for row in accepted if row.get("automation_dominated") == "true"]
+    likely = [row for row in accepted if row.get("frontier_one_shot_likelihood") in {"likely", "very_likely"}]
+    table_lines = [
+        "| task | grade | bucket | proof lines | automation | pins | wrongs | one-shot | next action |",
+        "| --- | --- | --- | ---: | --- | --- | ---: | --- | --- |",
+    ]
+    for row in accepted:
+        action = row.get("next_review_action", "").replace("|", "/")
+        table_lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('benchmark_grade_status', '')} | "
+            f"{row.get('human_time_bucket', '')} | {row.get('proof_lines', '')} | "
+            f"{row.get('automation_dominated', '')} | {row.get('hidden_pin_strength', '')} | "
+            f"{row.get('wrong_submission_count', '')} | {row.get('frontier_one_shot_likelihood', '')} | "
+            f"{action} |"
+        )
+    return f"""`reports/task_quality_matrix.md` and `data/task_quality_matrix.csv` provide a generated one-row-per-task quality ledger joining metadata with difficulty-audit signals. This is meant for reviewer navigation; acceptance still comes from task metadata, validation, and `reports/accepted_task_review.md`.
+
+- release roles: `{compact_json(dict(sorted(role_counts.items())))}`
+- benchmark-grade statuses: `{compact_json(dict(sorted(grade_counts.items())))}`
+- accepted-core caveat rows: `{len(accepted_caveats)}/{len(accepted)}`
+- accepted-core automation-dominated rows: `{len(automation)}/{len(accepted)}`
+- accepted-core likely/very-likely one-shot rows: `{len(likely)}/{len(accepted)}`
+
+Accepted-core quality rows:
+
+{chr(10).join(table_lines)}
+"""
+
+
 def one_line_command_result(value: object) -> str:
     if not isinstance(value, dict):
         return str(value)
@@ -370,6 +409,7 @@ def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
+    task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -554,6 +594,10 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 `reports/accepted_task_review.md` records the per-task reviewer judgment for every row that was marked `accepted_v0` at the start of the hardening pass. It explicitly distinguishes keep, downgrade, and keep-with-caveat recommendations; checks whether buckets are deserved; audits hidden pins and wrong submissions; and lists what must change before each task can be treated as benchmark-grade.
 
+## Task Quality Matrix
+
+{task_quality_section(task_quality_rows)}
+
 ## Requirement Coverage Audit
 
 {requirement_coverage_section(requirement_rows)}
@@ -566,6 +610,7 @@ The intended local regeneration gate is:
 lake build
 python scripts/validate_all.py
 python scripts/audit_difficulty.py
+python scripts/generate_task_quality_matrix.py
 python scripts/record_local_qa_results.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py

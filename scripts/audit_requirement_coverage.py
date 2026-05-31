@@ -207,6 +207,7 @@ def public_export_counts(public_export: Path | None) -> dict[str, object]:
 def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
+    task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -464,6 +465,30 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(review_ok),
         f"accepted_task_review.md exists: {review_ok}.",
         "No gap." if review_ok else "Create or restore accepted-task reviewer notes.",
+    ))
+
+    quality_fields = set(task_quality[0].keys()) if task_quality else set()
+    required_quality_fields = {
+        "benchmark_grade_status",
+        "next_review_action",
+        "automation_dominated",
+        "hidden_pin_strength",
+        "frontier_one_shot_likelihood",
+        "diagnostic_value",
+    }
+    quality_ok = (
+        bool(task_quality)
+        and len(task_quality) == len(metadata)
+        and required_quality_fields.issubset(quality_fields)
+        and (ROOT / "reports" / "task_quality_matrix.md").exists()
+    )
+    requirement_rows.append(row(
+        "task_quality_matrix",
+        "reporting",
+        "Reviewer-facing task quality matrix should join metadata, difficulty signals, caveats, and next-review actions.",
+        status_from_bool(quality_ok),
+        f"task_quality_matrix rows: {len(task_quality)}; metadata rows: {len(metadata)}; report exists: {(ROOT / 'reports' / 'task_quality_matrix.md').exists()}.",
+        "No gap." if quality_ok else "Regenerate scripts/generate_task_quality_matrix.py after difficulty audit.",
     ))
 
     human_independent_ok = "independent" in " ".join(task.get("human_estimate_confidence", "").lower() for task in metadata)

@@ -1,20 +1,23 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-05-31T22:11:21.348143+00:00",
+  "generated_at_utc": "2026-05-31T22:37:09.247317+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md to avoid a self-referential report hash. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "67d1b1216caaa15f489a71a32bf9145a8dfcccfc",
+    "head": "d919605eca92170b57fba75f6f091c6e286af890",
     "dirty": true,
     "status_short": [
       " M README.md",
+      " M data/benchmark_requirements.csv",
       " M data/requirement_coverage.csv",
       " M reports/metr_style_report.md",
       " M reports/requirement_coverage.md",
       " M scripts/audit_requirement_coverage.py",
       " M scripts/generate_report.py",
       " M scripts/write_validation_manifest.py",
-      "?? data/benchmark_requirements.csv"
+      "?? data/task_quality_matrix.csv",
+      "?? reports/task_quality_matrix.md",
+      "?? scripts/generate_task_quality_matrix.py"
     ],
     "status_summary_first_line": " M README.md"
   },
@@ -56,6 +59,7 @@
     "lake build",
     "python scripts/validate_all.py",
     "python scripts/audit_difficulty.py",
+    "python scripts/generate_task_quality_matrix.py",
     "python scripts/record_local_qa_results.py",
     "python scripts/generate_evaluation_protocol.py",
     "python scripts/analyze_model_results.py",
@@ -139,9 +143,9 @@
     {
       "path": "README.md",
       "exists": true,
-      "bytes": 6198,
-      "sha256": "afa938720944c17c80e068cad7c2321e25618a1c77409a092c3574647005788d",
-      "line_count": 148
+      "bytes": 6466,
+      "sha256": "b6c8377832dc5066d7aa7c37474d102f5260eb481ca26203626b2b95f04a7df0",
+      "line_count": 151
     },
     {
       "path": "docs/axiom_policy.md",
@@ -153,10 +157,10 @@
     {
       "path": "data/benchmark_requirements.csv",
       "exists": true,
-      "bytes": 5397,
-      "sha256": "4a2fa60738bfb47529e75dfab28965f829342f67cca3bd2cd238ffdd348fb04d",
-      "line_count": 29,
-      "row_count": 28
+      "bytes": 5635,
+      "sha256": "6edcfd6733e7b9a2b626b7c0d1e6638745fd8cc37098fc0640db5ab4b92bfe0a",
+      "line_count": 30,
+      "row_count": 29
     },
     {
       "path": "data/task_metadata.csv",
@@ -236,12 +240,20 @@
       "row_count": 26
     },
     {
+      "path": "data/task_quality_matrix.csv",
+      "exists": true,
+      "bytes": 16869,
+      "sha256": "5c6891423804b0fee898898de6c7f16e7128c19717d214b82f1aae873638180e",
+      "line_count": 27,
+      "row_count": 26
+    },
+    {
       "path": "data/requirement_coverage.csv",
       "exists": true,
-      "bytes": 8656,
-      "sha256": "ccf348764c18187374debc8d5d350ce9dc6f759a3662cc5be2d47c35733d6760",
-      "line_count": 29,
-      "row_count": 28
+      "bytes": 8983,
+      "sha256": "7f162f75d7983e8c9fd2d8170cc6ff4af9b335367fae03d9d8814921c6e0b2a4",
+      "line_count": 30,
+      "row_count": 29
     },
     {
       "path": "reports/difficulty_audit.md",
@@ -249,6 +261,13 @@
       "bytes": 6942,
       "sha256": "4864ad083e8a360a62c71664dad4e210b74c6c77cb8130cdf7866410d8492409",
       "line_count": 61
+    },
+    {
+      "path": "reports/task_quality_matrix.md",
+      "exists": true,
+      "bytes": 4990,
+      "sha256": "6527397778204ceadbbc0ba8ee6115a39462f0dcec9b17fa5f5820940f82aee4",
+      "line_count": 46
     },
     {
       "path": "reports/accepted_task_review.md",
@@ -274,9 +293,9 @@
     {
       "path": "reports/requirement_coverage.md",
       "exists": true,
-      "bytes": 8500,
-      "sha256": "6ce1fdd5e1980bddd244bef9184ea54559c08db7715cdfb6dfb2f7e9c410887d",
-      "line_count": 50
+      "bytes": 8778,
+      "sha256": "fc9918a7dde7efaedb1e0e50f48e98b19fe304d9de119a0339e8669aa77ffa5f",
+      "line_count": 51
     },
     {
       "path": "reports/figures/task_counts_by_family.svg",
@@ -335,11 +354,18 @@
       "line_count": 220
     },
     {
+      "path": "scripts/generate_task_quality_matrix.py",
+      "exists": true,
+      "bytes": 13165,
+      "sha256": "129d2715090bcd52c5dc019fffce912368fdbbf95685f01e02d737a4c87997b3",
+      "line_count": 294
+    },
+    {
       "path": "scripts/audit_requirement_coverage.py",
       "exists": true,
-      "bytes": 29970,
-      "sha256": "d982296b49d2802ed3bca42f5af01385c1dc0bc1b34051ebd51356fa3b497eaa",
-      "line_count": 586
+      "bytes": 31110,
+      "sha256": "2a328d400ab5b4b01d3d484acdb6ab7e96df69f2e2d95c02eb24d5f277592ca0",
+      "line_count": 611
     },
     {
       "path": "scripts/generate_evaluation_protocol.py",
@@ -365,9 +391,9 @@
     {
       "path": "scripts/generate_report.py",
       "exists": true,
-      "bytes": 33966,
-      "sha256": "658a43cbe6b84d40e6f98c5e33c1b1530e1703a04d3e876a464223fa7b478dbe",
-      "line_count": 640
+      "bytes": 36495,
+      "sha256": "358f3231aa6dbbd219eb2eb9444acc49906d959ca8615d1d5e0936acc94780fa",
+      "line_count": 685
     },
     {
       "path": "scripts/export_public_tasks.py",
@@ -400,9 +426,9 @@
     {
       "path": "scripts/write_validation_manifest.py",
       "exists": true,
-      "bytes": 8512,
-      "sha256": "fbbce150a18b83b21803947dabfd648d86c1510451c4d3b7f942742924e7b769",
-      "line_count": 252
+      "bytes": 8687,
+      "sha256": "de34bba2ff48b4bcb578724c3bdaae4c399f3f37188272b0c1d53fab570248d0",
+      "line_count": 256
     }
   ]
 }
