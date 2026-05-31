@@ -11,6 +11,9 @@ namespace LT101
 example : reverseTR [1, 2, 3] = [3, 2, 1] := by
   rfl
 
+example : revAcc [1, 2] [9] = [2, 1, 9] := by
+  rfl
+
 example (xs acc tail : List Nat) :
     (revAcc xs (acc ++ tail)).length = xs.length + acc.length + tail.length := by
   rw [revAcc_length, List.length_append]

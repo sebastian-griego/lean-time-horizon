@@ -1,60 +1,61 @@
 # Difficulty Audit
 
-The original 20 tasks are now treated as candidates, not final accepted tasks. This audit applies the playbook criterion that diagnostic validity matters more than raw difficulty.
+This audit separates mechanical signals from manual benchmark judgments. Mechanical signals are generated from the task files and hidden references; manual judgments live in each task's `metadata.json` and are regenerated into the CSV.
 
 ## Summary
 
-- Original candidate tasks audited: 20
-- Reject or downgrade to smoke/calibration: 8
-- T0/T1 calibration only: 9
-- Borderline candidates needing stronger review: 3
-- New replacement candidates present: 5
+- Accepted v0 core tasks: 9
+- Calibration-only release tasks: 5
+- Rejected tasks retained in archive: 12
+- Candidate review pending: 0
+- Accepted/calibration buckets: {'T1': 5, 'T2': 8, 'T3': 1}
+- Accepted core families: {'algorithm_correctness': 1, 'direct_theorem_proving': 1, 'informal_spec_to_formal': 3, 'invariant_verification_ml_optimization': 1, 'proof_repair_codebase': 2, 'small_formal_library_construction': 1}
 
-## Original Candidate Decisions
+## Accepted v0 Core Tasks
 
-| task | recommendation | bucket | proof lines | tactic profile | simp/omega/rfl/cases dominant | hidden pins | model one-shot | notes |
-| --- | --- | --- | ---: | --- | --- | --- | --- | --- |
-| lt-001 | calibration | T1 | 8 | `{"induction": 1, "simp": 2}` | true | yes | likely | Short induction; mostly simp/arithmetic cleanup. |
-| lt-002 | calibration | T1 | 8 | `{"cases": 1, "induction": 1, "simp": 2}` | true | yes | likely | Short induction plus Bool cases; useful smoke row. |
-| lt-003 | calibration | T1 | 11 | `{"induction": 1, "simp": 3}` | true | yes | likely | Codebase-repair shape, but the proof is a small generalized induction. |
-| lt-004 | calibration | T1 | 5 | `{"exact": 2, "simp": 2}` | false | yes | likely | Semantic formalization row, but the target relation is very small. |
-| lt-005 | reject_or_T0 | T0 | 9 | `{"omega": 1, "simp": 1, "split": 2, "unfold": 2}` | false | yes | very_likely | Solved by unfolding conditionals and omega/simp; weak long-horizon signal. |
-| lt-101 | calibration | T1 | 11 | `{"induction": 1, "simp": 2}` | true | yes | likely | Accumulator invariant gives some decomposition value but still short. |
-| lt-102 | reject_or_T0 | T0 | 8 | `{"cases": 1, "induction": 1, "omega": 1, "simp": 2}` | true | yes | very_likely | Option case split with simp/omega; too easy for final set. |
-| lt-103 | calibration | T1 | 8 | `{"induction": 1, "simp": 2}` | true | yes | likely | Tree induction and arithmetic normalization; good calibration only. |
-| lt-104 | calibration | T1 | 11 | `{"induction": 1, "simp": 3}` | true | yes | likely | Proof-repair shape overlaps heavily with lt-003. |
-| lt-105 | borderline_candidate | T1 | 11 | `{"induction": 1, "rfl": 1, "simp": 2}` | true | yes | maybe | Recursive API repair has some value but is still mainly induction+simp. |
-| lt-106 | calibration | T1 | 5 | `{"exact": 2, "simp": 2}` | false | yes | likely | Suffix formalization is semantically pinned but too compact. |
-| lt-107 | borderline_candidate | T1 | 10 | `{"exact": 1, "intro": 2, "simp": 1}` | false | yes | maybe | Membership implication spec has semantic value; proof still short. |
-| lt-108 | borderline_candidate | T1 | 9 | `{"exact": 1}` | false | yes | maybe | Recursive predicate design is useful; public lemmas are constructor-level. |
-| lt-109 | reject_or_T0 | T0 | 13 | `{"omega": 2, "simp": 1, "split": 2, "unfold": 3}` | false | yes | very_likely | Mostly nested if split plus omega. |
-| lt-110 | reject_or_T0 | T0 | 9 | `{"exact": 1, "omega": 1, "unfold": 2}` | false | yes | very_likely | Natural subtraction invariant is one arithmetic fact and transitivity. |
-| lt-111 | reject_or_T1 | T1 | 9 | `{"omega": 2, "split": 4, "unfold": 2}` | false | yes | likely | Nested branch invariant, but reference is dominated by omega. |
-| lt-112 | reject_or_T0 | T0 | 15 | `{"cases": 5, "simp": 3}` | true | yes | very_likely | Structure cases and simp; not final-benchmark material. |
-| lt-113 | calibration | T1 | 20 | `{"cases": 7, "simp": 4}` | true | yes | likely | Small library wrapper has multiple lemmas but proofs are cases/simp. |
-| lt-114 | reject_or_T0 | T0 | 13 | `{"rfl": 4}` | true | yes | very_likely | Nearly all rfl; keep only as harness smoke if needed. |
-| lt-115 | reject_or_T0 | T0 | 6 | `{"exact": 1}` | false | yes | very_likely | One obvious library lemma applied twice. |
+| task | status | bucket | proof lines | hidden pins | wrongs | automation dominated | diagnostic value | review note |
+| --- | --- | --- | ---: | --- | ---: | --- | --- | --- |
+| lt-201 | accepted_v0 | T2 | 25 | semantic | 2 | true | high | accepted_v0: multi-file cache repair requires preserving Model.lean API semantics and proving batch count lemmas. |
+| lt-203 | accepted_v0 | T2 | 30 | semantic | 2 | false | high | accepted_v0: spec-to-formal task with hidden pins rejecting vacuous, equality-only, and duplicate-sensitive interpretations. |
+| lt-105 | accepted_v0 | T2 | 11 | semantic | 2 | true | medium_high | accepted_v0: lower-end T2 proof-repair task requiring generalized induction over a batched API and sum accounting; strengthened with semantic pins. |
+| lt-107 | accepted_v0 | T2 | 10 | semantic | 2 | false | medium_high | accepted_v0: semantic formalization task where vacuous and nonempty-only specifications pass superficial lemmas but fail hidden pins. |
+| lt-108 | accepted_v0 | T2 | 9 | semantic | 2 | false | medium_high | accepted_v0: recursive predicate formalization with hidden pins for dropped tail invariants and first-pair-only specifications. |
+| lt-202 | accepted_v0 | T2 | 46 | mixed | 2 | false | medium_high | accepted_v0: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition. |
+| lt-204 | accepted_v0 | T2 | 36 | semantic | 2 | false | high | accepted_v0: optimizer-style invariant package with helper lemmas for cap bounds, list preservation, and sum monotonicity. |
+| lt-205 | accepted_v0 | T3 | 42 | semantic | 2 | false | high | accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot. |
+| lt-206 | accepted_v0 | T2 | 60 | semantic | 2 | true | high | accepted_v0: algorithm-correctness package with side predicates, length, and duplicate-sensitive count preservation. |
 
-## T0/T1 Calibration-Only Items
+## Calibration-Only Release Tasks
 
-`lt-001`, `lt-002`, `lt-003`, `lt-004`, `lt-101`, `lt-103`, `lt-104`, `lt-106`, `lt-113`
+| task | status | bucket | proof lines | hidden pins | wrongs | automation dominated | diagnostic value | review note |
+| --- | --- | --- | ---: | --- | ---: | --- | --- | --- |
+| lt-001 | calibration_only | T1 | 8 | semantic | 2 | true | medium | calibration_only: T1 list induction smoke row; retained to verify harness behavior, not counted as core benchmark difficulty. |
+| lt-002 | calibration_only | T1 | 8 | semantic | 2 | true | medium | calibration_only: T1 Bool/list induction row; useful for lower-bound calibration and wrong-definition pins. |
+| lt-003 | calibration_only | T1 | 11 | semantic | 2 | true | medium | calibration_only: small proof-repair shape retained as a codebase-navigation smoke row; too short for core benchmark status. |
+| lt-004 | calibration_only | T1 | 5 | semantic | 2 | false | medium | calibration_only: compact semantic-formalization row retained to test vacuity and endpoint-only wrong specs. |
+| lt-101 | calibration_only | T1 | 11 | semantic | 2 | true | medium | calibration_only: tail-recursive accumulator proof retained as a T1 calibration row; not core long-horizon material. |
 
-## Reject Or Smoke-Only Items
+## Rejected Archive
 
-`lt-005`, `lt-102`, `lt-109`, `lt-110`, `lt-111`, `lt-112`, `lt-114`, `lt-115`
+| task | status | bucket | proof lines | hidden pins | wrongs | automation dominated | diagnostic value | review note |
+| --- | --- | --- | ---: | --- | ---: | --- | --- | --- |
+| lt-005 | rejected_too_easy | T1 | 9 | semantic | 1 | false | low | rejected_too_easy: branch proof is dominated by unfolding, simp, and omega; weak diagnostic signal. |
+| lt-102 | rejected_too_easy | T1 | 8 | mixed | 1 | true | low | rejected_too_easy: option/list proof is mostly cases, induction, simp, and omega. |
+| lt-103 | rejected_too_easy | T1 | 8 | mixed | 1 | true | low | rejected_too_easy: tree-size proof is a short structural induction with arithmetic simplification. |
+| lt-104 | rejected_duplicate | T1 | 11 | mixed | 1 | true | low | rejected_duplicate: overlaps strongly with lt-003 queue/stack size repair and is similarly short. |
+| lt-106 | rejected_duplicate | T1 | 5 | mixed | 1 | false | low | rejected_duplicate: suffix version duplicates lt-004 prefix semantic-calibration role. |
+| lt-109 | rejected_too_easy | T1 | 13 | semantic | 1 | false | low | rejected_too_easy: budget invariant is mostly nested if-splitting plus omega. |
+| lt-110 | rejected_too_easy | T1 | 9 | semantic | 1 | false | low | rejected_too_easy: one arithmetic monotonicity fact, too small for core benchmark use. |
+| lt-111 | rejected_too_easy | T2 | 9 | semantic | 1 | false | low | rejected_too_easy: interval clipping invariant is useful as a candidate idea but reference is omega-dominated. |
+| lt-112 | rejected_too_easy | T1 | 15 | mixed | 1 | true | low | rejected_too_easy: structure wrapper proofs are cases/simp dominated. |
+| lt-113 | rejected_too_easy | T2 | 20 | mixed | 1 | true | medium | rejected_too_easy: small library interface is useful but cases/simp dominated; not promoted to avoid inflating accepted count. |
+| lt-114 | rejected_too_easy | T1 | 13 | mixed | 1 | true | low | rejected_too_easy: nearly all rfl; harness smoke only. |
+| lt-115 | rejected_too_easy | T1 | 6 | mixed | 1 | false | low | rejected_too_easy: direct proof is one obvious library cancellation lemma. |
 
-## Borderline Items Needing Stronger Review
+## Pending Candidates
 
-`lt-105`, `lt-107`, `lt-108`
-
-## Replacement Candidate Notes
-
-- `lt-201`: multi-file cache touchAll proof repair (proof_repair_codebase), proof lines 25, profile `{"cases": 2, "induction": 2, "simp": 6}`; library_search=false, decomposition=true, semantic_formalization=false, proof_debugging=true, codebase_navigation=true, invariant_design=false, hidden_pins=yes, one_shot=maybe. Multi-file repair requires reading Model.lean, preserving API meaning, and proving two generalized batch lemmas.
-- `lt-202`: Mathlib set image/preimage package (direct_theorem_proving), proof lines 46, profile `{"constructor": 1, "exact": 9, "intro": 17, "rcases": 6, "rfl": 1, "rw": 3}`; library_search=true, decomposition=true, semantic_formalization=false, proof_debugging=false, codebase_navigation=false, invariant_design=false, hidden_pins=yes, one_shot=maybe. Mathlib set/function package requires API fluency and witness merging; lookup sensitivity should be high.
-- `lt-203`: formalize exact list coverage modulo multiplicity (informal_spec_to_formal), proof lines 30, profile `{"constructor": 1, "exact": 7, "intro": 6, "rcases": 2, "rfl": 1, "simp": 2}`; library_search=false, decomposition=true, semantic_formalization=true, proof_debugging=true, codebase_navigation=false, invariant_design=false, hidden_pins=yes, one_shot=maybe. Spec-to-formalization task uses hidden semantic pins to reject vacuous or duplicate-sensitive definitions.
-- `lt-204`: capped-list optimizer invariant package (invariant_verification_ml_optimization), proof lines 36, profile `{"exact": 2, "induction": 3, "omega": 2, "simp": 6, "split": 2, "unfold": 2}`; library_search=false, decomposition=true, semantic_formalization=false, proof_debugging=false, codebase_navigation=false, invariant_design=true, hidden_pins=yes, one_shot=maybe. Invariant package requires several helper lemmas before the final capped-list invariant.
-- `lt-205`: count-based bag library construction (small_formal_library_construction), proof lines 42, profile `{"exact": 2, "induction": 1, "intro": 4, "omega": 1, "rfl": 2, "rw": 3, "simp": 6}`; library_search=false, decomposition=true, semantic_formalization=false, proof_debugging=false, codebase_navigation=false, invariant_design=false, hidden_pins=yes, one_shot=maybe. Small library construction requires a coherent count-based bag interface across 5-10 lemmas.
+_None._
 
 ## Method
 
-The script counts reference proof lines and tactic-token profiles mechanically, then combines those counts with manual review fields for diagnostic value, likely frontier one-shot success, and final recommendation. Rows dominated by `rfl`, `simp`, `omega`, or `cases`, or by one obvious library lemma, are downgraded unless they serve a narrow calibration purpose.
+The script counts reference proof lines, declarations, public files, public theorem/lemma statements, tactic-token profiles, Mathlib imports, multi-file context, hidden pin shape, and wrong-submission count. Manual fields record likely frontier one-shot solvability, human p50/p90, diagnostic value, and the keep/revise/reject rationale. Tasks dominated by `rfl`, `simp`, `omega`, or `cases` are only accepted as calibration unless their metadata records a specific diagnostic role.

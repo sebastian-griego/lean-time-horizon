@@ -1,0 +1,53 @@
+{
+  "task_id": "lt-205",
+  "title": "count-based bag library construction",
+  "split": "test",
+  "family": "small_formal_library_construction",
+  "domain": "list_bag_count_interface",
+  "source_type": "authored_replacement_candidate",
+  "human_time_bucket": "T3",
+  "human_minutes_p50": 150,
+  "human_minutes_p90": 300,
+  "human_estimate_confidence": "medium; 8 dependent lemmas with count/union interface design",
+  "skills": [
+    "library construction",
+    "dependent helper lemmas",
+    "induction",
+    "case splitting",
+    "interface reuse"
+  ],
+  "scaffolds": [
+    "one-shot",
+    "lookup",
+    "lookup_unlimited"
+  ],
+  "expected_failure_modes": [
+    "implements set membership instead of multiplicity",
+    "weakens count_union with disjointness",
+    "fails to reuse count lemmas in final theorem"
+  ],
+  "scaffold_sensitivity": "high; lookup and compile/debug should help with arithmetic normalization and theorem reuse",
+  "qa_status": "local_only",
+  "acceptance_status": "accepted_v0",
+  "difficulty_review_status": "manual_review_complete",
+  "difficulty_review_notes": "accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot.",
+  "axiom_audit_declarations": [
+    "LT205.count_nil",
+    "LT205.count_insert_same",
+    "LT205.count_insert_ne",
+    "LT205.count_union",
+    "LT205.bageq_refl",
+    "LT205.bageq_symm",
+    "LT205.bageq_trans",
+    "LT205.bageq_union_congr"
+  ],
+  "extra_forbidden": [],
+  "timeout_seconds": 150,
+  "diagnostic_value": "high",
+  "frontier_model_one_shot_likelihood": "unlikely",
+  "public_files": [
+    "Task.lean"
+  ],
+  "submission_file": "Task.lean",
+  "entry_file": "Task.lean"
+}

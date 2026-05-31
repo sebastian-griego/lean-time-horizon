@@ -1,0 +1,51 @@
+{
+  "task_id": "lt-206",
+  "title": "partition/count correctness package",
+  "split": "test",
+  "family": "algorithm_correctness",
+  "domain": "list_partition_multiplicity_invariant",
+  "source_type": "authored_v0_candidate",
+  "human_time_bucket": "T2",
+  "human_minutes_p50": 100,
+  "human_minutes_p90": 210,
+  "human_estimate_confidence": "medium; four dependent partition invariants plus bundled final spec",
+  "skills": [
+    "algorithm correctness",
+    "helper lemma decomposition",
+    "list induction",
+    "multiplicity preservation",
+    "invariant design"
+  ],
+  "scaffolds": [
+    "one-shot",
+    "lookup",
+    "lookup_unlimited"
+  ],
+  "expected_failure_modes": [
+    "drops right-side elements",
+    "weakens allGt predicate",
+    "proves only length preservation",
+    "misses duplicate-sensitive count invariant"
+  ],
+  "scaffold_sensitivity": "high; iterative compile/debug helps align the four mutually reinforcing invariants",
+  "qa_status": "local_only",
+  "acceptance_status": "accepted_v0",
+  "difficulty_review_status": "manual_review_complete",
+  "difficulty_review_notes": "accepted_v0: algorithm-correctness package with side predicates, length, and duplicate-sensitive count preservation.",
+  "diagnostic_value": "high",
+  "frontier_model_one_shot_likelihood": "maybe",
+  "public_files": [
+    "Task.lean"
+  ],
+  "submission_file": "Task.lean",
+  "entry_file": "Task.lean",
+  "axiom_audit_declarations": [
+    "LT206.partition_length",
+    "LT206.partition_left_allLe",
+    "LT206.partition_right_allGt",
+    "LT206.partition_count",
+    "LT206.partition_spec"
+  ],
+  "extra_forbidden": [],
+  "timeout_seconds": 150
+}

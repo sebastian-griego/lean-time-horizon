@@ -49,3 +49,4 @@ env/
 lake-packages/
 *.olean
 *.ilean
+public_tasks/

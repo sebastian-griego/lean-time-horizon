@@ -46,7 +46,7 @@ PROVIDER_COMMAND_ENV = {
 }
 
 
-def discover_tasks(split: str | None, task_id: str | None) -> list[Path]:
+def discover_tasks(split: str | None, task_id: str | None, acceptance_status: set[str] | None) -> list[Path]:
     tasks: list[Path] = []
     splits = [split] if split else ["dev", "test", "candidates"]
     for sp in splits:
@@ -55,6 +55,12 @@ def discover_tasks(split: str | None, task_id: str | None) -> list[Path]:
             tasks.extend(sorted(p for p in base.iterdir() if (p / "metadata.json").exists()))
     if task_id:
         tasks = [p for p in tasks if json.loads((p / "metadata.json").read_text(encoding="utf-8"))["task_id"] == task_id]
+    if acceptance_status is not None:
+        tasks = [
+            p
+            for p in tasks
+            if json.loads((p / "metadata.json").read_text(encoding="utf-8")).get("acceptance_status") in acceptance_status
+        ]
     return tasks
 
 
@@ -63,8 +69,8 @@ def build_prompt(task: Path, scaffold: str, feedback: str = "") -> str:
     prompt = (task / "Prompt.md").read_text(encoding="utf-8")
     scaffold_text = {
         "one-shot": "One submission. No lookup tools are available.",
-        "lookup": "One submission. Read-only Lean/Std lookup is available.",
-        "lookup_unlimited": "Iterative compile/debug attempts are available; use feedback from previous attempts.",
+        "lookup": "One submission. Read-only Lean/Std/Mathlib lookup is available through `python scripts/lean_lookup.py QUERY`.",
+        "lookup_unlimited": "Read-only lookup through `python scripts/lean_lookup.py QUERY` plus iterative compile/debug attempts are available; use feedback from previous attempts.",
     }[scaffold]
     public_parts = []
     for public_file in metadata.get("public_files", ["Task.lean"]):
@@ -90,7 +96,7 @@ def build_prompt(task: Path, scaffold: str, feedback: str = "") -> str:
     return "\n".join(parts)
 
 
-def call_provider(provider: str, model: str, prompt: str, task: Path, job_dir: Path, attempt: int) -> str:
+def call_provider(provider: str, model: str, prompt: str, task: Path, job_dir: Path, attempt: int, scaffold: str) -> str:
     if provider == "local_reference":
         return (task / "hidden" / "Reference.lean").read_text(encoding="utf-8")
     env_name = PROVIDER_COMMAND_ENV.get(provider)
@@ -113,6 +119,10 @@ def call_provider(provider: str, model: str, prompt: str, task: Path, job_dir: P
             "MODEL": model,
             "TASK_ID": metadata["task_id"],
             "ATTEMPT_INDEX": str(attempt),
+            "SCAFFOLD": scaffold,
+            "LEAN_LOOKUP_COMMAND": f"{sys.executable} {ROOT / 'scripts' / 'lean_lookup.py'}",
+            "TASK_PUBLIC_DIR": str(task),
+            "TASK_PUBLIC_FILES": json.dumps(metadata.get("public_files", ["Task.lean"])),
         }
     )
     proc = subprocess.run(command, shell=True, text=True, encoding="utf-8", errors="replace", env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -140,11 +150,16 @@ def main() -> int:
     parser.add_argument("--scaffold", choices=["one-shot", "lookup", "lookup_unlimited"], required=True)
     parser.add_argument("--split", choices=["dev", "test", "candidates"])
     parser.add_argument("--task-id")
+    parser.add_argument(
+        "--acceptance-status",
+        action="append",
+        help="filter tasks by metadata acceptance_status; may be repeated",
+    )
     parser.add_argument("--attempts", type=int, default=1)
     parser.add_argument("--out", type=Path, default=ROOT / "data" / "run_results.csv")
     args = parser.parse_args()
 
-    tasks = discover_tasks(args.split, args.task_id)
+    tasks = discover_tasks(args.split, args.task_id, set(args.acceptance_status) if args.acceptance_status else None)
     job_id = f"{args.provider}-{args.model}-{args.scaffold}-{int(time.time())}".replace("/", "_")
     transcript_root = ROOT / "transcripts" / job_id
     transcript_root.mkdir(parents=True, exist_ok=True)
@@ -163,7 +178,7 @@ def main() -> int:
             for attempt in range(1, attempts_allowed + 1):
                 prompt = build_prompt(task, args.scaffold, feedback)
                 try:
-                    solution = call_provider(args.provider, args.model, prompt, task, job_dir, attempt)
+                    solution = call_provider(args.provider, args.model, prompt, task, job_dir, attempt, args.scaffold)
                     submission = job_dir / f"attempt-{attempt}.lean"
                     submission.write_text(solution, encoding="utf-8")
                     result = validate_submission(task, submission, True)
@@ -213,7 +228,7 @@ def main() -> int:
                 "timeout_count": 0,
                 "infra_fail_count": labels.count("infra_failure"),
                 "score_values": ",".join("1" if label == "none" else "0" for label in labels),
-                "transcript_link": str(transcript_path.relative_to(ROOT)),
+                "transcript_link": transcript_path.relative_to(ROOT).as_posix(),
                 "failure_label": "none" if any(label == "none" for label in labels) else (labels[-1] if labels else "infra_failure"),
                 "qa_stage": "model_sweep",
                 "qa_findings_status": "unreviewed",

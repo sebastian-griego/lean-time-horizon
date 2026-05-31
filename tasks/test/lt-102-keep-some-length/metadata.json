@@ -1,39 +1,44 @@
 {
-    "task_id":  "lt-102",
-    "title":  "extracting present optional values cannot increase length",
-    "split":  "test",
-    "family":  "algorithm_correctness",
-    "domain":  "option_list_filtering",
-    "source_type":  "authored",
-    "human_time_bucket":  "T1",
-    "human_minutes_p50":  25,
-    "human_minutes_p90":  50,
-    "human_estimate_confidence":  "medium; short structural induction with option case split",
-    "skills":  [
-                   "structural induction",
-                   "case analysis",
-                   "list length reasoning"
-               ],
-    "scaffolds":  [
-                      "one-shot",
-                      "lookup",
-                      "lookup_unlimited"
-                  ],
-    "expected_failure_modes":  [
-                                   "misses none case",
-                                   "adds unnecessary all-some precondition",
-                                   "gets stuck on option cases"
-                               ],
-    "scaffold_sensitivity":  "low_to_medium; compile feedback helps identify missing option case",
-    "qa_status":  "local_only",
-    "axiom_audit_declarations":  [
-                                     "LT102.keepSome_length_le"
-                                 ],
-    "extra_forbidden":  [
-
-                        ],
-    "timeout_seconds":  60,
-    "acceptance_status":  "candidate_not_accepted",
-    "difficulty_review_status":  "audited_downgraded",
-    "difficulty_review_notes":  "candidate_reject_or_t0: option cases plus simp/omega"
+  "task_id": "lt-102",
+  "title": "extracting present optional values cannot increase length",
+  "split": "test",
+  "family": "algorithm_correctness",
+  "domain": "option_list_filtering",
+  "source_type": "authored",
+  "human_time_bucket": "T1",
+  "human_minutes_p50": 25,
+  "human_minutes_p90": 50,
+  "human_estimate_confidence": "medium; short structural induction with option case split",
+  "skills": [
+    "structural induction",
+    "case analysis",
+    "list length reasoning"
+  ],
+  "scaffolds": [
+    "one-shot",
+    "lookup",
+    "lookup_unlimited"
+  ],
+  "expected_failure_modes": [
+    "misses none case",
+    "adds unnecessary all-some precondition",
+    "gets stuck on option cases"
+  ],
+  "scaffold_sensitivity": "low_to_medium; compile feedback helps identify missing option case",
+  "qa_status": "local_only",
+  "axiom_audit_declarations": [
+    "LT102.keepSome_length_le"
+  ],
+  "extra_forbidden": [],
+  "timeout_seconds": 60,
+  "acceptance_status": "rejected_too_easy",
+  "difficulty_review_status": "audited_rejected",
+  "difficulty_review_notes": "rejected_too_easy: option/list proof is mostly cases, induction, simp, and omega.",
+  "diagnostic_value": "low",
+  "frontier_model_one_shot_likelihood": "very_likely",
+  "public_files": [
+    "Task.lean"
+  ],
+  "submission_file": "Task.lean",
+  "entry_file": "Task.lean"
 }

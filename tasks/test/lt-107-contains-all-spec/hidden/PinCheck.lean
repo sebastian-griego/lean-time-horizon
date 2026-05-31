@@ -17,4 +17,18 @@ example : ¬ ContainsAllSpec [2] [1, 3] := by
   have hx := h 2 (by simp)
   simp at hx
 
+example : ContainsAllSpec [] [1, 3] := by
+  intro x hx
+  simp at hx
+
+example : ContainsAllSpec [1, 1, 2] [2, 1] := by
+  intro x hx
+  simp at hx ⊢
+  omega
+
+example : ¬ ContainsAllSpec [4] [] := by
+  intro h
+  have hx := h 4 (by simp)
+  simp at hx
+
 end LT107

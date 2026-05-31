@@ -11,6 +11,14 @@ namespace LT003
 example (q : Queue) : (Queue.enqueueAll [10, 20, 30] q).size = q.size + 3 := by
   simpa using size_enqueueAll [10, 20, 30] q
 
+example (q : Queue) :
+    (Queue.enqueue 7 q).back = 7 :: q.back := by
+  rfl
+
+example (q : Queue) :
+    (Queue.enqueue 7 q).front = q.front := by
+  rfl
+
 example (q : Queue) (x y : Nat) :
     (Queue.enqueue y (Queue.enqueue x q)).size = q.size + 2 := by
   rw [size_enqueue, size_enqueue]

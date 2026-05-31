@@ -1,40 +1,45 @@
 {
-    "task_id":  "lt-110",
-    "title":  "toy descent step monotonicity",
-    "split":  "test",
-    "family":  "invariant_verification_ml_optimization",
-    "domain":  "simplified_gradient_descent_nat",
-    "source_type":  "authored",
-    "human_time_bucket":  "T1",
-    "human_minutes_p50":  25,
-    "human_minutes_p90":  50,
-    "human_estimate_confidence":  "medium; arithmetic invariant with a small composed-step proof",
-    "skills":  [
-                   "invariant preservation",
-                   "transitive inequality",
-                   "natural-number subtraction"
-               ],
-    "scaffolds":  [
-                      "one-shot",
-                      "lookup",
-                      "lookup_unlimited"
-                  ],
-    "expected_failure_modes":  [
-                                   "adds unnecessary gradient precondition",
-                                   "fails to compose monotonicity",
-                                   "changes saturating subtraction semantics"
-                               ],
-    "scaffold_sensitivity":  "low_to_medium; lookup helps find Nat.le_trans or subtraction lemmas",
-    "qa_status":  "local_only",
-    "axiom_audit_declarations":  [
-                                     "LT110.stepDown_le",
-                                     "LT110.repeatTwo_le"
-                                 ],
-    "extra_forbidden":  [
-
-                        ],
-    "timeout_seconds":  60,
-    "acceptance_status":  "candidate_not_accepted",
-    "difficulty_review_status":  "audited_downgraded",
-    "difficulty_review_notes":  "candidate_reject_or_t0: one subtraction invariant plus transitivity"
+  "task_id": "lt-110",
+  "title": "toy descent step monotonicity",
+  "split": "test",
+  "family": "invariant_verification_ml_optimization",
+  "domain": "simplified_gradient_descent_nat",
+  "source_type": "authored",
+  "human_time_bucket": "T1",
+  "human_minutes_p50": 25,
+  "human_minutes_p90": 50,
+  "human_estimate_confidence": "medium; arithmetic invariant with a small composed-step proof",
+  "skills": [
+    "invariant preservation",
+    "transitive inequality",
+    "natural-number subtraction"
+  ],
+  "scaffolds": [
+    "one-shot",
+    "lookup",
+    "lookup_unlimited"
+  ],
+  "expected_failure_modes": [
+    "adds unnecessary gradient precondition",
+    "fails to compose monotonicity",
+    "changes saturating subtraction semantics"
+  ],
+  "scaffold_sensitivity": "low_to_medium; lookup helps find Nat.le_trans or subtraction lemmas",
+  "qa_status": "local_only",
+  "axiom_audit_declarations": [
+    "LT110.stepDown_le",
+    "LT110.repeatTwo_le"
+  ],
+  "extra_forbidden": [],
+  "timeout_seconds": 60,
+  "acceptance_status": "rejected_too_easy",
+  "difficulty_review_status": "audited_rejected",
+  "difficulty_review_notes": "rejected_too_easy: one arithmetic monotonicity fact, too small for core benchmark use.",
+  "diagnostic_value": "low",
+  "frontier_model_one_shot_likelihood": "very_likely",
+  "public_files": [
+    "Task.lean"
+  ],
+  "submission_file": "Task.lean",
+  "entry_file": "Task.lean"
 }

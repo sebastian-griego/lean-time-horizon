@@ -73,6 +73,9 @@ def write_metadata_csv(rows: list[dict[str, object]], path: Path) -> None:
         "acceptance_status",
         "difficulty_review_status",
         "difficulty_review_notes",
+        "public_files",
+        "submission_file",
+        "entry_file",
     ]
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
@@ -110,6 +113,25 @@ def write_validation_commands(task_dirs: list[Path], path: Path) -> None:
                 )
 
 
+def structural_failures(task_dir: Path, metadata: dict, wrongs: list[Path]) -> list[str]:
+    failures: list[str] = []
+    task_id = metadata["task_id"]
+    for required in ["Prompt.md", "metadata.json", "hidden/Reference.lean", "hidden/PinCheck.lean"]:
+        if not (task_dir / required).exists():
+            failures.append(f"{task_id}: missing {required}")
+    for public_file in metadata.get("public_files", ["Task.lean"]):
+        if not (task_dir / public_file).exists():
+            failures.append(f"{task_id}: metadata public_files lists missing file {public_file}")
+    status = metadata.get("acceptance_status", "")
+    if status in {"accepted_v0", "calibration_only"} and len(wrongs) < 2:
+        failures.append(f"{task_id}: {status} tasks require at least two wrong submissions")
+    if status == "accepted_v0" and metadata.get("human_time_bucket") in {"T0", "T1"}:
+        failures.append(f"{task_id}: accepted_v0 should not use T0/T1 bucket; use calibration_only or revise")
+    if not metadata.get("difficulty_review_notes"):
+        failures.append(f"{task_id}: missing difficulty_review_notes")
+    return failures
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--metadata-csv", type=Path, default=ROOT / "data" / "task_metadata.csv")
@@ -122,10 +144,12 @@ def main() -> int:
     task_dirs = discover_tasks()
     failures: list[str] = []
     for task_dir in task_dirs:
+        metadata = json.loads((task_dir / "metadata.json").read_text(encoding="utf-8"))
+        wrongs = sorted((task_dir / "wrong").glob("*.lean"))
+        failures.extend(structural_failures(task_dir, metadata, wrongs))
         print(f"== {task_dir.relative_to(ROOT)} reference ==")
         if not run_validation(task_dir, task_dir / "hidden" / "Reference.lean", "pass"):
             failures.append(f"{task_dir.name}: reference failed")
-        wrongs = sorted((task_dir / "wrong").glob("*.lean"))
         if not wrongs:
             failures.append(f"{task_dir.name}: no wrong submissions")
         for wrong in wrongs:

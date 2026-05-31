@@ -1,41 +1,46 @@
 {
-    "task_id":  "lt-104",
-    "title":  "stack pushAll size proof repair",
-    "split":  "test",
-    "family":  "proof_repair_codebase",
-    "domain":  "small_stack_api_change",
-    "source_type":  "authored",
-    "human_time_bucket":  "T1",
-    "human_minutes_p50":  35,
-    "human_minutes_p90":  65,
-    "human_estimate_confidence":  "medium; analogous to small codebase API repair with generalized induction",
-    "skills":  [
-                   "codebase navigation",
-                   "generalized induction",
-                   "API repair",
-                   "arithmetic normalization"
-               ],
-    "scaffolds":  [
-                      "one-shot",
-                      "lookup",
-                      "lookup_unlimited"
-                  ],
-    "expected_failure_modes":  [
-                                   "uses obsolete pushAll equation",
-                                   "fails to generalize stack",
-                                   "weakens theorem to empty list"
-                               ],
-    "scaffold_sensitivity":  "medium; compile/debug iterations help expose the missing generalized induction",
-    "qa_status":  "local_only",
-    "axiom_audit_declarations":  [
-                                     "LT104.size_push",
-                                     "LT104.size_pushAll"
-                                 ],
-    "extra_forbidden":  [
-
-                        ],
-    "timeout_seconds":  60,
-    "acceptance_status":  "candidate_not_accepted",
-    "difficulty_review_status":  "audited_downgraded",
-    "difficulty_review_notes":  "candidate_calibration_only: overlaps lt-003 and simple generalized induction"
+  "task_id": "lt-104",
+  "title": "stack pushAll size proof repair",
+  "split": "test",
+  "family": "proof_repair_codebase",
+  "domain": "small_stack_api_change",
+  "source_type": "authored",
+  "human_time_bucket": "T1",
+  "human_minutes_p50": 35,
+  "human_minutes_p90": 65,
+  "human_estimate_confidence": "medium; analogous to small codebase API repair with generalized induction",
+  "skills": [
+    "codebase navigation",
+    "generalized induction",
+    "API repair",
+    "arithmetic normalization"
+  ],
+  "scaffolds": [
+    "one-shot",
+    "lookup",
+    "lookup_unlimited"
+  ],
+  "expected_failure_modes": [
+    "uses obsolete pushAll equation",
+    "fails to generalize stack",
+    "weakens theorem to empty list"
+  ],
+  "scaffold_sensitivity": "medium; compile/debug iterations help expose the missing generalized induction",
+  "qa_status": "local_only",
+  "axiom_audit_declarations": [
+    "LT104.size_push",
+    "LT104.size_pushAll"
+  ],
+  "extra_forbidden": [],
+  "timeout_seconds": 60,
+  "acceptance_status": "rejected_duplicate",
+  "difficulty_review_status": "audited_rejected",
+  "difficulty_review_notes": "rejected_duplicate: overlaps strongly with lt-003 queue/stack size repair and is similarly short.",
+  "diagnostic_value": "low",
+  "frontier_model_one_shot_likelihood": "likely",
+  "public_files": [
+    "Task.lean"
+  ],
+  "submission_file": "Task.lean",
+  "entry_file": "Task.lean"
 }

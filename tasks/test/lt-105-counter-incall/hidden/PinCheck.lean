@@ -11,6 +11,12 @@ namespace LT105
 example : (Counter.incAll [2, 0, 5] { value := 10 }).value = 17 := by
   rfl
 
+example : sumList [2, 0, 5] = 7 := by
+  rfl
+
+example : (Counter.incAll [4, 1] { value := 3 }).value = 8 := by
+  rfl
+
 example (c : Counter) (xs ys : List Nat) :
     (Counter.incAll ys (Counter.incAll xs c)).value =
       c.value + sumList xs + sumList ys := by

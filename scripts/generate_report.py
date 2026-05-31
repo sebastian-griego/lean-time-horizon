@@ -64,7 +64,7 @@ def write_scatter_svg(path: Path, title: str, rows: list[dict[str, str]]) -> Non
     margin_l, margin_b, margin_t, margin_r = 80, 70, 50, 40
     plot_w = width - margin_l - margin_r
     plot_h = height - margin_t - margin_b
-    points = [(float(r["human_minutes_p50"]), r["human_time_bucket"], r["family"]) for r in rows]
+    points = [(float(r["human_minutes_p50"]), r["human_time_bucket"], r["family"]) for r in rows if r.get("human_minutes_p50")]
     max_x = max([p[0] for p in points] + [1])
     buckets = ["T0", "T1", "T2", "T3", "T4"]
     colors = {
@@ -97,9 +97,16 @@ def write_scatter_svg(path: Path, title: str, rows: list[dict[str, str]]) -> Non
     path.write_text("\n".join(parts), encoding="utf-8")
 
 
-def summarize_run_results(rows: list[dict[str, str]]) -> dict[str, dict[str, float]]:
+def summarize_model_results(rows: list[dict[str, str]]) -> dict[str, dict[str, float]]:
     grouped: dict[str, list[float]] = defaultdict(list)
     for row in rows:
+        if row.get("qa_stage") == "local_qa":
+            continue
+        try:
+            if int(row.get("infra_fail_count", "0")) > 0:
+                continue
+        except ValueError:
+            continue
         try:
             grouped[row["scaffold"]].append(float(row["pass_at_k"]))
         except (KeyError, ValueError):
@@ -114,128 +121,159 @@ def summarize_run_results(rows: list[dict[str, str]]) -> dict[str, dict[str, flo
     }
 
 
+def bullets(counter: Counter[str]) -> str:
+    return "\n".join(f"- `{k}`: {v}" for k, v in sorted(counter.items())) or "- _None_"
+
+
+def task_table(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return "_None._"
+    lines = [
+        "| task | split | family | bucket | p50/p90 | diagnostic role |",
+        "| --- | --- | --- | --- | ---: | --- |",
+    ]
+    for row in rows:
+        note = row.get("difficulty_review_notes", "").replace("|", "/")
+        lines.append(
+            f"| `{row['task_id']}` | {row['split']} | {row['family']} | {row['human_time_bucket']} | "
+            f"{row['human_minutes_p50']}/{row['human_minutes_p90']} | {note} |"
+        )
+    return "\n".join(lines)
+
+
+def model_run_table(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return "_None._"
+    lines = [
+        "| task | provider | model | scaffold | k | pass@k | failure | transcript |",
+        "| --- | --- | --- | --- | ---: | ---: | --- | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('model', '')} | {row.get('model_version', '')} | "
+            f"{row.get('scaffold', '')} | {row.get('k', '')} | {row.get('pass_at_k', '')} | "
+            f"{row.get('failure_label', '')} | `{row.get('transcript_link', '')}` |"
+        )
+    return "\n".join(lines)
+
+
 def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
-
-    family_counts = Counter(row["family"] for row in metadata)
-    split_counts = Counter(row["split"] for row in metadata)
-    bucket_counts = Counter(row["human_time_bucket"] for row in metadata)
-    acceptance_counts = Counter(row.get("acceptance_status", "unspecified") for row in metadata)
-    review_counts = Counter(row.get("difficulty_review_status", "unspecified") for row in metadata)
-    skill_counts: Counter[str] = Counter()
-    for row in metadata:
-        skill_counts.update(parse_list(row.get("skills", "")))
+    accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
+    calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
+    rejected = [row for row in metadata if row.get("acceptance_status", "").startswith("rejected_")]
+    pending = [row for row in metadata if row.get("acceptance_status") == "candidate_review_pending"]
+    release = accepted + calibration
 
     figures = ROOT / "reports" / "figures"
-    write_bar_svg(figures / "task_counts_by_family.svg", "Candidate tasks by family", dict(family_counts), "tasks")
-    write_bar_svg(figures / "task_counts_by_bucket.svg", "Candidate tasks by human-time bucket", dict(bucket_counts), "tasks")
-    write_bar_svg(figures / "top_skills.svg", "Most common required skills", dict(skill_counts.most_common(10)), "tasks")
+    write_bar_svg(figures / "task_counts_by_family.svg", "Accepted v0 core tasks by family", dict(Counter(row["family"] for row in accepted)), "tasks")
+    write_bar_svg(figures / "task_counts_by_bucket.svg", "Accepted and calibration tasks by human-time bucket", dict(Counter(row["human_time_bucket"] for row in release)), "tasks")
+    skill_counts: Counter[str] = Counter()
+    for row in release:
+        skill_counts.update(parse_list(row.get("skills", "")))
+    write_bar_svg(figures / "top_skills.svg", "Most common release-task skills", dict(skill_counts.most_common(10)), "tasks")
     if run_rows:
-        model_counts = Counter(row["model"] for row in run_rows)
-        write_bar_svg(figures / "run_rows_by_model.svg", "Committed run-result rows by model/source", dict(model_counts), "rows")
-    write_scatter_svg(figures / "task_minutes_by_bucket.svg", "Problem-level human time estimates", metadata)
+        write_bar_svg(figures / "run_rows_by_model.svg", "Committed QA/model rows by source", dict(Counter(row["model"] for row in run_rows)), "rows")
+    write_scatter_svg(figures / "task_minutes_by_bucket.svg", "Release-task human time estimates", release)
 
-    run_summary = summarize_run_results(run_rows)
+    model_summary = summarize_model_results(run_rows)
+    model_rows = [row for row in run_rows if row.get("qa_stage") != "local_qa"]
+    infra_model_rows = [row for row in model_rows if row.get("infra_fail_count") not in {"", "0", 0}]
+    model_failure_counts = Counter(row.get("failure_label", "unknown") for row in model_rows if row.get("failure_label") != "none")
+    model_md = "\n".join(
+        f"- `{scaffold}`: pass@k mean {stats['mean']:.2f} over {int(stats['n'])} task rows, CI proxy {stats['ci95']:.2f}"
+        for scaffold, stats in sorted(model_summary.items())
+    ) or "- No real provider model-sweep rows are committed. Local QA rows are validation evidence only."
+    local_rows = [row for row in run_rows if row.get("qa_stage") == "local_qa"]
+    local_md = f"{len(local_rows)} local QA rows are committed for reference solutions and plausible wrong submissions." if local_rows else "No local QA rows are committed yet."
+
     report = ROOT / "reports" / "metr_style_report.md"
-    report.parent.mkdir(parents=True, exist_ok=True)
-    families_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(family_counts.items()))
-    buckets_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(bucket_counts.items()))
-    splits_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(split_counts.items()))
-    acceptance_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(acceptance_counts.items()))
-    review_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(review_counts.items()))
-    run_md = "\n".join(
-        f"- `{scaffold}`: mean score {stats['mean']:.2f} over {int(stats['n'])} committed rows, CI proxy {stats['ci95']:.2f}"
-        for scaffold, stats in sorted(run_summary.items())
-    ) or "- No committed model-sweep rows. Local QA rows can be generated with `python scripts/record_local_qa_results.py`."
-
     report.write_text(
-        f"""# Lean Time-Horizon Benchmark Report
+        f"""# Lean Time-Horizon Benchmark v0.1 Report
 
-## Summary
+## Executive Summary
 
-This repository currently contains {len(metadata)} validated Lean task candidates for evaluating how far models get on realistic formalization and verification work as task horizon increases.
+This repository is now organized as a v0.1 Lean time-horizon evaluation artifact rather than a raw candidate pool. The release set contains {len(accepted)} accepted core tasks and {len(calibration)} calibration-only tasks. The remaining {len(rejected)} tasks are retained as a rejected archive, and {len(pending)} tasks remain pending review.
 
-The current pool is intentionally not marked as final accepted. The original 20 tasks have been downgraded to candidates after difficulty audit; five harder replacement candidates have been added under `tasks/candidates` and still require manual difficulty review before acceptance.
+The accepted core set is intentionally smaller than the original target of 20. The original task batch was downgraded because many rows were dominated by `rfl`, `simp`, `omega`, `cases`, or one obvious library lemma. v0.1 keeps those rows out of benchmark statistics unless they serve a calibration role.
 
-The split is:
+## Accepted v0.1 Core Task Set
 
-{splits_md}
+{task_table(accepted)}
+
+## Calibration-Only Release Tasks
+
+{task_table(calibration)}
+
+## Portfolio Counts
 
 Acceptance status:
 
-{acceptance_md}
+{bullets(Counter(row.get("acceptance_status", "unspecified") for row in metadata))}
 
-Difficulty review status:
+Accepted core families:
 
-{review_md}
+{bullets(Counter(row["family"] for row in accepted))}
 
-Task families:
+Release human-time buckets:
 
-{families_md}
+{bullets(Counter(row["human_time_bucket"] for row in release))}
 
-Human-time buckets:
+## What The Tasks Measure
 
-{buckets_md}
+The accepted core tasks are intended to test library/API search, theorem decomposition, semantic formalization, proof debugging, codebase navigation, invariant design, and small library construction. The calibration-only rows are retained to verify the harness, establish lower time-bucket behavior, and catch regressions in simple Lean proof generation.
 
-## Task Portfolio
+Scaffold-sensitive tasks are marked in metadata. Lookup-sensitive rows include Mathlib image/preimage reasoning and semantic-list formalization. Iterative compile/debug sensitivity is expected for multi-file proof repair, invariant packages, and library-construction rows.
 
-The task set intentionally mixes algorithm correctness, proof repair, semantic formalization, invariant verification, small formal library construction, and a small direct theorem-proving slice. The benchmark is not designed as an olympiad theorem-proving set.
+## Grader And Integrity Controls
 
-The current candidate pool is pinned to Lean 4.28.0 and now includes both Std-only tasks and a Mathlib-backed replacement candidate. This improves coverage, but the Mathlib task should still be reviewed for clean-checkout dependency cost before final acceptance.
+The grader is Lean-first. For each submission it copies the public files listed in `metadata.json`, replaces the submission file, scans forbidden constructs, compiles public Lean files, compiles hidden semantic pins, and audits axioms on declared targets. Accepted and calibration tasks must have at least two wrong submissions.
 
-## Grading
+Hidden pins check more than type signatures where possible: semantic formalization tasks include positive and negative examples; invariant tasks include edge cases and downstream bundled consequences; library tasks include downstream reuse through public lemmas. The grader still cannot prove that a task measures every intended cognitive skill, and it cannot replace human review of whether a task is too automation-dominated.
 
-Each validated candidate task has:
+## Public Export
 
-- a public prompt and public `Task.lean`
-- hidden reference solution and hidden semantic pins
-- at least one plausible wrong submission
-- metadata with split, family, domain, human-time estimate, skills, scaffold sensitivity, and expected failures
-- local validation through `scripts/validate_task.py`
+`scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. It copies every file listed in metadata `public_files` plus `Prompt.md` and `metadata.json`. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
-The difficulty audit is generated at `reports/difficulty_audit.md` and `data/difficulty_audit.csv`.
+## Scaffold And Model-Run Support
 
-The grader scans forbidden constructs before Lean runs, compiles the submitted task, compiles hidden pins against the submitted declarations, and audits axioms. The allowed axiom policy is documented in `docs/axiom_policy.md`.
+The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches local Lean task files and installed Std/Mathlib files when available. External model runners receive `PROMPT_PATH`, `MODEL`, `TASK_ID`, `ATTEMPT_INDEX`, `SCAFFOLD`, `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES`.
 
-## Scaffold Variants
+## Committed Run Results
 
-The supported scaffold ladder is:
+{local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
 
-- `one-shot`: one submission, no lookup
-- `lookup`: one submission with read-only Lean/Std/Mathlib lookup available
-- `lookup_unlimited`: lookup plus iterative compile/debug attempts
+Real model-sweep rows:
 
-`scripts/run_model_sweep.py` implements the scaffold loop and transcript/result writing. Provider-specific API calls are intentionally delegated to environment-configured commands so API keys remain outside the repo.
+{model_md}
 
-## Committed Results
+{model_run_table(model_rows)}
 
-Committed run-result rows currently summarize local QA or explicitly run sweeps only. They are not presented as frontier-model performance unless a real provider sweep has been run and committed.
+Model-sweep infra failures: {len(infra_model_rows)}. Infra-failure rows are retained in `data/run_results.csv` and transcripts, but excluded from pass-rate summaries.
 
-{run_md}
+No provider API credentials or runner commands are committed. To run a real smoke sweep, configure one of `OPENAI_LEAN_RUNNER`, `ANTHROPIC_LEAN_RUNNER`, `GEMINI_LEAN_RUNNER`, or `LEAN_MODEL_RUNNER` and use `scripts/run_model_sweep.py`.
 
-## Figures
+Observed model-sweep failure labels:
 
-- `reports/figures/task_counts_by_family.svg`
-- `reports/figures/task_counts_by_bucket.svg`
-- `reports/figures/task_minutes_by_bucket.svg`
-- `reports/figures/top_skills.svg`
-- `reports/figures/run_rows_by_model.svg` when run-result rows exist
+{bullets(model_failure_counts)}
 
-## Failure Taxonomy
+## Difficulty Audit Summary
 
-Failures should be labeled with one primary label from `data/failure_labels.csv`. The most important expected labels for this batch are semantic formalization, hidden pin failure, proof debugging, library search, codebase navigation, invariant design, and theorem decomposition.
+The regenerated difficulty audit separates mechanical signals from manual judgments. Mechanical signals include reference proof lines, declaration count, public file count, public lemma count, tactic profile, automation dominance, Mathlib use, multi-file context, hidden pin strength, and wrong-submission count. Manual fields include frontier one-shot solvability estimates, p50/p90 human time, scaffold sensitivity, diagnostic value, and final accept/reject rationale.
 
 ## Limitations
 
-- No expensive frontier-model pass@10 sweep is committed by default. The repo includes the runner and schema; users can run real sweeps with environment-provided model commands.
-- Hosted Taiga/Env Linter QA is not represented in this local artifact. The local gate enforces the playbook acceptance checklist, but hosted QA would still be required before platform delivery.
-- Human-time estimates are author estimates with confidence notes, not second-reviewer measured times.
-- The current task pool is a candidate pool, not a final accepted benchmark. Replacement candidates need manual difficulty review before promotion.
+- The v0.1 accepted core is below the 20-task target because the original pool did not meet the diagnostic-quality bar.
+- The release has limited T3 coverage and no accepted T4 stretch task yet.
+- Human-time estimates are author/reviewer estimates, not measured independent solves.
+- Hidden pins are stronger than type checks, but they remain finite semantic probes.
+- Only a tiny real provider smoke sweep is committed; it is adapter/proof-debugging evidence, not a benchmark performance claim.
+- Hosted Taiga/Env Linter QA is not represented in this local artifact.
 
-## Next Batch
+## Before Claiming A Locked Benchmark
 
-The next increment should add more Mathlib-backed tasks, at least one T3 codebase repair package, and real pass@10 model results across the three scaffold variants.
+The next step is to add more high-quality T2/T3/T4 tasks, run independent human review, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.
 """,
         encoding="utf-8",
     )

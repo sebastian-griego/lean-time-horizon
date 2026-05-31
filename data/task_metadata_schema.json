@@ -21,6 +21,7 @@
     "acceptance_status",
     "difficulty_review_status",
     "difficulty_review_notes",
+    "public_files",
     "axiom_audit_declarations",
     "extra_forbidden",
     "timeout_seconds"
@@ -41,9 +42,25 @@
     "expected_failure_modes": {"type": "array", "items": {"type": "string"}},
     "scaffold_sensitivity": {"type": "string"},
     "qa_status": {"type": "string"},
-    "acceptance_status": {"type": "string"},
+    "acceptance_status": {
+      "enum": [
+        "accepted_v0",
+        "calibration_only",
+        "candidate_review_pending",
+        "candidate_not_accepted",
+        "rejected_too_easy",
+        "rejected_invalid",
+        "rejected_duplicate",
+        "rejected_grader_weak"
+      ]
+    },
     "difficulty_review_status": {"type": "string"},
     "difficulty_review_notes": {"type": "string"},
+    "public_files": {"type": "array", "items": {"type": "string"}},
+    "submission_file": {"type": "string"},
+    "entry_file": {"type": "string"},
+    "diagnostic_value": {"type": "string"},
+    "frontier_model_one_shot_likelihood": {"type": "string"},
     "axiom_audit_declarations": {"type": "array", "items": {"type": "string"}},
     "extra_forbidden": {"type": "array", "items": {"type": "string"}},
     "timeout_seconds": {"type": "integer", "minimum": 1}

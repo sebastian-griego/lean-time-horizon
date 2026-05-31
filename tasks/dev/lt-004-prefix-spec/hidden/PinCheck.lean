@@ -19,4 +19,10 @@ example : ¬ PrefixSpec [1, 3] [1, 2, 3] := by
   | cons a rest =>
       cases rest <;> simp at hs
 
+example : PrefixSpec [] [4, 5] := by
+  exact prefix_nil [4, 5]
+
+example : PrefixSpec [4, 5] [4, 5] := by
+  exact prefix_self [4, 5]
+
 end LT004

@@ -1,63 +1,73 @@
 # Lean Time-Horizon Benchmark
 
-This repo contains a Lean-based evaluation benchmark candidate pool for measuring how far models get on realistic formalization and verification tasks as task horizon increases.
+This repository contains a v0.1 Lean-based time-horizon evaluation artifact for measuring realistic formalization and verification work. It is no longer treated as a raw candidate pool: task status is explicit in metadata, reports, and generated CSVs.
 
-The current validated pool has 25 tasks:
+Current v0.1 state:
 
-- 5 dev tasks in `tasks/dev`
-- 15 test tasks in `tasks/test`
-- 5 harder replacement candidates in `tasks/candidates`
-- task families covering algorithm correctness, proof repair, informal-spec formalization, invariant verification, small library construction, and direct theorem proving
+- 9 accepted core tasks
+- 5 calibration-only tasks
+- 12 rejected archive tasks retained for auditability
+- dev/test split recorded in task metadata and public export
+- Lean 4.28.0 via `lean-toolchain`
 
-The original 20 tasks are treated as candidates, not final accepted tasks. The difficulty audit downgrades many of them to T0/T1 calibration or rejects them as too easy for final benchmark use. No task should be promoted to accepted until validation and manual difficulty review both pass.
-
-The project is pinned to Lean 4.28.0 in `lean-toolchain`.
+The accepted core set is intentionally smaller than the original target of 20. The original pool was downgraded because many rows were too automation-dominated or duplicated the same short proof pattern. v0.1 favors diagnostic value over task count.
 
 ## Validate
 
-Run the full local acceptance gate:
+Run the local acceptance gate from the repo root:
 
 ```powershell
+lake build
 python scripts/validate_all.py
+python scripts/audit_difficulty.py
+python scripts/record_local_qa_results.py
+python scripts/generate_report.py
+python scripts/export_public_tasks.py --out public_tasks
+python scripts/validate_public_export.py --out public_tasks
 ```
 
-This checks every validated task candidate by:
-
-- compiling the hidden reference solution
-- scanning forbidden constructs
-- compiling hidden semantic pins
-- auditing axioms
-- confirming at least one plausible wrong solution fails
-- regenerating `data/task_metadata.csv`
+`validate_all.py` checks every tracked task by compiling the hidden reference, scanning forbidden constructs, compiling hidden semantic pins, auditing axioms, and confirming wrong submissions fail. Accepted and calibration-only tasks must have at least two wrong submissions.
 
 Run one task manually:
 
 ```powershell
-python scripts/validate_task.py tasks/test/lt-111-clip-interval-invariant --submission path\to\Task.lean --expect pass
+python scripts/validate_task.py tasks/test/lt-206-partition-count-correctness --submission tasks/test/lt-206-partition-count-correctness/hidden/Reference.lean --expect pass
 ```
+
+## Task Statuses
+
+Task status is stored in each `metadata.json`:
+
+- `accepted_v0`: core benchmark task
+- `calibration_only`: release task used for T0/T1 calibration and harness smoke checks
+- `candidate_review_pending`: generated but not accepted
+- `rejected_too_easy`, `rejected_invalid`, `rejected_duplicate`, `rejected_grader_weak`: retained archive rows
+
+Rejected and calibration tasks are not counted as accepted benchmark performance rows in `reports/metr_style_report.md`.
 
 ## Task Layout
 
-Each validated task candidate has:
+Each validated task has:
 
-- `Prompt.md`: public instructions
-- `Task.lean`: public scaffold
-- `metadata.json`: task metadata
-- `hidden/Reference.lean`: hidden reference solution
-- `hidden/PinCheck.lean`: hidden semantic checks
-- `wrong/*.lean`: plausible wrong submissions that must fail
+- `Prompt.md`
+- all public Lean files listed in metadata `public_files`
+- `metadata.json`
+- `hidden/Reference.lean`
+- `hidden/PinCheck.lean`
+- `wrong/*.lean`
 
-Candidate and discarded tasks are separated under `tasks/candidates` and `tasks/discarded`. Rejected design candidates are tracked in `data/discarded_candidates.csv`.
+The multi-file cache task demonstrates public multi-file support with `Model.lean` plus `Task.lean`.
 
-## Scoring
+## Grading
 
 The grader is Lean-first:
 
-1. copy the submitted Lean file into a clean temporary directory
-2. scan source for forbidden constructs with comments and strings stripped
-3. compile `Task.lean`
-4. compile hidden `PinCheck.lean`
-5. audit axioms used by submitted declarations
+1. copy all metadata-listed public files into a clean temporary task directory
+2. replace the submission file
+3. scan source for forbidden constructs with comments and strings stripped
+4. compile public Lean files
+5. compile hidden semantic pins against submitted declarations
+6. audit axioms used by declared targets
 
 The axiom policy is documented in `docs/axiom_policy.md`.
 
@@ -69,54 +79,48 @@ Supported scaffold names are listed in `data/scaffold_variants.csv`:
 - `lookup`
 - `lookup_unlimited`
 
+Lookup is a real read-only helper:
+
+```powershell
+python scripts/lean_lookup.py "Set.image"
+```
+
+Model runners receive `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES` in the environment.
+
+## Model Runs
+
+Do not fake results. Local QA rows are validation evidence, not model performance.
+
 Run a local reference sweep:
 
 ```powershell
-python scripts/run_model_sweep.py --provider local_reference --model lean-reference --scaffold one-shot --split dev --attempts 1
+python scripts/run_model_sweep.py --provider local_reference --model lean-reference --scaffold one-shot --split dev --attempts 1 --acceptance-status accepted_v0
 ```
 
 For real model runs, configure an external runner command. Example:
 
 ```powershell
-$env:OPENAI_LEAN_RUNNER = "python path/to/openai_runner.py"
-python scripts/run_model_sweep.py --provider openai --model your-model --scaffold lookup_unlimited --split test --attempts 10
+$env:ANTHROPIC_LEAN_RUNNER = "python scripts/anthropic_runner.py"
+$env:ANTHROPIC_MAX_TOKENS = "4096"
+python scripts/run_model_sweep.py --provider anthropic --model claude-sonnet-4-6 --scaffold one-shot --task-id lt-201 --attempts 1
 ```
 
-The external command receives `PROMPT_PATH`, `MODEL`, `TASK_ID`, and `ATTEMPT_INDEX` in the environment and must print a complete `Task.lean` file to stdout. API keys should stay in environment variables such as `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY`; do not commit secrets.
+API keys stay in environment variables such as `ANTHROPIC_API_KEY`; do not commit secrets. `scripts/anthropic_runner.py` is a minimal adapter for smoke sweeps.
 
-## Transcripts And Labels
+## Public Export
 
-Model sweeps write JSONL transcripts under `transcripts/<job_id>/`.
-
-Failure labels are defined in:
-
-- `data/failure_labels.csv`
-- `data/failure_label_schema.json`
-- `data/failure_annotations.csv`
-
-Use one primary label per failed run.
-
-## Regenerate Data And Report
-
-Record local QA result rows:
+Create a public-only task bundle:
 
 ```powershell
-python scripts/record_local_qa_results.py
+python scripts/export_public_tasks.py --out public_tasks
+python scripts/validate_public_export.py --out public_tasks
 ```
 
-Regenerate plots and report:
+By default, the export includes `accepted_v0`, `calibration_only`, and any `candidate_review_pending` tasks. It excludes hidden references and wrong submissions, copies every metadata-listed public file, and validates exported Lean compilation.
 
-```powershell
-python scripts/generate_report.py
-```
+## Reports And Data
 
-Run the difficulty audit:
-
-```powershell
-python scripts/audit_difficulty.py
-```
-
-Outputs:
+Regenerated outputs:
 
 - `data/task_metadata.csv`
 - `data/validation_commands.csv`
@@ -126,14 +130,4 @@ Outputs:
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-Committed local QA rows are not frontier-model results. Real model pass@k rows should be generated with `scripts/run_model_sweep.py` and reviewed before being used as benchmark claims. Run-result rows report `k`, `successes_out_of_k`, and binary `pass_at_k`; do not infer pass@10 from one-shot local QA rows.
-
-## Public Export
-
-To create a public-only task bundle without hidden references:
-
-```powershell
-python scripts/export_public_tasks.py --out public_tasks
-```
-
-The export includes only `Prompt.md`, `Task.lean`, and `metadata.json`.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/overnight_progress.md` records implementation checkpoints and blockers.

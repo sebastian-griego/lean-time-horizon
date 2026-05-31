@@ -73,6 +73,11 @@ def row(metadata: dict, model: str, ok: bool, failure_label: str) -> dict[str, o
 
 def main() -> int:
     rows: list[dict[str, object]] = []
+    out = ROOT / "data" / "run_results.csv"
+    preserved_rows: list[dict[str, str]] = []
+    if out.exists():
+        with out.open(newline="", encoding="utf-8") as f:
+            preserved_rows = [row for row in csv.DictReader(f) if row.get("qa_stage") != "local_qa"]
     transcript_dir = ROOT / "transcripts" / "local-qa"
     transcript_dir.mkdir(parents=True, exist_ok=True)
     for old in transcript_dir.glob("*.jsonl"):
@@ -118,12 +123,12 @@ def main() -> int:
                     "timestamp_utc": int(time.time()),
                 }) + "\n")
 
-    out = ROOT / "data" / "run_results.csv"
     with out.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
         writer.writeheader()
+        writer.writerows(preserved_rows)
         writer.writerows(rows)
-    print(f"wrote {out.relative_to(ROOT)} with {len(rows)} local QA rows")
+    print(f"wrote {out.relative_to(ROOT)} with {len(rows)} local QA rows and preserved {len(preserved_rows)} non-local rows")
     return 0
 
 

@@ -14,4 +14,11 @@ example : ¬ AdjacentLeSpec [2, 1] := by
   intro h
   simp [AdjacentLeSpec] at h
 
+example : ¬ AdjacentLeSpec [1, 3, 2] := by
+  intro h
+  simp [AdjacentLeSpec] at h
+
+example : AdjacentLeSpec [0, 1, 1, 4] := by
+  simp [AdjacentLeSpec]
+
 end LT108
