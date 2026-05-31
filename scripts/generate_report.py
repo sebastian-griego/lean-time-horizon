@@ -206,27 +206,37 @@ def requirement_coverage_section(rows: list[dict[str, str]]) -> str:
         )
     counts = Counter(row.get("status", "unknown") for row in rows)
     count_md = "\n".join(f"- `{status}`: {counts.get(status, 0)}" for status in ["supported", "partial", "not_met"])
+    freeze_counts = Counter((row.get("freeze_relevance", "unspecified"), row.get("status", "unknown")) for row in rows)
+    freeze_lines = []
+    for freeze_relevance in sorted({row.get("freeze_relevance", "unspecified") for row in rows}):
+        parts = [f"{status} {freeze_counts[(freeze_relevance, status)]}" for status in ["supported", "partial", "not_met"] if freeze_counts[(freeze_relevance, status)]]
+        freeze_lines.append(f"- `{freeze_relevance}`: {', '.join(parts)}")
+    freeze_md = "\n".join(freeze_lines) or "- _None_"
     gaps = [row for row in rows if row.get("status") != "supported"]
     if gaps:
         gap_lines = [
-            "| id | area | status | evidence | next step |",
-            "| --- | --- | --- | --- | --- |",
+            "| id | area | freeze relevance | status | evidence | next step |",
+            "| --- | --- | --- | --- | --- | --- |",
         ]
         for row in gaps:
             evidence = row.get("evidence", "").replace("|", "/")
             next_step = row.get("gap_or_next_step", "").replace("|", "/")
             gap_lines.append(
-                f"| `{row.get('requirement_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+                f"| `{row.get('requirement_id', '')}` | {row.get('area', '')} | {row.get('freeze_relevance', '')} | {row.get('status', '')} | "
                 f"{evidence} | {next_step} |"
             )
         gap_md = "\n".join(gap_lines)
     else:
         gap_md = "_No partial or unmet requirements recorded._"
-    return f"""`reports/requirement_coverage.md` and `data/requirement_coverage.csv` map the repository to playbook-level benchmark requirements. This is a stricter evidence index than the narrative claim ledger.
+    return f"""`reports/requirement_coverage.md` and `data/requirement_coverage.csv` map the repository to the committed checklist in `data/benchmark_requirements.csv`. This is a stricter evidence index than the narrative claim ledger.
 
 Status counts:
 
 {count_md}
+
+Freeze relevance counts:
+
+{freeze_md}
 
 Partial or unmet requirements:
 

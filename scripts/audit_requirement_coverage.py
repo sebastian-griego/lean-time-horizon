@@ -12,6 +12,8 @@ FIELDS = [
     "requirement_id",
     "area",
     "requirement",
+    "freeze_relevance",
+    "source_note",
     "status",
     "evidence",
     "gap_or_next_step",
@@ -71,6 +73,8 @@ def row(requirement_id: str, area: str, requirement: str, status: str, evidence:
         "requirement_id": requirement_id,
         "area": area,
         "requirement": requirement,
+        "freeze_relevance": "",
+        "source_note": "",
         "status": status,
         "evidence": evidence,
         "gap_or_next_step": gap,
@@ -79,6 +83,32 @@ def row(requirement_id: str, area: str, requirement: str, status: str, evidence:
 
 def compact_json(value: object) -> str:
     return json.dumps(value, sort_keys=True)
+
+
+def load_requirement_catalog(path: Path = ROOT / "data" / "benchmark_requirements.csv") -> dict[str, dict[str, str]]:
+    return {row_data["requirement_id"]: row_data for row_data in read_csv(path)}
+
+
+def apply_requirement_catalog(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    catalog = load_requirement_catalog()
+    covered_ids = {row_data["requirement_id"] for row_data in rows}
+    missing_from_catalog = sorted(covered_ids - set(catalog))
+    missing_from_coverage = sorted(set(catalog) - covered_ids)
+    if missing_from_catalog or missing_from_coverage:
+        raise ValueError(
+            "requirement coverage/catalog mismatch: "
+            f"missing_from_catalog={missing_from_catalog}; missing_from_coverage={missing_from_coverage}"
+        )
+    out: list[dict[str, str]] = []
+    for row_data in rows:
+        definition = catalog[row_data["requirement_id"]]
+        merged = dict(row_data)
+        merged["area"] = definition["area"]
+        merged["requirement"] = definition["requirement"]
+        merged["freeze_relevance"] = definition["freeze_relevance"]
+        merged["source_note"] = definition["source_note"]
+        out.append(merged)
+    return out
 
 
 def file_count_status(paths: list[Path]) -> tuple[int, int]:
@@ -502,10 +532,11 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
 def write_markdown(path: Path, rows: list[dict[str, str]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     counts = Counter(row_data["status"] for row_data in rows)
+    freeze_counts = Counter(f"{row_data['freeze_relevance']}:{row_data['status']}" for row_data in rows)
     lines = [
         "# Requirement Coverage Audit",
         "",
-        "This generated audit maps the local repository state to playbook-level benchmark requirements. It is an evidence index, not a claim that the benchmark is frozen.",
+        "This generated audit maps the local repository state to the committed checklist in `data/benchmark_requirements.csv`. It is an evidence index, not a claim that the benchmark is frozen.",
         "",
         "## Status Counts",
         "",
@@ -514,14 +545,24 @@ def write_markdown(path: Path, rows: list[dict[str, str]]) -> None:
         lines.append(f"- `{status}`: {counts.get(status, 0)}")
     lines.extend([
         "",
+        "## Freeze Relevance Counts",
+        "",
+    ])
+    for freeze_relevance in sorted({row_data["freeze_relevance"] for row_data in rows}):
+        for status in ["supported", "partial", "not_met"]:
+            key = f"{freeze_relevance}:{status}"
+            if freeze_counts.get(key, 0):
+                lines.append(f"- `{freeze_relevance}` / `{status}`: {freeze_counts[key]}")
+    lines.extend([
+        "",
         "## Coverage Table",
         "",
-        "| id | area | status | requirement | evidence | gap / next step |",
-        "| --- | --- | --- | --- | --- | --- |",
+        "| id | area | freeze relevance | status | requirement | evidence | gap / next step |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ])
     for row_data in rows:
         lines.append(
-            f"| `{row_data['requirement_id']}` | {row_data['area']} | {row_data['status']} | "
+            f"| `{row_data['requirement_id']}` | {row_data['area']} | {row_data['freeze_relevance']} | {row_data['status']} | "
             f"{row_data['requirement']} | {row_data['evidence']} | {row_data['gap_or_next_step']} |"
         )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -534,7 +575,7 @@ def main() -> int:
     parser.add_argument("--md-out", type=Path, default=ROOT / "reports" / "requirement_coverage.md")
     args = parser.parse_args()
 
-    rows = build_rows(args.public_export)
+    rows = apply_requirement_catalog(build_rows(args.public_export))
     write_csv(args.csv_out, rows)
     write_markdown(args.md_out, rows)
     print(f"wrote {args.csv_out.relative_to(ROOT)} and {args.md_out.relative_to(ROOT)} with {len(rows)} requirement rows")

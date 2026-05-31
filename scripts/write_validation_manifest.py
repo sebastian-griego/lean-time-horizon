@@ -33,6 +33,7 @@ HASHED_ARTIFACTS = [
     "lake-manifest.json",
     "README.md",
     "docs/axiom_policy.md",
+    "data/benchmark_requirements.csv",
     "data/task_metadata.csv",
     "data/task_metadata_schema.json",
     "data/run_results.csv",

@@ -210,7 +210,7 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 ## Requirement Coverage Audit
 
-`reports/requirement_coverage.md` and `data/requirement_coverage.csv` map the repository to playbook-level benchmark requirements. This is a stricter evidence index than the narrative claim ledger.
+`reports/requirement_coverage.md` and `data/requirement_coverage.csv` map the repository to the committed checklist in `data/benchmark_requirements.csv`. This is a stricter evidence index than the narrative claim ledger.
 
 Status counts:
 
@@ -218,16 +218,22 @@ Status counts:
 - `partial`: 4
 - `not_met`: 2
 
+Freeze relevance counts:
+
+- `required_for_locked_benchmark`: supported 2, partial 4, not_met 2
+- `required_for_release_artifact`: supported 14
+- `required_for_research_report`: supported 6
+
 Partial or unmet requirements:
 
-| id | area | status | evidence | next step |
-| --- | --- | --- | --- | --- |
-| `portfolio_accepted_count` | portfolio | not_met | 6 accepted_v0 tasks; 8 calibration-only tasks; 12 rejected archive tasks. | Add and hard-review more high-quality T2/T3/T4 tasks before claiming a full benchmark. |
-| `time_horizon_spread` | portfolio | partial | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
-| `scaffold_result_comparison` | scaffolds | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
-| `frontier_model_evidence` | runs | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
-| `independent_human_time_review` | calibration | partial | Accepted tasks with manual_review_complete: 6/6; no independent timed solves detected in metadata. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
-| `hosted_qa_env_linter` | qa | not_met | Hosted QA artifacts present: 0/2. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
+| id | area | freeze relevance | status | evidence | next step |
+| --- | --- | --- | --- | --- | --- |
+| `portfolio_accepted_count` | portfolio | required_for_locked_benchmark | not_met | 6 accepted_v0 tasks; 8 calibration-only tasks; 12 rejected archive tasks. | Add and hard-review more high-quality T2/T3/T4 tasks before claiming a full benchmark. |
+| `time_horizon_spread` | portfolio | required_for_locked_benchmark | partial | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
+| `scaffold_result_comparison` | scaffolds | required_for_locked_benchmark | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
+| `frontier_model_evidence` | runs | required_for_locked_benchmark | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
+| `independent_human_time_review` | calibration | required_for_locked_benchmark | partial | Accepted tasks with manual_review_complete: 6/6; no independent timed solves detected in metadata. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
+| `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted QA artifacts present: 0/2. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 
 
 ## Reproducibility Checklist
@@ -255,9 +261,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-05-31T21:48:55.858680+00:00`
+Generated at UTC: `2026-05-31T22:11:21.348143+00:00`
 
-Git branch/head at generation: `main` / `1301e78eae12`. Worktree status at generation: `10 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `67d1b1216caa`. Worktree status at generation: `8 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -295,8 +301,9 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `a8e77523f87d` |  | 6101 |
+| `README.md` | `afa938720944` |  | 6198 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
+| `data/benchmark_requirements.csv` | `4a2fa60738bf` | 28 | 5397 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
@@ -307,12 +314,12 @@ Key artifact hashes:
 | `data/model_result_summary.csv` | `2cfee9603a36` | 10 | 1682 |
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
 | `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
-| `data/requirement_coverage.csv` | `7a4f415311ff` | 28 | 6561 |
+| `data/requirement_coverage.csv` | `ccf348764c18` | 28 | 8656 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
 | `reports/model_run_analysis.md` | `7ea88a7de75f` |  | 1965 |
-| `reports/requirement_coverage.md` | `cf4d329bab8b` |  | 7274 |
+| `reports/requirement_coverage.md` | `6ce1fdd5e198` |  | 8500 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -321,16 +328,16 @@ Key artifact hashes:
 | `scripts/validate_all.py` | `1a9f7f73a567` |  | 6446 |
 | `scripts/validate_task.py` | `99451d91d763` |  | 9611 |
 | `scripts/audit_difficulty.py` | `0bebfeb74ec4` |  | 10134 |
-| `scripts/audit_requirement_coverage.py` | `6fc9c0dbb0f0` |  | 28047 |
+| `scripts/audit_requirement_coverage.py` | `d982296b49d2` |  | 29970 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `ae6133ba3df4` |  | 33305 |
+| `scripts/generate_report.py` | `658a43cbe6b8` |  | 33966 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `b062fa2c283d` |  | 1437 |
-| `scripts/write_validation_manifest.py` | `b9be2c2f71ab` |  | 8473 |
+| `scripts/write_validation_manifest.py` | `fbbce150a18b` |  | 8512 |
 
 
 ## Threats To Validity

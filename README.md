@@ -131,6 +131,7 @@ Regenerated outputs:
 - `data/task_metadata.csv`
 - `data/validation_commands.csv`
 - `data/run_results.csv`
+- `data/benchmark_requirements.csv`
 - `data/difficulty_audit.csv`
 - `data/model_sweep_plan.csv`
 - `data/model_result_summary.csv`
@@ -144,4 +145,4 @@ Regenerated outputs:
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/evaluation_protocol.md` defines the planned primary model-sweep analysis before broad runs. `reports/model_run_analysis.md` summarizes committed provider rows against that plan without turning smoke rows into benchmark claims. `reports/requirement_coverage.md` is a generated requirement-by-requirement evidence audit. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/evaluation_protocol.md` defines the planned primary model-sweep analysis before broad runs. `reports/model_run_analysis.md` summarizes committed provider rows against that plan without turning smoke rows into benchmark claims. `data/benchmark_requirements.csv` is the committed checklist used by `reports/requirement_coverage.md` for requirement-by-requirement evidence auditing. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.

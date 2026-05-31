@@ -1,0 +1,29 @@
+requirement_id,area,requirement,freeze_relevance,source_note
+portfolio_accepted_count,portfolio,Final benchmark should contain 20-50 accepted tasks after QA and filtering.,required_for_locked_benchmark,Playbook project target and user benchmark-size requirement.
+dev_test_split,portfolio,Accepted tasks should preserve a dev/test split.,required_for_locked_benchmark,Playbook split and difficulty design requirement.
+mixed_realistic_portfolio,portfolio,Task families should be mixed and not mostly direct theorem proving.,required_for_locked_benchmark,Playbook recommended task portfolio requirement.
+time_horizon_spread,portfolio,"Accepted tasks should span increasing human-time horizons, not only T0/T1/T2 calibration.",required_for_locked_benchmark,Playbook time-horizon design and user long-horizon objective.
+public_prompts_scaffolds,assets,Each release task should include public prompt and public Lean scaffold files.,required_for_release_artifact,Playbook prompt and public-asset standards.
+hidden_references_pins,grading,Each release task should have hidden reference proof and hidden semantic PinCheck.,required_for_release_artifact,Playbook Lean grader architecture and hidden semantic pins sections.
+wrong_submission_controls,grading,Accepted tasks should include plausible wrong submissions that fail for meaningful reasons.,required_for_release_artifact,User QA requirement and playbook local validation loop.
+automatic_lean_scoring,grading,Scoring should use Lean wherever possible and provide validation commands.,required_for_release_artifact,Playbook Lean grader architecture.
+forbidden_construct_scan,integrity,Submissions should be scanned for forbidden constructs before Lean grading.,required_for_release_artifact,Playbook integrity and reward-hack hardening.
+axiom_audit_policy,integrity,Axiom usage should be audited or governed by a documented policy.,required_for_release_artifact,Playbook axiom audit guidance.
+metadata_completeness,data,"Task metadata should include family, domain, human-time, skills, scaffold sensitivity, and failure modes.",required_for_release_artifact,Playbook task metadata schema.
+schemas_present,data,"Task metadata, run results, and failure labels should have schemas.",required_for_release_artifact,User data-schema requirement.
+run_result_semantics,data,run_results should represent successes_out_of_k and pass@k consistently.,required_for_release_artifact,User pass@k semantics requirement.
+scaffold_support,scaffolds,"The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants.",required_for_release_artifact,Playbook scaffold ladder.
+evaluation_protocol_plan,runs,A prospective evaluation protocol should define the primary accepted-task scaffold sweep before broad model runs.,required_for_research_report,Report-quality requirement derived from playbook calibration outputs.
+model_result_analysis,runs,Committed provider rows should be analyzed separately from local QA and against the planned primary sweep.,required_for_research_report,Report-quality requirement for not overstating smoke rows.
+scaffold_result_comparison,scaffolds,"The report should compare real model performance across scaffolds, ideally pass@10.",required_for_locked_benchmark,Playbook scaffold interpretation and calibration outputs.
+transcript_failure_workflow,runs,Run rows should link transcripts and carry failure labels for review.,required_for_release_artifact,Playbook failure taxonomy.
+frontier_model_evidence,runs,Frontier/open-model runs should provide evidence beyond local QA.,required_for_locked_benchmark,Playbook project target.
+public_export_no_hidden_leak,integrity,Public export should include public assets and exclude hidden references and wrong submissions.,required_for_release_artifact,User hidden-material non-leak requirement.
+report_from_committed_data,reporting,The METR-style report and plots should regenerate from committed CSVs.,required_for_research_report,Playbook report shape and user reporting requirement.
+difficulty_audit_report,reporting,"Difficulty audit should include proof length, tactic profile, automation dominance, hidden-pin strength, and model-solvability estimates.",required_for_research_report,User hard-review requirement.
+manual_accepted_task_review,reporting,Accepted tasks should have hard reviewer-style notes and benchmark-grade caveats.,required_for_research_report,User accepted-task review requirement.
+independent_human_time_review,calibration,"Human-time estimates should be separately reviewed or measured, not inferred from model pass rates.",required_for_locked_benchmark,Playbook human time estimates process.
+hosted_qa_env_linter,qa,Hosted Taiga/Env Linter QA should be run before delivery/freeze.,required_for_locked_benchmark,Playbook hosted QA loop.
+reproducibility_manifest,reproducibility,"A clean regeneration trail should record toolchain, commands, counts, and artifact hashes.",required_for_research_report,Report-quality reproducibility requirement.
+candidate_pruning_audit,portfolio,Candidate tasks should be separated from accepted tasks and pruned aggressively.,required_for_release_artifact,Playbook candidate generation and filtering guidance.
+semantic_formalization_pins,grading,Formalization tasks should use semantic pins rather than brittle exact-text matching.,required_for_release_artifact,Playbook hidden semantic pins guidance.
