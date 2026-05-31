@@ -192,9 +192,79 @@ python scripts/record_local_qa_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/generate_report.py
 ```
 
 The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+## Validation Manifest
+
+`reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
+
+Generated at UTC: `2026-05-31T20:29:54.563915+00:00`
+
+Git branch/head at generation: `main` / `76dd259c0d96`. Worktree status at generation: `32 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+
+Toolchain:
+
+- Lean: `Lean (version 4.28.0, x86_64-w64-windows-gnu, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b, Release)`
+- Lake: `Lake version 5.0.0-src+7e01a1b (Lean version 4.28.0)`
+- Python: `3.11.9`
+- Platform: `Windows-10-10.0.26200-SP0`
+
+Task summary:
+
+- total tasks in metadata: `26`
+- acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
+- run-result rows: `69` total, `66` local QA, `3` model-sweep
+- public export: `14` tasks at `public_tasks`, hidden/wrong paths found: `0`
+
+Regeneration commands:
+
+1. `lake build`
+2. `python scripts/validate_all.py`
+3. `python scripts/audit_difficulty.py`
+4. `python scripts/record_local_qa_results.py`
+5. `python scripts/generate_report.py`
+6. `python scripts/export_public_tasks.py --out public_tasks`
+7. `python scripts/validate_public_export.py --out public_tasks`
+8. `python scripts/write_validation_manifest.py --public-export public_tasks`
+9. `python scripts/generate_report.py`
+
+Key artifact hashes:
+
+| artifact | sha256 prefix | rows | bytes |
+| --- | --- | ---: | ---: |
+| `lean-toolchain` | `db7bb24b756d` |  | 25 |
+| `lakefile.lean` | `1d842f6b4179` |  | 284 |
+| `lake-manifest.json` | `601ea0517a05` |  | 3110 |
+| `README.md` | `451e7a4891e4` |  | 5409 |
+| `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
+| `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
+| `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
+| `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
+| `data/run_results_schema.json` | `0edbd2b61e00` |  | 1436 |
+| `data/failure_label_schema.json` | `ae06ab834c14` |  | 481 |
+| `data/scaffold_variants.csv` | `6ddd3f4fb586` | 3 | 379 |
+| `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
+| `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
+| `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
+| `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
+| `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
+| `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
+| `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
+| `reports/figures/run_rows_by_model.svg` | `50b22c3771fd` |  | 13402 |
+| `reports/figures/task_minutes_by_bucket.svg` | `afef6d3c788f` |  | 3192 |
+| `scripts/validate_all.py` | `1a9f7f73a567` |  | 6446 |
+| `scripts/validate_task.py` | `99451d91d763` |  | 9611 |
+| `scripts/audit_difficulty.py` | `0bebfeb74ec4` |  | 10134 |
+| `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
+| `scripts/generate_report.py` | `48e0a6297b31` |  | 27666 |
+| `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
+| `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
+| `scripts/write_validation_manifest.py` | `5f0420a45b20` |  | 7874 |
+
 
 ## Threats To Validity
 

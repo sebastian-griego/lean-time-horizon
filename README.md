@@ -24,6 +24,8 @@ python scripts/record_local_qa_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/generate_report.py
 ```
 
 `validate_all.py` checks every tracked task by compiling the hidden reference, scanning forbidden constructs, compiling hidden semantic pins, auditing axioms, and confirming wrong submissions fail. Accepted and calibration-only tasks must have at least two wrong submissions.
@@ -90,6 +92,7 @@ Model runners receive `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC
 ## Model Runs
 
 Do not fake results. Local QA rows are validation evidence, not model performance.
+`record_local_qa_results.py` writes deterministic local QA transcripts with ephemeral temporary paths scrubbed so repeated local regeneration does not create meaningless transcript churn.
 
 Run a local reference sweep:
 
@@ -128,7 +131,8 @@ Regenerated outputs:
 - `data/difficulty_audit.csv`
 - `reports/difficulty_audit.md`
 - `reports/accepted_task_review.md`
+- `reports/validation_manifest.json`
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/overnight_progress.md` records implementation checkpoints and blockers.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.

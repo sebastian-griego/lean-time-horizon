@@ -16,6 +16,12 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(f))
 
 
+def read_json(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def parse_list(value: str) -> list[str]:
     if not value:
         return []
@@ -177,10 +183,90 @@ def evidence_table(rows: list[dict[str, str]], audit_by_id: dict[str, dict[str, 
     return "\n".join(lines)
 
 
+def one_line_command_result(value: object) -> str:
+    if not isinstance(value, dict):
+        return str(value)
+    lines = value.get("stdout_first_line", [])
+    if isinstance(lines, list) and lines:
+        return str(lines[0]).strip()
+    return f"exit {value.get('returncode', '?')}"
+
+
+def compact_json(value: object) -> str:
+    return json.dumps(value, sort_keys=True)
+
+
+def validation_manifest_section(manifest: dict) -> str:
+    if not manifest:
+        return (
+            "## Validation Manifest\n\n"
+            "`reports/validation_manifest.json` has not been generated yet. Run "
+            "`python scripts/write_validation_manifest.py --public-export public_tasks` "
+            "after the local validation gate passes, then regenerate this report.\n"
+        )
+
+    tool_versions = manifest.get("tool_versions", {})
+    git = manifest.get("git", {})
+    task_summary = manifest.get("task_summary", {})
+    run_summary = manifest.get("run_result_summary", {})
+    public_export = manifest.get("public_export", {})
+    artifacts = manifest.get("artifacts", [])
+    artifact_lines = [
+        "| artifact | sha256 prefix | rows | bytes |",
+        "| --- | --- | ---: | ---: |",
+    ]
+    for artifact in artifacts:
+        if not artifact.get("exists"):
+            artifact_lines.append(f"| `{artifact.get('path', '')}` | missing |  |  |")
+            continue
+        artifact_lines.append(
+            f"| `{artifact.get('path', '')}` | `{str(artifact.get('sha256', ''))[:12]}` | "
+            f"{artifact.get('row_count', '')} | {artifact.get('bytes', '')} |"
+        )
+
+    status_lines = git.get("status_short", [])
+    status_md = "`clean`" if not status_lines else f"`{len(status_lines)} pre-commit path(s) recorded`"
+
+    commands = manifest.get("regeneration_commands", [])
+    command_md = "\n".join(f"{i}. `{command}`" for i, command in enumerate(commands, start=1)) or "_None recorded._"
+
+    return f"""## Validation Manifest
+
+`reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
+
+Generated at UTC: `{manifest.get('generated_at_utc', 'unknown')}`
+
+Git branch/head at generation: `{git.get('branch', 'unknown')}` / `{str(git.get('head', 'unknown'))[:12]}`. Worktree status at generation: {status_md}. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+
+Toolchain:
+
+- Lean: `{one_line_command_result(tool_versions.get('lean', {}))}`
+- Lake: `{one_line_command_result(tool_versions.get('lake', {}))}`
+- Python: `{tool_versions.get('python', 'unknown')}`
+- Platform: `{tool_versions.get('platform', 'unknown')}`
+
+Task summary:
+
+- total tasks in metadata: `{task_summary.get('task_count', 0)}`
+- acceptance statuses: `{compact_json(task_summary.get('acceptance_status_counts', {}))}`
+- run-result rows: `{run_summary.get('row_count', 0)}` total, `{run_summary.get('local_qa_row_count', 0)}` local QA, `{run_summary.get('model_sweep_row_count', 0)}` model-sweep
+- public export: `{public_export.get('task_count', 0)}` tasks at `{public_export.get('relative_path', public_export.get('path', 'not recorded'))}`, hidden/wrong paths found: `{public_export.get('hidden_or_wrong_path_count', 'unknown')}`
+
+Regeneration commands:
+
+{command_md}
+
+Key artifact hashes:
+
+{chr(10).join(artifact_lines)}
+"""
+
+
 def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
+    validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
     calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
@@ -360,9 +446,13 @@ python scripts/record_local_qa_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/generate_report.py
 ```
 
 The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+{validation_manifest_section(validation_manifest)}
 
 ## Threats To Validity
 

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import sys
-import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+LOCAL_QA_TIMESTAMP_UTC = 0
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -71,6 +72,15 @@ def row(metadata: dict, model: str, ok: bool, failure_label: str) -> dict[str, o
     }
 
 
+def feedback_excerpt(detail: object) -> str:
+    text = str(detail)
+    root_prefixes = [str(ROOT) + "\\", str(ROOT) + "/"]
+    for prefix in root_prefixes:
+        text = text.replace(prefix, "")
+    text = re.sub(r"tmp[\\/][A-Za-z0-9_.-]+", "tmp/<task-run>", text)
+    return text[-1000:]
+
+
 def main() -> int:
     rows: list[dict[str, object]] = []
     out = ROOT / "data" / "run_results.csv"
@@ -96,8 +106,8 @@ def main() -> int:
                 "attempt_index": 1,
                 "score": 1 if ref["ok"] else 0,
                 "primary_failure_label": ref_row["failure_label"],
-                "feedback_excerpt": "" if ref["ok"] else str(ref["detail"])[-1000:],
-                "timestamp_utc": int(time.time()),
+                "feedback_excerpt": "" if ref["ok"] else feedback_excerpt(ref["detail"]),
+                "timestamp_utc": LOCAL_QA_TIMESTAMP_UTC,
             }) + "\n")
         wrongs = sorted((task / "wrong").glob("*.lean"))
         for wrong in wrongs:
@@ -119,8 +129,8 @@ def main() -> int:
                     "attempt_index": 1,
                     "score": 0 if failed_as_expected else 1,
                     "primary_failure_label": wrong_row["failure_label"],
-                    "feedback_excerpt": str(wrong_result["detail"])[-1000:],
-                    "timestamp_utc": int(time.time()),
+                    "feedback_excerpt": feedback_excerpt(wrong_result["detail"]),
+                    "timestamp_utc": LOCAL_QA_TIMESTAMP_UTC,
                 }) + "\n")
 
     with out.open("w", newline="", encoding="utf-8") as f:

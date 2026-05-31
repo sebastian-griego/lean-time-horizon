@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-05-31T20:29:54.563915+00:00",
+  "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md to avoid a self-referential report hash. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
+  "git": {
+    "branch": "main",
+    "head": "76dd259c0d966a2a35ad5f498fec568ae72890ee",
+    "dirty": true,
+    "status_short": [
+      " M README.md",
+      " M reports/metr_style_report.md",
+      " M scripts/generate_report.py",
+      " M scripts/record_local_qa_results.py",
+      " M transcripts/local-qa/lt-001.jsonl",
+      " M transcripts/local-qa/lt-002.jsonl",
+      " M transcripts/local-qa/lt-003.jsonl",
+      " M transcripts/local-qa/lt-004.jsonl",
+      " M transcripts/local-qa/lt-005.jsonl",
+      " M transcripts/local-qa/lt-101.jsonl",
+      " M transcripts/local-qa/lt-102.jsonl",
+      " M transcripts/local-qa/lt-103.jsonl",
+      " M transcripts/local-qa/lt-104.jsonl",
+      " M transcripts/local-qa/lt-105.jsonl",
+      " M transcripts/local-qa/lt-106.jsonl",
+      " M transcripts/local-qa/lt-107.jsonl",
+      " M transcripts/local-qa/lt-108.jsonl",
+      " M transcripts/local-qa/lt-109.jsonl",
+      " M transcripts/local-qa/lt-110.jsonl",
+      " M transcripts/local-qa/lt-111.jsonl",
+      " M transcripts/local-qa/lt-112.jsonl",
+      " M transcripts/local-qa/lt-113.jsonl",
+      " M transcripts/local-qa/lt-114.jsonl",
+      " M transcripts/local-qa/lt-115.jsonl",
+      " M transcripts/local-qa/lt-201.jsonl",
+      " M transcripts/local-qa/lt-202.jsonl",
+      " M transcripts/local-qa/lt-203.jsonl",
+      " M transcripts/local-qa/lt-204.jsonl",
+      " M transcripts/local-qa/lt-205.jsonl",
+      " M transcripts/local-qa/lt-206.jsonl",
+      "?? reports/validation_manifest.json",
+      "?? scripts/write_validation_manifest.py"
+    ],
+    "status_summary_first_line": " M README.md"
+  },
+  "tool_versions": {
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "lean": {
+      "command": [
+        "lean",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout_first_line": [
+        "Lean (version 4.28.0, x86_64-w64-windows-gnu, commit 7e01a1bf5c70fc6167d49c345d3bf80596e9a79b, Release)"
+      ]
+    },
+    "lake": {
+      "command": [
+        "lake",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout_first_line": [
+        "Lake version 5.0.0-src+7e01a1b (Lean version 4.28.0)"
+      ]
+    },
+    "git": {
+      "command": [
+        "git",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout_first_line": [
+        "git version 2.46.0.windows.1"
+      ]
+    }
+  },
+  "regeneration_commands": [
+    "lake build",
+    "python scripts/validate_all.py",
+    "python scripts/audit_difficulty.py",
+    "python scripts/record_local_qa_results.py",
+    "python scripts/generate_report.py",
+    "python scripts/export_public_tasks.py --out public_tasks",
+    "python scripts/validate_public_export.py --out public_tasks",
+    "python scripts/write_validation_manifest.py --public-export public_tasks",
+    "python scripts/generate_report.py"
+  ],
+  "task_summary": {
+    "task_count": 26,
+    "acceptance_status_counts": {
+      "accepted_v0": 6,
+      "calibration_only": 8,
+      "rejected_duplicate": 2,
+      "rejected_too_easy": 10
+    },
+    "split_counts": {
+      "dev": 7,
+      "test": 19
+    },
+    "family_counts": {
+      "algorithm_correctness": 6,
+      "direct_theorem_proving": 2,
+      "informal_spec_to_formal": 5,
+      "invariant_verification_ml_optimization": 5,
+      "proof_repair_codebase": 4,
+      "small_formal_library_construction": 4
+    },
+    "human_time_bucket_counts": {
+      "T1": 18,
+      "T2": 7,
+      "T3": 1
+    }
+  },
+  "run_result_summary": {
+    "row_count": 69,
+    "local_qa_row_count": 66,
+    "model_sweep_row_count": 3,
+    "local_qa_status_counts": {
+      "expected_failure": 40,
+      "passed": 26
+    },
+    "model_failure_label_counts": {
+      "infra_failure": 1,
+      "none": 1,
+      "proof_debugging": 1
+    }
+  },
+  "public_export": {
+    "configured": true,
+    "path": "C:\\Users\\sebas\\lean-time-horizon\\public_tasks",
+    "relative_path": "public_tasks",
+    "exists": true,
+    "task_count": 14,
+    "hidden_or_wrong_path_count": 0
+  },
+  "artifacts": [
+    {
+      "path": "lean-toolchain",
+      "exists": true,
+      "bytes": 25,
+      "sha256": "db7bb24b756d745bbde83fe92718b51bd3625dae3701ba0f598d0eedcd3f3028",
+      "line_count": 1
+    },
+    {
+      "path": "lakefile.lean",
+      "exists": true,
+      "bytes": 284,
+      "sha256": "1d842f6b4179eadeb5e0d6340bb9f17d33b390b9d8db5c75beb25ffab0bbb309",
+      "line_count": 12
+    },
+    {
+      "path": "lake-manifest.json",
+      "exists": true,
+      "bytes": 3110,
+      "sha256": "601ea0517a05aba329813607454c1ab9329a7534747165ea8839c7c2bef9be7b",
+      "line_count": 95
+    },
+    {
+      "path": "README.md",
+      "exists": true,
+      "bytes": 5409,
+      "sha256": "451e7a4891e45d28365c763fdd02a9e19049866d6f94ae810396e0e36be1d42a",
+      "line_count": 138
+    },
+    {
+      "path": "docs/axiom_policy.md",
+      "exists": true,
+      "bytes": 712,
+      "sha256": "0adf66f9085a242abe4e36ef9508e0b719328efef7c3b78c965bd23a49eb318b",
+      "line_count": 21
+    },
+    {
+      "path": "data/task_metadata.csv",
+      "exists": true,
+      "bytes": 19482,
+      "sha256": "2916f8cc78cc87fd93406e74552faa96c56685c311956db46f96c8955986b5ce",
+      "line_count": 27,
+      "row_count": 26
+    },
+    {
+      "path": "data/task_metadata_schema.json",
+      "exists": true,
+      "bytes": 2317,
+      "sha256": "a662bc8fb8e8d51587a994c0ee039e728e45cfca36882700f839fce713539fa7",
+      "line_count": 68
+    },
+    {
+      "path": "data/run_results.csv",
+      "exists": true,
+      "bytes": 15691,
+      "sha256": "196d9de4ada42c5400fa701e1f32054d8d96a40198fdc7d2cf941637497c5175",
+      "line_count": 70,
+      "row_count": 69
+    },
+    {
+      "path": "data/run_results_schema.json",
+      "exists": true,
+      "bytes": 1436,
+      "sha256": "0edbd2b61e00ae87570e4b4b28bc9109c54e84eedff508ad2bc8787980fc0e7a",
+      "line_count": 47
+    },
+    {
+      "path": "data/failure_label_schema.json",
+      "exists": true,
+      "bytes": 481,
+      "sha256": "ae06ab834c14322789256b394000a3d9b79d277906d86152f41b8248b121f3af",
+      "line_count": 14
+    },
+    {
+      "path": "data/scaffold_variants.csv",
+      "exists": true,
+      "bytes": 379,
+      "sha256": "6ddd3f4fb5866147cc75dae2f7e2b3f97b5969e4dbfe83c90f694c091fea20c0",
+      "line_count": 4,
+      "row_count": 3
+    },
+    {
+      "path": "data/validation_commands.csv",
+      "exists": true,
+      "bytes": 12164,
+      "sha256": "747620524702cc3f90cedcefbd414d1d279fb5b77272a20976410758b51427c2",
+      "line_count": 67,
+      "row_count": 66
+    },
+    {
+      "path": "data/difficulty_audit.csv",
+      "exists": true,
+      "bytes": 13428,
+      "sha256": "123f2bed92f055f90bbb7af69648d8dd94095e269950b3ca2ab1d2c4c6b58b1c",
+      "line_count": 27,
+      "row_count": 26
+    },
+    {
+      "path": "reports/difficulty_audit.md",
+      "exists": true,
+      "bytes": 6942,
+      "sha256": "4864ad083e8a360a62c71664dad4e210b74c6c77cb8130cdf7866410d8492409",
+      "line_count": 61
+    },
+    {
+      "path": "reports/accepted_task_review.md",
+      "exists": true,
+      "bytes": 13332,
+      "sha256": "7ea531dc5f6eb9ad4272cd7f632269c101c22b3c66c16f96c91a9d7cf836df22",
+      "line_count": 292
+    },
+    {
+      "path": "reports/figures/task_counts_by_family.svg",
+      "exists": true,
+      "bytes": 2523,
+      "sha256": "5833212738d0e47205121b42dd37bd1e5ff5194c85c5858269387d5d6a54451a",
+      "line_count": 25
+    },
+    {
+      "path": "reports/figures/task_counts_by_bucket.svg",
+      "exists": true,
+      "bytes": 1479,
+      "sha256": "2ce3c13b007fc9e85413c59c5c33f87b036a793ccb9d169f8023c0247131b24b",
+      "line_count": 16
+    },
+    {
+      "path": "reports/figures/top_skills.svg",
+      "exists": true,
+      "bytes": 3806,
+      "sha256": "27fb2a82febe46a2238107d3c8ef555dd497baa4c3e21542f585775c792b87d5",
+      "line_count": 37
+    },
+    {
+      "path": "reports/figures/run_rows_by_model.svg",
+      "exists": true,
+      "bytes": 13402,
+      "sha256": "50b22c3771fd463073aa6d56f457504b436ca7f3f4c0fe56e8f7cf2a90101010",
+      "line_count": 121
+    },
+    {
+      "path": "reports/figures/task_minutes_by_bucket.svg",
+      "exists": true,
+      "bytes": 3192,
+      "sha256": "afef6d3c788f60eeefbf21ef90b7547bc2bd4939d68be8853fbd11c63a964cf4",
+      "line_count": 32
+    },
+    {
+      "path": "scripts/validate_all.py",
+      "exists": true,
+      "bytes": 6446,
+      "sha256": "1a9f7f73a56751d7643f296d047c9bfb5f932a54cd2d4ffd849b9fa41eb50834",
+      "line_count": 176
+    },
+    {
+      "path": "scripts/validate_task.py",
+      "exists": true,
+      "bytes": 9611,
+      "sha256": "99451d91d763420288ca59fd4c3bf461669df3a51356346766069bd71861e062",
+      "line_count": 258
+    },
+    {
+      "path": "scripts/audit_difficulty.py",
+      "exists": true,
+      "bytes": 10134,
+      "sha256": "0bebfeb74ec4a9993ac1d1bf792b06ff70ece289adf0094d53d3404cd319d9db",
+      "line_count": 220
+    },
+    {
+      "path": "scripts/record_local_qa_results.py",
+      "exists": true,
+      "bytes": 5303,
+      "sha256": "e65fa7831bc3cf235a7a5fe9fc10f51c5cfe8ed0ba58eecb4b8ef15e07f6f939",
+      "line_count": 146
+    },
+    {
+      "path": "scripts/generate_report.py",
+      "exists": true,
+      "bytes": 27666,
+      "sha256": "48e0a6297b31f6f595cdf468385b31cdf2864c1d4148cf54ed4bade7db341486",
+      "line_count": 513
+    },
+    {
+      "path": "scripts/export_public_tasks.py",
+      "exists": true,
+      "bytes": 2471,
+      "sha256": "ad45c6bdcdf231ef8eadae1a52e6b615d70c122612b7ba86fb74c866857ebf7a",
+      "line_count": 70
+    },
+    {
+      "path": "scripts/validate_public_export.py",
+      "exists": true,
+      "bytes": 3575,
+      "sha256": "586940302ff33829af79e546fca17bb8982225229e8cc278c160393e481677c3",
+      "line_count": 112
+    },
+    {
+      "path": "scripts/write_validation_manifest.py",
+      "exists": true,
+      "bytes": 7874,
+      "sha256": "5f0420a45b2011d9c7bb458e1edf45d91fcfc49851cdbbf416b25b1017448fb7",
+      "line_count": 237
+    }
+  ]
+}
