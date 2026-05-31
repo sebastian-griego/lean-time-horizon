@@ -287,6 +287,45 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 """
 
 
+def run_integrity_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/run_integrity_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_run_integrity.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("integrity_status", "unknown") for row in rows)
+    qa_counts = Counter(row.get("qa_stage", "unknown") for row in rows)
+    missing_transcripts = sum(1 for row in rows if row.get("transcript_exists") != "true")
+    parse_failures = sum(1 for row in rows if row.get("transcript_parse_ok") != "true")
+    arithmetic_failures = sum(1 for row in rows if row.get("arithmetic_ok") != "true")
+    transcript_failures = sum(1 for row in rows if row.get("transcript_consistency_ok") != "true")
+    failing = [row for row in rows if row.get("integrity_status") == "fail"]
+    fail_md = "_None._"
+    if failing:
+        lines = [
+            "| row | task | model | issue |",
+            "| ---: | --- | --- | --- |",
+        ]
+        for row in failing[:12]:
+            issue = row.get("issues", "").replace("|", "/")
+            lines.append(f"| {row.get('row_index', '')} | `{row.get('task_id', '')}` | {row.get('model', '')} | {issue} |")
+        fail_md = "\n".join(lines)
+    return f"""`reports/run_integrity_audit.md` and `data/run_integrity_audit.csv` verify that committed run rows are internally consistent with task metadata, known failure labels, score vectors, pass@k semantics, and JSONL transcript files.
+
+- rows checked: `{len(rows)}`
+- integrity statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- qa stages: `{compact_json(dict(sorted(qa_counts.items())))}`
+- missing transcript files: `{missing_transcripts}`
+- transcript parse failures: `{parse_failures}`
+- pass@k arithmetic failures: `{arithmetic_failures}`
+- transcript consistency failures: `{transcript_failures}`
+
+Failing integrity rows:
+
+{fail_md}
+"""
+
+
 def task_quality_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -448,6 +487,7 @@ def main() -> int:
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
+    run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -624,6 +664,10 @@ Observed model-sweep failure labels:
 
 {bullets(model_failure_counts)}
 
+## Run Result Integrity Audit
+
+{run_integrity_section(run_integrity_rows)}
+
 ## Difficulty Audit Summary
 
 The regenerated difficulty audit separates mechanical signals from manual judgments. Mechanical signals include reference proof lines, declaration count, public file count, public lemma count, tactic profile, automation dominance, Mathlib use, multi-file context, hidden pin strength, and wrong-submission count. Manual fields include frontier one-shot solvability estimates, p50/p90 human time, scaffold sensitivity, diagnostic value, and final accept/reject rationale.
@@ -655,6 +699,7 @@ python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
 python scripts/record_local_qa_results.py
 python scripts/audit_pin_coverage.py
+python scripts/audit_run_integrity.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py

@@ -23,6 +23,7 @@ python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
 python scripts/record_local_qa_results.py
 python scripts/audit_pin_coverage.py
+python scripts/audit_run_integrity.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py
@@ -137,12 +138,14 @@ Regenerated outputs:
 - `data/difficulty_audit.csv`
 - `data/task_quality_matrix.csv`
 - `data/pin_coverage_audit.csv`
+- `data/run_integrity_audit.csv`
 - `data/model_sweep_plan.csv`
 - `data/model_result_summary.csv`
 - `data/requirement_coverage.csv`
 - `reports/difficulty_audit.md`
 - `reports/task_quality_matrix.md`
 - `reports/pin_coverage_audit.md`
+- `reports/run_integrity_audit.md`
 - `reports/accepted_task_review.md`
 - `reports/evaluation_protocol.md`
 - `reports/model_run_analysis.md`
@@ -151,4 +154,4 @@ Regenerated outputs:
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/task_quality_matrix.md` is a generated one-row-per-task quality ledger that joins metadata and difficulty-audit fields for reviewer inspection. `reports/pin_coverage_audit.md` distinguishes public-stage wrong failures from wrong submissions that actually reach hidden pins. `reports/evaluation_protocol.md` defines the planned primary model-sweep analysis before broad runs. `reports/model_run_analysis.md` summarizes committed provider rows against that plan without turning smoke rows into benchmark claims. `data/benchmark_requirements.csv` is the committed checklist used by `reports/requirement_coverage.md` for requirement-by-requirement evidence auditing. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/task_quality_matrix.md` is a generated one-row-per-task quality ledger that joins metadata and difficulty-audit fields for reviewer inspection. `reports/pin_coverage_audit.md` distinguishes public-stage wrong failures from wrong submissions that actually reach hidden pins. `reports/run_integrity_audit.md` checks committed run rows against transcripts, score vectors, failure labels, and metadata. `reports/evaluation_protocol.md` defines the planned primary model-sweep analysis before broad runs. `reports/model_run_analysis.md` summarizes committed provider rows against that plan without turning smoke rows into benchmark claims. `data/benchmark_requirements.csv` is the committed checklist used by `reports/requirement_coverage.md` for requirement-by-requirement evidence auditing. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.

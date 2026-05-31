@@ -209,6 +209,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
+    run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -521,6 +522,32 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(pin_audit_ok, partial=bool(pin_coverage)),
         f"pin_coverage rows: {len(pin_coverage)}; accepted rows: {len(accepted_pin_rows)}; accepted hidden-pin wrong failures: {accepted_with_hidden}; report exists: {(ROOT / 'reports' / 'pin_coverage_audit.md').exists()}.",
         "No gap." if pin_audit_ok else "Regenerate scripts/audit_pin_coverage.py after local QA transcripts and inspect accepted rows without hidden-pin wrong failures.",
+    ))
+
+    integrity_failures = [row_data for row_data in run_integrity if row_data.get("integrity_status") == "fail"]
+    integrity_fields = set(run_integrity[0].keys()) if run_integrity else set()
+    required_integrity_fields = {
+        "transcript_exists",
+        "transcript_parse_ok",
+        "arithmetic_ok",
+        "failure_label_known",
+        "transcript_consistency_ok",
+        "integrity_status",
+    }
+    integrity_ok = (
+        bool(run_integrity)
+        and len(run_integrity) == len(run_results)
+        and not integrity_failures
+        and required_integrity_fields.issubset(integrity_fields)
+        and (ROOT / "reports" / "run_integrity_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "run_integrity_audit",
+        "reporting",
+        "Run-result integrity audit should verify transcripts, score vectors, failure labels, and pass@k arithmetic.",
+        status_from_bool(integrity_ok, partial=bool(run_integrity)),
+        f"run_integrity rows: {len(run_integrity)}; run_results rows: {len(run_results)}; failing rows: {len(integrity_failures)}; report exists: {(ROOT / 'reports' / 'run_integrity_audit.md').exists()}.",
+        "No gap." if integrity_ok else "Regenerate scripts/audit_run_integrity.py after run_results and transcripts, then fix any failing rows.",
     ))
 
     human_independent_ok = "independent" in " ".join(task.get("human_estimate_confidence", "").lower() for task in metadata)
