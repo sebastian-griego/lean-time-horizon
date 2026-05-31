@@ -157,9 +157,31 @@ def model_run_table(rows: list[dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
+def evidence_table(rows: list[dict[str, str]], audit_by_id: dict[str, dict[str, str]]) -> str:
+    if not rows:
+        return "_None._"
+    lines = [
+        "| task | proof lines | automation dominated | hidden pins | wrongs | one-shot estimate | diagnostic value |",
+        "| --- | ---: | --- | --- | ---: | --- | --- |",
+    ]
+    for row in rows:
+        audit = audit_by_id.get(row["task_id"], {})
+        lines.append(
+            f"| `{row['task_id']}` | {audit.get('mechanical_reference_proof_lines', '?')} | "
+            f"{audit.get('mechanical_automation_dominated', '?')} | "
+            f"{audit.get('mechanical_hidden_pin_strength', '?')} | "
+            f"{audit.get('mechanical_wrong_submission_count', '?')} | "
+            f"{audit.get('manual_frontier_model_one_shot_likelihood', row.get('frontier_model_one_shot_likelihood', 'unknown'))} | "
+            f"{audit.get('manual_diagnostic_value', row.get('diagnostic_value', 'unknown'))} |"
+        )
+    return "\n".join(lines)
+
+
 def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
+    difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
+    audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
     calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
     rejected = [row for row in metadata if row.get("acceptance_status", "").startswith("rejected_")]
@@ -187,24 +209,66 @@ def main() -> int:
     ) or "- No real provider model-sweep rows are committed. Local QA rows are validation evidence only."
     local_rows = [row for row in run_rows if row.get("qa_stage") == "local_qa"]
     local_md = f"{len(local_rows)} local QA rows are committed for reference solutions and plausible wrong submissions." if local_rows else "No local QA rows are committed yet."
+    local_status_counts = Counter(row.get("qa_findings_status", "unknown") for row in local_rows)
+    local_status_md = bullets(local_status_counts)
 
     report = ROOT / "reports" / "metr_style_report.md"
     report.write_text(
         f"""# Lean Time-Horizon Benchmark v0.1 Report
 
-## Executive Summary
+## Abstract
 
-This repository is now organized as a v0.1 Lean time-horizon evaluation artifact rather than a raw candidate pool. The release set contains {len(accepted)} accepted core tasks and {len(calibration)} calibration-only tasks. The remaining {len(rejected)} tasks are retained as a rejected archive, and {len(pending)} tasks remain pending review.
+This repository is a v0.1 Lean time-horizon evaluation artifact for studying how far models get on realistic formalization and verification tasks as task horizon increases. It is not a locked benchmark. The release set contains {len(accepted)} accepted core tasks and {len(calibration)} calibration-only tasks. The remaining {len(rejected)} tasks are retained as a rejected archive, and {len(pending)} tasks remain pending review.
 
 The accepted core set is intentionally smaller than the original target of 20. The original task batch was downgraded because many rows were dominated by `rfl`, `simp`, `omega`, `cases`, or one obvious library lemma. A stricter accepted-task review is maintained in `reports/accepted_task_review.md`; v0.1 keeps downgraded rows out of benchmark statistics unless they serve a calibration role.
+
+## Research Questions
+
+This artifact is designed to support three narrow evaluation questions:
+
+1. Can a model recover the intended Lean proof or formalization from a public prompt and scaffold?
+2. Which failures are diagnostic of time-horizon bottlenecks such as semantic formalization, theorem decomposition, proof debugging, codebase navigation, invariant design, or library/API search?
+3. How much do scaffold affordances change outcomes, especially lookup and iterative compile/debug attempts?
+
+The artifact is not yet suitable for population-level claims about frontier-model capability. It has limited task count, author-estimated human times, and only tiny smoke-model evidence.
+
+## Unit Of Analysis And Scoring
+
+The unit of analysis is a `(task, model, scaffold, k)` row. A task attempt is scored as pass only if the submitted Lean file:
+
+- passes forbidden-construct scanning;
+- compiles with the public scaffold files;
+- compiles hidden `PinCheck.lean` against the submitted declarations;
+- passes axiom audit on the metadata-listed declarations.
+
+`successes_out_of_k` is the number of successful attempts among the allowed attempts for that row. `pass_at_k` is binary for that task row: `1.0` if any attempt succeeds and `0.0` otherwise. Local QA rows for reference solutions and wrong submissions are validation evidence, not model performance.
+
+## Task Selection Protocol
+
+Task status is assigned by metadata, not by directory alone:
+
+- `accepted_v0`: core task retained after manual review and local validation.
+- `calibration_only`: release task retained for lower-bound calibration, harness checks, or simple semantic-pin regression tests.
+- `rejected_*`: archived task retained for auditability but excluded from release claims.
+- `candidate_review_pending`: generated task not yet accepted.
+
+Acceptance requires more than a passing reference solution: wrong submissions must fail, hidden checks must test meaningful behavior where possible, metadata must include human-time and diagnostic fields, and the accepted-task review must document known limitations. Tasks can be downgraded after review even when they validate.
 
 ## Accepted v0.1 Core Task Set
 
 {task_table(accepted)}
 
+## Accepted Core Evidence Matrix
+
+{evidence_table(accepted, audit_by_id)}
+
 ## Calibration-Only Release Tasks
 
 {task_table(calibration)}
+
+## Calibration Evidence Matrix
+
+{evidence_table(calibration, audit_by_id)}
 
 ## Portfolio Counts
 
@@ -226,11 +290,25 @@ The accepted core tasks are intended to test library/API search, theorem decompo
 
 Scaffold-sensitive tasks are marked in metadata. Lookup-sensitive rows include Mathlib image/preimage reasoning and semantic-list formalization. Iterative compile/debug sensitivity is expected for multi-file proof repair, invariant packages, and library-construction rows.
 
+## Human-Time Estimates
+
+Human-time buckets follow the project playbook:
+
+- `T0`: 5-15 minutes.
+- `T1`: 15-45 minutes.
+- `T2`: 45-120 minutes.
+- `T3`: 2-6 hours.
+- `T4`: 6+ hours.
+
+The p50/p90 estimates in metadata are reviewer estimates, not measured independent solves. The hard review downgraded three rows from accepted core to calibration-only because their proof surface and likely one-shot solvability did not justify accepted T2 status.
+
 ## Grader And Integrity Controls
 
 The grader is Lean-first. For each submission it copies the public files listed in `metadata.json`, replaces the submission file, scans forbidden constructs, compiles public Lean files, compiles hidden semantic pins, and audits axioms on declared targets. Accepted and calibration tasks must have at least two wrong submissions.
 
 Hidden pins check more than type signatures where possible: semantic formalization tasks include positive and negative examples; invariant tasks include edge cases and downstream bundled consequences; library tasks include downstream reuse through public lemmas. The grader still cannot prove that a task measures every intended cognitive skill, and it cannot replace human review of whether a task is too automation-dominated.
+
+The axiom policy allows only the standard Lean axioms documented in `docs/axiom_policy.md`. Source-level escape hatches such as `sorry`, `admit`, `axiom`, `constant`, `unsafe`, custom elaboration, and command execution are rejected by the forbidden-construct scanner before Lean grading.
 
 ## Public Export
 
@@ -243,6 +321,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
+
+Local QA row status:
+
+{local_status_md}
 
 Real model-sweep rows:
 
@@ -265,6 +347,57 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 ## Accepted Task Review
 
 `reports/accepted_task_review.md` records the per-task reviewer judgment for every row that was marked `accepted_v0` at the start of the hardening pass. It explicitly distinguishes keep, downgrade, and keep-with-caveat recommendations; checks whether buckets are deserved; audits hidden pins and wrong submissions; and lists what must change before each task can be treated as benchmark-grade.
+
+## Reproducibility Checklist
+
+The intended local regeneration gate is:
+
+```powershell
+lake build
+python scripts/validate_all.py
+python scripts/audit_difficulty.py
+python scripts/record_local_qa_results.py
+python scripts/generate_report.py
+python scripts/export_public_tasks.py --out public_tasks
+python scripts/validate_public_export.py --out public_tasks
+```
+
+The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+## Threats To Validity
+
+Construct validity:
+
+- Lean success is a strong signal for formal correctness of fixed theorems, but it does not by itself prove that a task measures the intended cognitive capability.
+- Hidden semantic pins are finite probes. They reject known vacuous or weakened formalizations but cannot exhaustively characterize semantic equivalence.
+- Fixed-statement proof tasks cannot always have a same-signature wrong answer that compiles publicly and then fails hidden semantic pins; if the theorem statement and definitions are fixed, a compiled proof is already semantically decisive.
+
+Internal validity:
+
+- Difficulty labels rely on author/reviewer estimates and mechanical proof profiles, not independent human solves.
+- Automation-dominated references can understate model difficulty if models fail earlier on decomposition or API search, but they can also overstate benchmark quality if retained without caveats.
+- The tiny committed provider smoke sweep is insufficient for performance claims and includes an infra-failure row.
+
+External validity:
+
+- v0.1 has only {len(accepted)} accepted core tasks and limited T3/T4 coverage.
+- Most tasks are small Lean packages rather than large real-world formalization projects.
+- Mathlib coverage is narrow.
+
+Reliability and security:
+
+- Validation is reproducible locally through committed scripts and CSVs, but hosted Taiga/Env Linter QA has not been run.
+- API credentials are expected only through environment variables and are not part of the repo.
+
+## Claim Ledger
+
+| claim | current evidence | status |
+| --- | --- | --- |
+| Local references and wrong submissions validate as expected | `python scripts/validate_all.py`; `data/run_results.csv`; local QA transcripts | supported locally |
+| Public task export excludes hidden material | `python scripts/export_public_tasks.py --out public_tasks`; `python scripts/validate_public_export.py --out public_tasks` | supported locally |
+| Accepted core tasks are higher quality than the original pool | `reports/accepted_task_review.md`; `reports/difficulty_audit.md`; downgraded metadata statuses | supported by internal review |
+| v0.1 is a locked benchmark | independent timing, hosted QA, broader model sweeps, and freeze review are missing | not supported |
+| Reported model pass rates characterize frontier performance | only tiny smoke-sweep rows are committed | not supported |
 
 ## Limitations
 
