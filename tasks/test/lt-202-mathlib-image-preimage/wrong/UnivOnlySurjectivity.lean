@@ -41,9 +41,9 @@ theorem image_inter_eq_of_injective {alpha beta : Type} (f : alpha -> beta) (s t
     exact Exists.intro x (And.intro (And.intro hxs (by rwa [hx'x] at hxt)) hxy)
 
 theorem image_preimage_eq_of_surjective {alpha beta : Type} (f : alpha -> beta) (t : Set beta)
-    (hf : Function.Surjective f) (ht : t = Set.univ) :
+    (hf : Function.Surjective f) :
     Set.image f (Set.preimage f t) = t := by
-  subst t
+  -- Plausible but wrong: proves the theorem as if every set were univ.
   ext y
   constructor
   · intro hy

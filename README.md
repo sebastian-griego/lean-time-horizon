@@ -4,8 +4,8 @@ This repository contains a v0.1 Lean-based time-horizon evaluation artifact for 
 
 Current v0.1 state:
 
-- 9 accepted core tasks
-- 5 calibration-only tasks
+- 6 accepted core tasks
+- 8 calibration-only tasks
 - 12 rejected archive tasks retained for auditability
 - dev/test split recorded in task metadata and public export
 - Lean 4.28.0 via `lean-toolchain`
@@ -127,7 +127,8 @@ Regenerated outputs:
 - `data/run_results.csv`
 - `data/difficulty_audit.csv`
 - `reports/difficulty_audit.md`
+- `reports/accepted_task_review.md`
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-`reports/metr_style_report.md` is the main METR-style review memo. `reports/overnight_progress.md` records implementation checkpoints and blockers.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/overnight_progress.md` records implementation checkpoints and blockers.

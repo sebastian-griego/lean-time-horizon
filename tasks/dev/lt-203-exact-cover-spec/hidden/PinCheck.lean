@@ -26,14 +26,14 @@ example (xs ys : List Nat) (h : CoversExactly xs ys) :
   · intro z
     simp
 
-example : CoversExactly [1, 2, 1] [2, 1] := by
+example : CoversExactly [3, 2, 3, 4] [4, 2, 3] := by
   intro z
   simp
   omega
 
-example : ¬ CoversExactly [1, 2] [1, 3] := by
+example : ¬ CoversExactly [] [0] := by
   intro h
-  have h2 := (h 2).mp (by simp)
-  simp at h2
+  have h0 := (h 0).mpr (by simp)
+  simp at h0
 
 end LT203

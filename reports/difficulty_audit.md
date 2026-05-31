@@ -4,26 +4,23 @@ This audit separates mechanical signals from manual benchmark judgments. Mechani
 
 ## Summary
 
-- Accepted v0 core tasks: 9
-- Calibration-only release tasks: 5
+- Accepted v0 core tasks: 6
+- Calibration-only release tasks: 8
 - Rejected tasks retained in archive: 12
 - Candidate review pending: 0
-- Accepted/calibration buckets: {'T1': 5, 'T2': 8, 'T3': 1}
-- Accepted core families: {'algorithm_correctness': 1, 'direct_theorem_proving': 1, 'informal_spec_to_formal': 3, 'invariant_verification_ml_optimization': 1, 'proof_repair_codebase': 2, 'small_formal_library_construction': 1}
+- Accepted/calibration buckets: {'T1': 8, 'T2': 5, 'T3': 1}
+- Accepted core families: {'algorithm_correctness': 1, 'direct_theorem_proving': 1, 'informal_spec_to_formal': 1, 'invariant_verification_ml_optimization': 1, 'proof_repair_codebase': 1, 'small_formal_library_construction': 1}
 
 ## Accepted v0 Core Tasks
 
 | task | status | bucket | proof lines | hidden pins | wrongs | automation dominated | diagnostic value | review note |
 | --- | --- | --- | ---: | --- | ---: | --- | --- | --- |
-| lt-201 | accepted_v0 | T2 | 25 | semantic | 2 | true | high | accepted_v0: multi-file cache repair requires preserving Model.lean API semantics and proving batch count lemmas. |
+| lt-201 | accepted_v0 | T2 | 25 | semantic | 2 | true | high | accepted_v0_keep_with_caveat: reference proof is automation-dominated, but the task is retained for multi-file navigation, fixed API semantics, and generalized batch repair; needs independent review before any locked benchmark claim. |
 | lt-203 | accepted_v0 | T2 | 30 | semantic | 2 | false | high | accepted_v0: spec-to-formal task with hidden pins rejecting vacuous, equality-only, and duplicate-sensitive interpretations. |
-| lt-105 | accepted_v0 | T2 | 11 | semantic | 2 | true | medium_high | accepted_v0: lower-end T2 proof-repair task requiring generalized induction over a batched API and sum accounting; strengthened with semantic pins. |
-| lt-107 | accepted_v0 | T2 | 10 | semantic | 2 | false | medium_high | accepted_v0: semantic formalization task where vacuous and nonempty-only specifications pass superficial lemmas but fail hidden pins. |
-| lt-108 | accepted_v0 | T2 | 9 | semantic | 2 | false | medium_high | accepted_v0: recursive predicate formalization with hidden pins for dropped tail invariants and first-pair-only specifications. |
-| lt-202 | accepted_v0 | T2 | 46 | mixed | 2 | false | medium_high | accepted_v0: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition. |
+| lt-202 | accepted_v0 | T2 | 46 | mixed | 2 | false | medium_high | accepted_v0_keep_with_caveat: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition; hidden checks mostly protect fixed theorem signatures rather than semantic formalization choices. |
 | lt-204 | accepted_v0 | T2 | 36 | semantic | 2 | false | high | accepted_v0: optimizer-style invariant package with helper lemmas for cap bounds, list preservation, and sum monotonicity. |
 | lt-205 | accepted_v0 | T3 | 42 | semantic | 2 | false | high | accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot. |
-| lt-206 | accepted_v0 | T2 | 60 | semantic | 2 | true | high | accepted_v0: algorithm-correctness package with side predicates, length, and duplicate-sensitive count preservation. |
+| lt-206 | accepted_v0 | T2 | 60 | semantic | 2 | true | high | accepted_v0_keep_with_caveat: reference proof uses substantial simp/omega automation, but the task is retained for the multi-lemma partition invariant, side predicates, and duplicate-sensitive count preservation; needs independent review before any locked benchmark claim. |
 
 ## Calibration-Only Release Tasks
 
@@ -34,6 +31,9 @@ This audit separates mechanical signals from manual benchmark judgments. Mechani
 | lt-003 | calibration_only | T1 | 11 | semantic | 2 | true | medium | calibration_only: small proof-repair shape retained as a codebase-navigation smoke row; too short for core benchmark status. |
 | lt-004 | calibration_only | T1 | 5 | semantic | 2 | false | medium | calibration_only: compact semantic-formalization row retained to test vacuity and endpoint-only wrong specs. |
 | lt-101 | calibration_only | T1 | 11 | semantic | 2 | true | medium | calibration_only: tail-recursive accumulator proof retained as a T1 calibration row; not core long-horizon material. |
+| lt-105 | calibration_only | T1 | 11 | semantic | 2 | true | medium | calibration_only: same-signature semantic wrongs are useful, but the reference proof is short and automation-dominated; T2/core status was too generous. |
+| lt-107 | calibration_only | T1 | 10 | semantic | 2 | false | medium | calibration_only: hidden pins catch vacuous and nonempty-only specs, but the formalization surface is too compact for accepted core status. |
+| lt-108 | calibration_only | T1 | 9 | semantic | 2 | false | medium | calibration_only: good semantic pins for dropped-tail and first-pair-only definitions, but the proof surface is too small for core benchmark status. |
 
 ## Rejected Archive
 

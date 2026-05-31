@@ -30,7 +30,7 @@
   "qa_status": "local_only",
   "acceptance_status": "accepted_v0",
   "difficulty_review_status": "manual_review_complete",
-  "difficulty_review_notes": "accepted_v0: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition.",
+  "difficulty_review_notes": "accepted_v0_keep_with_caveat: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition; hidden checks mostly protect fixed theorem signatures rather than semantic formalization choices.",
   "axiom_audit_declarations": [
     "LT202.subset_preimage_image",
     "LT202.image_preimage_subset",

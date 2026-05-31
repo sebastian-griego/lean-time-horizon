@@ -2,23 +2,20 @@
 
 ## Executive Summary
 
-This repository is now organized as a v0.1 Lean time-horizon evaluation artifact rather than a raw candidate pool. The release set contains 9 accepted core tasks and 5 calibration-only tasks. The remaining 12 tasks are retained as a rejected archive, and 0 tasks remain pending review.
+This repository is now organized as a v0.1 Lean time-horizon evaluation artifact rather than a raw candidate pool. The release set contains 6 accepted core tasks and 8 calibration-only tasks. The remaining 12 tasks are retained as a rejected archive, and 0 tasks remain pending review.
 
-The accepted core set is intentionally smaller than the original target of 20. The original task batch was downgraded because many rows were dominated by `rfl`, `simp`, `omega`, `cases`, or one obvious library lemma. v0.1 keeps those rows out of benchmark statistics unless they serve a calibration role.
+The accepted core set is intentionally smaller than the original target of 20. The original task batch was downgraded because many rows were dominated by `rfl`, `simp`, `omega`, `cases`, or one obvious library lemma. A stricter accepted-task review is maintained in `reports/accepted_task_review.md`; v0.1 keeps downgraded rows out of benchmark statistics unless they serve a calibration role.
 
 ## Accepted v0.1 Core Task Set
 
 | task | split | family | bucket | p50/p90 | diagnostic role |
 | --- | --- | --- | --- | ---: | --- |
-| `lt-201` | dev | proof_repair_codebase | T2 | 75/150 | accepted_v0: multi-file cache repair requires preserving Model.lean API semantics and proving batch count lemmas. |
+| `lt-201` | dev | proof_repair_codebase | T2 | 75/150 | accepted_v0_keep_with_caveat: reference proof is automation-dominated, but the task is retained for multi-file navigation, fixed API semantics, and generalized batch repair; needs independent review before any locked benchmark claim. |
 | `lt-203` | dev | informal_spec_to_formal | T2 | 90/180 | accepted_v0: spec-to-formal task with hidden pins rejecting vacuous, equality-only, and duplicate-sensitive interpretations. |
-| `lt-105` | test | proof_repair_codebase | T2 | 55/110 | accepted_v0: lower-end T2 proof-repair task requiring generalized induction over a batched API and sum accounting; strengthened with semantic pins. |
-| `lt-107` | test | informal_spec_to_formal | T2 | 50/100 | accepted_v0: semantic formalization task where vacuous and nonempty-only specifications pass superficial lemmas but fail hidden pins. |
-| `lt-108` | test | informal_spec_to_formal | T2 | 60/120 | accepted_v0: recursive predicate formalization with hidden pins for dropped tail invariants and first-pair-only specifications. |
-| `lt-202` | test | direct_theorem_proving | T2 | 90/180 | accepted_v0: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition. |
+| `lt-202` | test | direct_theorem_proving | T2 | 90/180 | accepted_v0_keep_with_caveat: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition; hidden checks mostly protect fixed theorem signatures rather than semantic formalization choices. |
 | `lt-204` | test | invariant_verification_ml_optimization | T2 | 100/200 | accepted_v0: optimizer-style invariant package with helper lemmas for cap bounds, list preservation, and sum monotonicity. |
 | `lt-205` | test | small_formal_library_construction | T3 | 150/300 | accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot. |
-| `lt-206` | test | algorithm_correctness | T2 | 100/210 | accepted_v0: algorithm-correctness package with side predicates, length, and duplicate-sensitive count preservation. |
+| `lt-206` | test | algorithm_correctness | T2 | 100/210 | accepted_v0_keep_with_caveat: reference proof uses substantial simp/omega automation, but the task is retained for the multi-lemma partition invariant, side predicates, and duplicate-sensitive count preservation; needs independent review before any locked benchmark claim. |
 
 ## Calibration-Only Release Tasks
 
@@ -29,13 +26,16 @@ The accepted core set is intentionally smaller than the original target of 20. T
 | `lt-003` | dev | proof_repair_codebase | T1 | 35/60 | calibration_only: small proof-repair shape retained as a codebase-navigation smoke row; too short for core benchmark status. |
 | `lt-004` | dev | informal_spec_to_formal | T1 | 30/55 | calibration_only: compact semantic-formalization row retained to test vacuity and endpoint-only wrong specs. |
 | `lt-101` | test | algorithm_correctness | T1 | 35/70 | calibration_only: tail-recursive accumulator proof retained as a T1 calibration row; not core long-horizon material. |
+| `lt-105` | test | proof_repair_codebase | T1 | 40/80 | calibration_only: same-signature semantic wrongs are useful, but the reference proof is short and automation-dominated; T2/core status was too generous. |
+| `lt-107` | test | informal_spec_to_formal | T1 | 35/70 | calibration_only: hidden pins catch vacuous and nonempty-only specs, but the formalization surface is too compact for accepted core status. |
+| `lt-108` | test | informal_spec_to_formal | T1 | 40/80 | calibration_only: good semantic pins for dropped-tail and first-pair-only definitions, but the proof surface is too small for core benchmark status. |
 
 ## Portfolio Counts
 
 Acceptance status:
 
-- `accepted_v0`: 9
-- `calibration_only`: 5
+- `accepted_v0`: 6
+- `calibration_only`: 8
 - `rejected_duplicate`: 2
 - `rejected_too_easy`: 10
 
@@ -43,15 +43,15 @@ Accepted core families:
 
 - `algorithm_correctness`: 1
 - `direct_theorem_proving`: 1
-- `informal_spec_to_formal`: 3
+- `informal_spec_to_formal`: 1
 - `invariant_verification_ml_optimization`: 1
-- `proof_repair_codebase`: 2
+- `proof_repair_codebase`: 1
 - `small_formal_library_construction`: 1
 
 Release human-time buckets:
 
-- `T1`: 5
-- `T2`: 8
+- `T1`: 8
+- `T2`: 5
 - `T3`: 1
 
 ## What The Tasks Measure
@@ -101,6 +101,10 @@ Observed model-sweep failure labels:
 
 The regenerated difficulty audit separates mechanical signals from manual judgments. Mechanical signals include reference proof lines, declaration count, public file count, public lemma count, tactic profile, automation dominance, Mathlib use, multi-file context, hidden pin strength, and wrong-submission count. Manual fields include frontier one-shot solvability estimates, p50/p90 human time, scaffold sensitivity, diagnostic value, and final accept/reject rationale.
 
+## Accepted Task Review
+
+`reports/accepted_task_review.md` records the per-task reviewer judgment for every row that was marked `accepted_v0` at the start of the hardening pass. It explicitly distinguishes keep, downgrade, and keep-with-caveat recommendations; checks whether buckets are deserved; audits hidden pins and wrong submissions; and lists what must change before each task can be treated as benchmark-grade.
+
 ## Limitations
 
 - The v0.1 accepted core is below the 20-task target because the original pool did not meet the diagnostic-quality bar.
@@ -109,6 +113,7 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 - Hidden pins are stronger than type checks, but they remain finite semantic probes.
 - Only a tiny real provider smoke sweep is committed; it is adapter/proof-debugging evidence, not a benchmark performance claim.
 - Hosted Taiga/Env Linter QA is not represented in this local artifact.
+- The artifact is not a locked benchmark. The accepted rows still need independent human timing, broader scaffold data, and external QA before a freeze.
 
 ## Before Claiming A Locked Benchmark
 

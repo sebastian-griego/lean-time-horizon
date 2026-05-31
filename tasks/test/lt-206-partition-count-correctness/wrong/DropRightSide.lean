@@ -22,7 +22,9 @@ def partitionLE (pivot : Nat) : List Nat -> List Nat × List Nat
 
 theorem partition_length (pivot : Nat) (xs : List Nat) :
     let p := partitionLE pivot xs
-    p.1.length + p.2.length <= xs.length := by
+    p.1.length + p.2.length = xs.length := by
+  -- Same theorem statement, but the implementation silently drops right-side
+  -- elements, so the exact length preservation theorem is unprovable.
   induction xs with
   | nil => simp [partitionLE]
   | cons x xs ih =>
@@ -46,7 +48,7 @@ theorem partition_right_allGt (pivot : Nat) (xs : List Nat) :
 
 theorem partition_count (pivot a : Nat) (xs : List Nat) :
     let p := partitionLE pivot xs
-    count a p.1 + count a p.2 <= count a xs := by
+    count a p.1 + count a p.2 = count a xs := by
   induction xs with
   | nil => simp [partitionLE, count]
   | cons x xs ih =>
@@ -55,11 +57,11 @@ theorem partition_count (pivot a : Nat) (xs : List Nat) :
 
 theorem partition_spec (pivot : Nat) (xs : List Nat) :
     let p := partitionLE pivot xs
-    And (p.1.length + p.2.length <= xs.length)
+    And (p.1.length + p.2.length = xs.length)
       (And (allLe pivot p.1)
         (And (allGt pivot p.2)
-          ((a : Nat) -> count a p.1 + count a p.2 <= count a xs))) := by
+          ((a : Nat) -> count a p.1 + count a p.2 = count a xs))) := by
   exact ⟨partition_length pivot xs, partition_left_allLe pivot xs,
-    partition_right_allGt pivot xs, partition_count pivot⟩
+    partition_right_allGt pivot xs, fun a => partition_count pivot a xs⟩
 
 end LT206

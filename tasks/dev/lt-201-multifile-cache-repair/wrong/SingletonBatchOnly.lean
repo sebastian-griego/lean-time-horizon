@@ -10,8 +10,10 @@ theorem entryCount_touch (c : Cache) (k v : Nat) :
     (Cache.touch k v c).entryCount = c.entryCount + 1 := by
   simp [Cache.touch, Cache.entryCount]
 
-theorem keyCount_touchAll (updates : List (Nat × Nat)) (c : Cache) (h : updates.length <= 1) :
+theorem keyCount_touchAll (updates : List (Nat × Nat)) (c : Cache) :
     (Cache.touchAll updates c).keyCount = c.keyCount + updates.length := by
+  -- Handles the empty and singleton batches but never generalizes over the
+  -- recursive cache state.
   cases updates with
   | nil => simp [Cache.touchAll]
   | cons update rest =>
@@ -20,9 +22,11 @@ theorem keyCount_touchAll (updates : List (Nat × Nat)) (c : Cache) (h : updates
           cases update
           simp [Cache.touchAll, keyCount_touch]
       | cons update2 rest2 =>
-          simp at h
+          cases update
+          cases update2
+          simp [Cache.touchAll, keyCount_touch]
 
-theorem entryCount_touchAll (updates : List (Nat × Nat)) (c : Cache) (h : updates.length <= 1) :
+theorem entryCount_touchAll (updates : List (Nat × Nat)) (c : Cache) :
     (Cache.touchAll updates c).entryCount = c.entryCount + updates.length := by
   cases updates with
   | nil => simp [Cache.touchAll]
@@ -32,6 +36,8 @@ theorem entryCount_touchAll (updates : List (Nat × Nat)) (c : Cache) (h : updat
           cases update
           simp [Cache.touchAll, entryCount_touch]
       | cons update2 rest2 =>
-          simp at h
+          cases update
+          cases update2
+          simp [Cache.touchAll, entryCount_touch]
 
 end LT201

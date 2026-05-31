@@ -6,6 +6,9 @@ namespace LT205
 #check (count_insert_same : ∀ a : Nat, ∀ xs : List Nat, count a (insert a xs) = count a xs + 1)
 #check (count_insert_ne : ∀ a b : Nat, ∀ xs : List Nat, b ≠ a -> count a (insert b xs) = count a xs)
 #check (count_union : ∀ a : Nat, ∀ xs ys : List Nat, count a (union xs ys) = count a xs + count a ys)
+#check (bageq_refl : ∀ xs : List Nat, BagEq xs xs)
+#check (bageq_symm : ∀ xs ys : List Nat, BagEq xs ys -> BagEq ys xs)
+#check (bageq_trans : ∀ xs ys zs : List Nat, BagEq xs ys -> BagEq ys zs -> BagEq xs zs)
 #check (bageq_union_congr : ∀ xs ys zs : List Nat, BagEq xs ys -> BagEq (union xs zs) (union ys zs))
 
 example : count 2 (union [1, 2, 2] [2, 3]) = 3 := by
@@ -39,5 +42,8 @@ example : ¬ BagEq [1, 1, 2] [1, 2, 2] := by
   intro h
   have h1 := h 1
   simp [count] at h1
+
+example : count 1 (insert 2 [1, 1]) = 2 := by
+  rfl
 
 end LT205

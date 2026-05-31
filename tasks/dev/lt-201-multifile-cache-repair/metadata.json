@@ -29,7 +29,7 @@
   "qa_status": "local_only",
   "acceptance_status": "accepted_v0",
   "difficulty_review_status": "manual_review_complete",
-  "difficulty_review_notes": "accepted_v0: multi-file cache repair requires preserving Model.lean API semantics and proving batch count lemmas.",
+  "difficulty_review_notes": "accepted_v0_keep_with_caveat: reference proof is automation-dominated, but the task is retained for multi-file navigation, fixed API semantics, and generalized batch repair; needs independent review before any locked benchmark claim.",
   "public_files": [
     "Model.lean",
     "Task.lean"

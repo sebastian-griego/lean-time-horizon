@@ -27,4 +27,12 @@ example (c : Cache) :
     (Cache.touch 4 40 c).entries = (4, 40) :: c.entries := by
   rfl
 
+example (c : Cache) :
+    (Cache.touchAll [(1, 10), (2, 20)] c).keys = [2, 1] ++ c.keys := by
+  rfl
+
+example (c : Cache) :
+    (Cache.touchAll [(1, 10), (2, 20)] c).entries = [(2, 20), (1, 10)] ++ c.entries := by
+  rfl
+
 end LT201

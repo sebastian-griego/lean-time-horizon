@@ -31,7 +31,7 @@
   "qa_status": "local_only",
   "acceptance_status": "accepted_v0",
   "difficulty_review_status": "manual_review_complete",
-  "difficulty_review_notes": "accepted_v0: algorithm-correctness package with side predicates, length, and duplicate-sensitive count preservation.",
+  "difficulty_review_notes": "accepted_v0_keep_with_caveat: reference proof uses substantial simp/omega automation, but the task is retained for the multi-lemma partition invariant, side predicates, and duplicate-sensitive count preservation; needs independent review before any locked benchmark claim.",
   "diagnostic_value": "high",
   "frontier_model_one_shot_likelihood": "maybe",
   "public_files": [

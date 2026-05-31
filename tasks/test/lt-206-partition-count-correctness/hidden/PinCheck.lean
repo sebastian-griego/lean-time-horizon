@@ -18,10 +18,20 @@ namespace LT206
   let p := partitionLE pivot xs
   count a p.1 + count a p.2 = count a xs)
 
+#check (partition_spec : (pivot : Nat) -> (xs : List Nat) ->
+  let p := partitionLE pivot xs
+  And (p.1.length + p.2.length = xs.length)
+    (And (allLe pivot p.1)
+      (And (allGt pivot p.2)
+        ((a : Nat) -> count a p.1 + count a p.2 = count a xs))))
+
 example : partitionLE 3 [4, 1, 3, 2, 5] = ([1, 3, 2], [4, 5]) := by
   rfl
 
 example : count 2 (partitionLE 2 [2, 3, 2, 1]).1 + count 2 (partitionLE 2 [2, 3, 2, 1]).2 = 2 := by
+  rfl
+
+example : partitionLE 2 [3, 2, 1, 2, 4] = ([2, 1, 2], [3, 4]) := by
   rfl
 
 example : ¬ allLe 3 [1, 4] := by

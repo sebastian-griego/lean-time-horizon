@@ -12,6 +12,7 @@ theorem covers_refl (xs : List Nat) :
 theorem covers_cons (x : Nat) (xs ys : List Nat)
     (h : CoversExactly xs ys) :
     CoversExactly (x :: xs) (x :: ys) := by
+  change x :: xs = x :: ys
   rw [h]
 
 theorem covers_symm (xs ys : List Nat)

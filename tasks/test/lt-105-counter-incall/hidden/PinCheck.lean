@@ -14,6 +14,9 @@ example : (Counter.incAll [2, 0, 5] { value := 10 }).value = 17 := by
 example : sumList [2, 0, 5] = 7 := by
   rfl
 
+example : sumList [1, 2, 3] = 6 := by
+  rfl
+
 example : (Counter.incAll [4, 1] { value := 3 }).value = 8 := by
   rfl
 

@@ -21,15 +21,19 @@ theorem count_nil (a : Nat) :
 
 theorem count_insert_same (a : Nat) (xs : List Nat) :
     count a (insert a xs) = count a xs + 1 := by
+  -- Same theorem signature, but set-style membership counts cannot account for
+  -- inserting a duplicate.
   cases xs <;> simp [insert, count]
 
 theorem count_insert_ne (a b : Nat) (xs : List Nat) (h : b ≠ a) :
     count a (insert b xs) = count a xs := by
   simp [insert, count, h]
 
-theorem count_union (a : Nat) (xs ys : List Nat) (h : count a xs = 0 ∨ count a ys = 0) :
+theorem count_union (a : Nat) (xs ys : List Nat) :
     count a (union xs ys) = count a xs + count a ys := by
-  cases h <;> simp [union, *]
+  -- Plausible set-membership implementation: only works when a occurs on at
+  -- most one side, so the unchanged theorem is unprovable.
+  induction xs <;> simp [union, count, *]
 
 theorem bageq_refl (xs : List Nat) :
     BagEq xs xs := by
@@ -50,8 +54,6 @@ theorem bageq_union_congr (xs ys zs : List Nat)
     (h : BagEq xs ys) :
     BagEq (union xs zs) (union ys zs) := by
   intro a
-  by_cases hz : count a zs = 0
-  · rw [count_union, count_union, h a] <;> exact Or.inr hz
-  · rfl
+  rw [count_union, count_union, h a]
 
 end LT205

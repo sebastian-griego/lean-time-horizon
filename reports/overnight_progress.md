@@ -20,7 +20,8 @@
 
 ## Checkpoint 3: Task release selection and hardening
 
-- Promoted 9 core tasks to `accepted_v0`: `lt-105`, `lt-107`, `lt-108`, `lt-201`, `lt-202`, `lt-203`, `lt-204`, `lt-205`, and `lt-206`.
+- Initial release-selection pass marked these tasks as `accepted_v0`: `lt-105`, `lt-107`, `lt-108`, `lt-201`, `lt-202`, `lt-203`, `lt-204`, `lt-205`, and `lt-206`.
+- Superseded by the stricter accepted-task review: `lt-105`, `lt-107`, and `lt-108` were later downgraded to `calibration_only`, leaving 6 accepted core tasks.
 - Marked 5 tasks as `calibration_only`: `lt-001`, `lt-002`, `lt-003`, `lt-004`, and `lt-101`.
 - Marked 12 weak or duplicate tasks as rejected archive rows.
 - Added second wrong submissions for all accepted and calibration tasks.

@@ -21,13 +21,15 @@ theorem value_incBy (c : Counter) (n : Nat) :
     (Counter.incBy n c).value = c.value + n := by
   rfl
 
-theorem value_incAll (ns : List Nat) (c : Counter) (h : ns.length ≤ 1) :
+theorem value_incAll (ns : List Nat) (c : Counter) :
     (Counter.incAll ns c).value = c.value + sumList ns := by
+  -- Same theorem statement, but only the empty and singleton cases are
+  -- repaired. The batched recursive case is left to a brittle simplification.
   cases ns with
   | nil => simp [Counter.incAll, sumList]
   | cons n ns =>
       cases ns with
       | nil => simp [Counter.incAll, sumList, value_incBy]
-      | cons m rest => simp at h
+      | cons m rest => simp [Counter.incAll, sumList, value_incBy]
 
 end LT105

@@ -14,14 +14,14 @@ theorem image_preimage_subset {alpha beta : Type} (f : alpha -> beta) (t : Set b
   rw [← hxy]
   exact hx
 
--- Plausible but wrong repair: it changes the intended theorem by requiring the
--- subset direction as an extra premise instead of proving it from injectivity.
 theorem preimage_image_eq_of_injective {alpha beta : Type} (f : alpha -> beta) (s : Set alpha)
-    (hf : Function.Injective f)
-    (h : Set.Subset (Set.preimage f (Set.image f s)) s) :
+    (hf : Function.Injective f) :
     Set.preimage f (Set.image f s) = s := by
   apply Set.Subset.antisymm
-  · exact h
+  · intro x hx
+    rcases hx with ⟨y, hy, hxy⟩
+    have hyx : y = x := hf hxy
+    rwa [hyx] at hy
   · exact subset_preimage_image f s
 
 theorem image_inter_eq_of_injective {alpha beta : Type} (f : alpha -> beta) (s t : Set alpha)
@@ -46,10 +46,8 @@ theorem image_preimage_eq_of_surjective {alpha beta : Type} (f : alpha -> beta) 
   apply Set.Subset.antisymm
   · exact image_preimage_subset f t
   · intro y hy
-    rcases hf y with ⟨x, hxy⟩
-    exact Exists.intro x (And.intro (by
-      show f x ∈ t
-      rw [hxy]
-      exact hy) hxy)
+    -- Plausible but wrong: treats a target-side element as if it were already
+    -- a source-side witness instead of using surjectivity.
+    exact Exists.intro y (And.intro hy rfl)
 
 end LT202
