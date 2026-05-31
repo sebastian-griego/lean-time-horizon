@@ -17,5 +17,5 @@ Forbidden source-level escape hatches are scanned before Lean runs. The common
 ban list is implemented in `harness/forbidden_constructs.py`; task-specific
 additional bans are listed in each `metadata.json` under `extra_forbidden`.
 
-The current accepted tasks do not require adding task-specific axiom
-allowances.
+The current validated task candidates do not require adding task-specific
+axiom allowances.

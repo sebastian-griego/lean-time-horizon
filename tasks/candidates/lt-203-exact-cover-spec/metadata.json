@@ -1,0 +1,23 @@
+{
+  "task_id": "lt-203",
+  "title": "formalize exact list coverage modulo multiplicity",
+  "split": "candidates",
+  "family": "informal_spec_to_formal",
+  "domain": "semantic_list_membership_relation",
+  "source_type": "authored_replacement_candidate",
+  "human_time_bucket": "T2",
+  "human_minutes_p50": 90,
+  "human_minutes_p90": 180,
+  "human_estimate_confidence": "medium; semantic interface plus four downstream lemmas",
+  "skills": ["semantic formalization", "membership reasoning", "theorem decomposition", "hidden pin debugging"],
+  "scaffolds": ["one-shot", "lookup", "lookup_unlimited"],
+  "expected_failure_modes": ["uses equality instead of membership equivalence", "keeps multiplicity accidentally", "vacuous relation"],
+  "scaffold_sensitivity": "high; lookup helps list membership simplification, pins diagnose semantic mismatch",
+  "qa_status": "local_only",
+  "acceptance_status": "candidate_not_accepted",
+  "difficulty_review_status": "manual_review_pending",
+  "difficulty_review_notes": "Replacement candidate; must pass validation and manual review before acceptance.",
+  "axiom_audit_declarations": ["LT203.covers_refl", "LT203.covers_cons", "LT203.covers_symm", "LT203.covers_trans"],
+  "extra_forbidden": [],
+  "timeout_seconds": 120
+}

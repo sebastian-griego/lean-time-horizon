@@ -1,12 +1,15 @@
 # Lean Time-Horizon Benchmark
 
-This repo contains a Lean-based evaluation benchmark for measuring how far models get on realistic formalization and verification tasks as task horizon increases.
+This repo contains a Lean-based evaluation benchmark candidate pool for measuring how far models get on realistic formalization and verification tasks as task horizon increases.
 
-The accepted batch has 20 tasks:
+The current validated pool has 25 tasks:
 
 - 5 dev tasks in `tasks/dev`
 - 15 test tasks in `tasks/test`
+- 5 harder replacement candidates in `tasks/candidates`
 - task families covering algorithm correctness, proof repair, informal-spec formalization, invariant verification, small library construction, and direct theorem proving
+
+The original 20 tasks are treated as candidates, not final accepted tasks. The difficulty audit downgrades many of them to T0/T1 calibration or rejects them as too easy for final benchmark use. No task should be promoted to accepted until validation and manual difficulty review both pass.
 
 The project is pinned to Lean 4.28.0 in `lean-toolchain`.
 
@@ -18,7 +21,7 @@ Run the full local acceptance gate:
 python scripts/validate_all.py
 ```
 
-This checks every accepted task by:
+This checks every validated task candidate by:
 
 - compiling the hidden reference solution
 - scanning forbidden constructs
@@ -35,7 +38,7 @@ python scripts/validate_task.py tasks/test/lt-111-clip-interval-invariant --subm
 
 ## Task Layout
 
-Each accepted task has:
+Each validated task candidate has:
 
 - `Prompt.md`: public instructions
 - `Task.lean`: public scaffold
@@ -107,15 +110,23 @@ Regenerate plots and report:
 python scripts/generate_report.py
 ```
 
+Run the difficulty audit:
+
+```powershell
+python scripts/audit_difficulty.py
+```
+
 Outputs:
 
 - `data/task_metadata.csv`
 - `data/validation_commands.csv`
 - `data/run_results.csv`
+- `data/difficulty_audit.csv`
+- `reports/difficulty_audit.md`
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-Committed local QA rows are not frontier-model results. Real model pass@10 rows should be generated with `scripts/run_model_sweep.py` and reviewed before being used as benchmark claims.
+Committed local QA rows are not frontier-model results. Real model pass@k rows should be generated with `scripts/run_model_sweep.py` and reviewed before being used as benchmark claims. Run-result rows report `k`, `successes_out_of_k`, and binary `pass_at_k`; do not infer pass@10 from one-shot local QA rows.
 
 ## Public Export
 

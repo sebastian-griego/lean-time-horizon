@@ -18,6 +18,9 @@
     "expected_failure_modes",
     "scaffold_sensitivity",
     "qa_status",
+    "acceptance_status",
+    "difficulty_review_status",
+    "difficulty_review_notes",
     "axiom_audit_declarations",
     "extra_forbidden",
     "timeout_seconds"
@@ -25,7 +28,7 @@
   "properties": {
     "task_id": {"type": "string"},
     "title": {"type": "string"},
-    "split": {"enum": ["dev", "test"]},
+    "split": {"enum": ["dev", "test", "candidates"]},
     "family": {"type": "string"},
     "domain": {"type": "string"},
     "source_type": {"type": "string"},
@@ -38,6 +41,9 @@
     "expected_failure_modes": {"type": "array", "items": {"type": "string"}},
     "scaffold_sensitivity": {"type": "string"},
     "qa_status": {"type": "string"},
+    "acceptance_status": {"type": "string"},
+    "difficulty_review_status": {"type": "string"},
+    "difficulty_review_notes": {"type": "string"},
     "axiom_audit_declarations": {"type": "array", "items": {"type": "string"}},
     "extra_forbidden": {"type": "array", "items": {"type": "string"}},
     "timeout_seconds": {"type": "integer", "minimum": 1}

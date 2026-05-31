@@ -1,35 +1,40 @@
 {
-  "task_id": "lt-107",
-  "title": "formalize contains-all as membership implication",
-  "split": "test",
-  "family": "informal_spec_to_formal",
-  "domain": "list_membership_specification",
-  "source_type": "authored",
-  "human_time_bucket": "T2",
-  "human_minutes_p50": 50,
-  "human_minutes_p90": 100,
-  "human_estimate_confidence": "medium; semantic spec plus membership API use",
-  "skills": [
-    "semantic formalization",
-    "membership reasoning",
-    "implication interface design"
-  ],
-  "scaffolds": [
-    "one-shot",
-    "lookup",
-    "lookup_unlimited"
-  ],
-  "expected_failure_modes": [
-    "vacuous relation",
-    "wrong quantifier direction",
-    "membership simp failure"
-  ],
-  "scaffold_sensitivity": "high; lookup can help with list membership simplification while hidden pins test semantic correctness",
-  "qa_status": "local_only",
-  "axiom_audit_declarations": [
-    "LT107.containsAll_refl",
-    "LT107.containsAll_cons_right"
-  ],
-  "extra_forbidden": [],
-  "timeout_seconds": 60
+    "task_id":  "lt-107",
+    "title":  "formalize contains-all as membership implication",
+    "split":  "test",
+    "family":  "informal_spec_to_formal",
+    "domain":  "list_membership_specification",
+    "source_type":  "authored",
+    "human_time_bucket":  "T2",
+    "human_minutes_p50":  50,
+    "human_minutes_p90":  100,
+    "human_estimate_confidence":  "medium; semantic spec plus membership API use",
+    "skills":  [
+                   "semantic formalization",
+                   "membership reasoning",
+                   "implication interface design"
+               ],
+    "scaffolds":  [
+                      "one-shot",
+                      "lookup",
+                      "lookup_unlimited"
+                  ],
+    "expected_failure_modes":  [
+                                   "vacuous relation",
+                                   "wrong quantifier direction",
+                                   "membership simp failure"
+                               ],
+    "scaffold_sensitivity":  "high; lookup can help with list membership simplification while hidden pins test semantic correctness",
+    "qa_status":  "local_only",
+    "axiom_audit_declarations":  [
+                                     "LT107.containsAll_refl",
+                                     "LT107.containsAll_cons_right"
+                                 ],
+    "extra_forbidden":  [
+
+                        ],
+    "timeout_seconds":  60,
+    "acceptance_status":  "candidate_not_accepted",
+    "difficulty_review_status":  "audited_downgraded",
+    "difficulty_review_notes":  "candidate_borderline: membership spec has some semantic value"
 }

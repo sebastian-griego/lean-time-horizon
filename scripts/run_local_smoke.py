@@ -13,7 +13,7 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=3)
     args = parser.parse_args()
     tasks = []
-    for split in ["dev", "test"]:
+    for split in ["dev", "test", "candidates"]:
         base = ROOT / "tasks" / split
         if base.exists():
             tasks.extend(sorted(p for p in base.iterdir() if (p / "metadata.json").exists()))

@@ -1,25 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420">
 <rect width="100%" height="100%" fill="#ffffff"/>
-<text x="360.0" y="28" text-anchor="middle" font-family="Arial" font-size="18" fill="#111">Accepted tasks by family</text>
+<text x="360.0" y="28" text-anchor="middle" font-family="Arial" font-size="18" fill="#111">Candidate tasks by family</text>
 <line x1="80" y1="330" x2="690" y2="330" stroke="#333"/>
 <line x1="80" y1="50" x2="80" y2="330" stroke="#333"/>
 <text x="20" y="210.0" transform="rotate(-90 20 210.0)" text-anchor="middle" font-family="Arial" font-size="12" fill="#333">tasks</text>
 <rect x="94.2" y="50.0" width="73.2" height="280.0" fill="#3b82f6"/>
 <text x="130.8" y="44.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">5</text>
 <text x="130.8" y="348" text-anchor="end" transform="rotate(-35 130.8 348)" font-family="Arial" font-size="11" fill="#333">algorithm_correctness</text>
-<rect x="195.9" y="162.0" width="73.2" height="168.0" fill="#3b82f6"/>
-<text x="232.5" y="156.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">3</text>
+<rect x="195.9" y="106.0" width="73.2" height="224.0" fill="#3b82f6"/>
+<text x="232.5" y="100.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">4</text>
 <text x="232.5" y="348" text-anchor="end" transform="rotate(-35 232.5 348)" font-family="Arial" font-size="11" fill="#333">proof_repair_codebase</text>
-<rect x="297.6" y="106.0" width="73.2" height="224.0" fill="#3b82f6"/>
-<text x="334.2" y="100.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">4</text>
+<rect x="297.6" y="50.0" width="73.2" height="280.0" fill="#3b82f6"/>
+<text x="334.2" y="44.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">5</text>
 <text x="334.2" y="348" text-anchor="end" transform="rotate(-35 334.2 348)" font-family="Arial" font-size="11" fill="#333">informal_spec_to_formal</text>
-<rect x="399.2" y="106.0" width="73.2" height="224.0" fill="#3b82f6"/>
-<text x="435.8" y="100.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">4</text>
+<rect x="399.2" y="50.0" width="73.2" height="280.0" fill="#3b82f6"/>
+<text x="435.8" y="44.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">5</text>
 <text x="435.8" y="348" text-anchor="end" transform="rotate(-35 435.8 348)" font-family="Arial" font-size="11" fill="#333">invariant_verification_ml_optimization</text>
-<rect x="500.9" y="162.0" width="73.2" height="168.0" fill="#3b82f6"/>
-<text x="537.5" y="156.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">3</text>
+<rect x="500.9" y="106.0" width="73.2" height="224.0" fill="#3b82f6"/>
+<text x="537.5" y="100.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">4</text>
 <text x="537.5" y="348" text-anchor="end" transform="rotate(-35 537.5 348)" font-family="Arial" font-size="11" fill="#333">small_formal_library_construction</text>
-<rect x="602.6" y="274.0" width="73.2" height="56.0" fill="#3b82f6"/>
-<text x="639.2" y="268.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">1</text>
+<rect x="602.6" y="218.0" width="73.2" height="112.0" fill="#3b82f6"/>
+<text x="639.2" y="212.0" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">2</text>
 <text x="639.2" y="348" text-anchor="end" transform="rotate(-35 639.2 348)" font-family="Arial" font-size="11" fill="#333">direct_theorem_proving</text>
 </svg>

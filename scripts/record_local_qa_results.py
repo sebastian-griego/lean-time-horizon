@@ -25,7 +25,9 @@ FIELDS = [
     "job_id",
     "attempts_total",
     "attempts_completed",
-    "successes_out_of_10",
+    "k",
+    "successes_out_of_k",
+    "pass_at_k",
     "timeout_count",
     "infra_fail_count",
     "score_values",
@@ -38,7 +40,7 @@ FIELDS = [
 
 def discover_tasks() -> list[Path]:
     tasks: list[Path] = []
-    for split in ["dev", "test"]:
+    for split in ["dev", "test", "candidates"]:
         base = ROOT / "tasks" / split
         if base.exists():
             tasks.extend(sorted(p for p in base.iterdir() if (p / "metadata.json").exists()))
@@ -56,7 +58,9 @@ def row(metadata: dict, model: str, ok: bool, failure_label: str) -> dict[str, o
         "job_id": f"local-qa-{model}-{metadata['task_id']}",
         "attempts_total": 1,
         "attempts_completed": 1,
-        "successes_out_of_10": 10 if ok else 0,
+        "k": 1,
+        "successes_out_of_k": 1 if ok else 0,
+        "pass_at_k": "1.0" if ok else "0.0",
         "timeout_count": 0,
         "infra_fail_count": 0,
         "score_values": "1.0" if ok else "0.0",

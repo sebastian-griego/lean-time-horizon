@@ -20,10 +20,11 @@ sys.path.insert(0, str(ROOT / "harness"))
 from forbidden_constructs import find_forbidden, load_forbidden  # noqa: E402
 
 
-def run(cmd: list[str], cwd: Path, timeout: int = 60) -> subprocess.CompletedProcess[str]:
+def run(cmd: list[str], cwd: Path, timeout: int = 60, lean_path_dir: Path | None = None) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
-    existing = env.get("LEAN_PATH", "")
-    env["LEAN_PATH"] = str(cwd) + (os.pathsep + existing if existing else "")
+    if lean_path_dir is not None:
+        existing = env.get("LEAN_PATH", "")
+        env["LEAN_PATH"] = str(lean_path_dir) + (os.pathsep + existing if existing else "")
     return subprocess.run(
         cmd,
         cwd=cwd,
@@ -44,8 +45,33 @@ def load_metadata(task_dir: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def copy_submission(task_dir: Path, submission: Path, tmp: Path) -> None:
-    shutil.copyfile(submission, tmp / "Task.lean")
+def metadata_public_files(metadata: dict) -> list[str]:
+    return list(metadata.get("public_files", ["Task.lean"]))
+
+
+def metadata_submission_file(metadata: dict) -> str:
+    return str(metadata.get("submission_file", "Task.lean"))
+
+
+def metadata_entry_file(metadata: dict) -> str:
+    return str(metadata.get("entry_file", metadata_submission_file(metadata)))
+
+
+def module_name(path: str) -> str:
+    return Path(path).with_suffix("").as_posix().replace("/", ".")
+
+
+def copy_submission(task_dir: Path, submission: Path, tmp: Path, metadata: dict) -> None:
+    for public_file in metadata_public_files(metadata):
+        src = task_dir / public_file
+        dest = tmp / public_file
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        if not src.exists():
+            raise FileNotFoundError(f"missing public file: {src}")
+        shutil.copyfile(src, dest)
+    submission_dest = tmp / metadata_submission_file(metadata)
+    submission_dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(submission, submission_dest)
     pin = task_dir / "hidden" / "PinCheck.lean"
     if not pin.exists():
         raise FileNotFoundError(f"missing hidden pin check: {pin}")
@@ -57,13 +83,13 @@ def check_forbidden(path: Path, metadata_path: Path) -> list[dict[str, object]]:
     return find_forbidden(src, load_forbidden(metadata_path))
 
 
-def audit_axioms(tmp: Path, declarations: list[str]) -> tuple[bool, str]:
-    lines = ["import Task", "set_option pp.all false"]
+def audit_axioms(tmp: Path, import_module: str, declarations: list[str]) -> tuple[bool, str]:
+    lines = [f"import {import_module}", "set_option pp.all false"]
     for decl in declarations:
         lines.append(f"#print axioms {decl}")
     audit_file = tmp / "AxiomAudit.lean"
     audit_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    result = run(["lake", "env", "lean", "AxiomAudit.lean"], cwd=tmp)
+    result = run(["lake", "env", "lean", str(audit_file)], cwd=ROOT, lean_path_dir=tmp)
     if result.returncode != 0:
         return False, result.stdout
 
@@ -88,32 +114,60 @@ def validate_submission(task_dir: Path, submission: Path, expect_pass: bool) -> 
     metadata_path = task_dir / "metadata.json"
     with tempfile.TemporaryDirectory(prefix=f"{metadata['task_id']}-", dir=ROOT / "tmp") as td:
         tmp = Path(td)
-        copy_submission(task_dir, submission, tmp)
+        copy_submission(task_dir, submission, tmp, metadata)
+        submission_path = tmp / metadata_submission_file(metadata)
+        entry_path = tmp / metadata_entry_file(metadata)
+        entry_module = module_name(metadata_entry_file(metadata))
 
-        forbidden = check_forbidden(tmp / "Task.lean", metadata_path)
+        forbidden = check_forbidden(submission_path, metadata_path)
         if forbidden:
             ok = False
             detail = json.dumps({"forbidden": forbidden}, indent=2)
         else:
-            build = run(
-                ["lake", "env", "lean", "-o", "Task.olean", "-i", "Task.ilean", "Task.lean"],
-                cwd=tmp,
-                timeout=metadata.get("timeout_seconds", 60),
-            )
-            if build.returncode != 0:
+            build_outputs: list[str] = []
+            build_failed = False
+            files_to_build = []
+            for public_file in metadata_public_files(metadata):
+                if public_file not in files_to_build:
+                    files_to_build.append(public_file)
+            if metadata_entry_file(metadata) not in files_to_build:
+                files_to_build.append(metadata_entry_file(metadata))
+            for lean_file in files_to_build:
+                path = tmp / lean_file
+                build = run(
+                    ["lake", "env", "lean", "-o", str(path.with_suffix(".olean")), "-i", str(path.with_suffix(".ilean")), str(path)],
+                    cwd=ROOT,
+                    timeout=metadata.get("timeout_seconds", 60),
+                    lean_path_dir=tmp,
+                )
+                build_outputs.append(build.stdout)
+                if build.returncode != 0:
+                    build_failed = True
+                    break
+            if build_failed:
                 ok = False
-                detail = build.stdout
+                detail = "\n".join(build_outputs)
             else:
                 pins = run(
-                    ["lake", "env", "lean", "-o", "PinCheck.olean", "-i", "PinCheck.ilean", "PinCheck.lean"],
-                    cwd=tmp,
+                    [
+                        "lake",
+                        "env",
+                        "lean",
+                        "-o",
+                        str((tmp / "PinCheck").with_suffix(".olean")),
+                        "-i",
+                        str((tmp / "PinCheck").with_suffix(".ilean")),
+                        str(tmp / "PinCheck.lean"),
+                    ],
+                    cwd=ROOT,
                     timeout=metadata.get("timeout_seconds", 60),
+                    lean_path_dir=tmp,
                 )
                 if pins.returncode != 0:
                     ok = False
                     detail = pins.stdout
                 else:
-                    ok, detail = audit_axioms(tmp, metadata.get("axiom_audit_declarations", []))
+                    ok, detail = audit_axioms(tmp, entry_module, metadata.get("axiom_audit_declarations", []))
 
     return {
         "task_id": metadata["task_id"],
@@ -141,7 +195,9 @@ def write_result_row(path: Path, metadata: dict, ok: bool, submission_kind: str)
                 "job_id",
                 "attempts_total",
                 "attempts_completed",
-                "successes_out_of_10",
+                "k",
+                "successes_out_of_k",
+                "pass_at_k",
                 "timeout_count",
                 "infra_fail_count",
                 "score_values",
@@ -164,7 +220,9 @@ def write_result_row(path: Path, metadata: dict, ok: bool, submission_kind: str)
                 "job_id": f"local-{submission_kind}-{metadata['task_id']}",
                 "attempts_total": 1,
                 "attempts_completed": 1,
-                "successes_out_of_10": 10 if ok else 0,
+                "k": 1,
+                "successes_out_of_k": 1 if ok else 0,
+                "pass_at_k": 1 if ok else 0,
                 "timeout_count": 0,
                 "infra_fail_count": 0,
                 "score_values": "1.0" if ok else "0.0",

@@ -1,8 +1,8 @@
 # QA Checklist
 
-Use `python scripts/validate_all.py` before accepting a task.
+Use `python scripts/validate_all.py` before accepting or promoting a task.
 
-For each accepted task:
+For each accepted task candidate:
 
 - reference solution passes public build, hidden pins, forbidden scan, and axiom audit
 - at least one plausible wrong solution fails
@@ -14,6 +14,7 @@ For each accepted task:
 For release:
 
 - `python scripts/validate_all.py`
+- `python scripts/audit_difficulty.py`
 - `python scripts/generate_report.py`
 - generated figures and report are committed
 - README commands match the current scripts

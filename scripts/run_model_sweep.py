@@ -26,7 +26,9 @@ FIELDS = [
     "job_id",
     "attempts_total",
     "attempts_completed",
-    "successes_out_of_10",
+    "k",
+    "successes_out_of_k",
+    "pass_at_k",
     "timeout_count",
     "infra_fail_count",
     "score_values",
@@ -46,7 +48,7 @@ PROVIDER_COMMAND_ENV = {
 
 def discover_tasks(split: str | None, task_id: str | None) -> list[Path]:
     tasks: list[Path] = []
-    splits = [split] if split else ["dev", "test"]
+    splits = [split] if split else ["dev", "test", "candidates"]
     for sp in splits:
         base = ROOT / "tasks" / sp
         if base.exists():
@@ -57,24 +59,31 @@ def discover_tasks(split: str | None, task_id: str | None) -> list[Path]:
 
 
 def build_prompt(task: Path, scaffold: str, feedback: str = "") -> str:
+    metadata = json.loads((task / "metadata.json").read_text(encoding="utf-8"))
     prompt = (task / "Prompt.md").read_text(encoding="utf-8")
     scaffold_text = {
         "one-shot": "One submission. No lookup tools are available.",
         "lookup": "One submission. Read-only Lean/Std lookup is available.",
         "lookup_unlimited": "Iterative compile/debug attempts are available; use feedback from previous attempts.",
     }[scaffold]
-    public = (task / "Task.lean").read_text(encoding="utf-8")
+    public_parts = []
+    for public_file in metadata.get("public_files", ["Task.lean"]):
+        public_parts.extend([
+            f"File: {public_file}",
+            "```lean",
+            (task / public_file).read_text(encoding="utf-8"),
+            "```",
+            "",
+        ])
     parts = [
         prompt,
         "",
         f"Scaffold: {scaffold}",
         scaffold_text,
         "",
-        "Return the complete contents of Task.lean only.",
+        f"Return the complete contents of {metadata.get('submission_file', 'Task.lean')} only.",
         "",
-        "```lean",
-        public,
-        "```",
+        *public_parts,
     ]
     if feedback:
         parts.extend(["", "Previous grader feedback:", "```text", feedback[-4000:], "```"])
@@ -129,7 +138,7 @@ def main() -> int:
     parser.add_argument("--provider", choices=["local_reference", "command", "openai", "anthropic", "gemini"], required=True)
     parser.add_argument("--model", required=True)
     parser.add_argument("--scaffold", choices=["one-shot", "lookup", "lookup_unlimited"], required=True)
-    parser.add_argument("--split", choices=["dev", "test"])
+    parser.add_argument("--split", choices=["dev", "test", "candidates"])
     parser.add_argument("--task-id")
     parser.add_argument("--attempts", type=int, default=1)
     parser.add_argument("--out", type=Path, default=ROOT / "data" / "run_results.csv")
@@ -198,7 +207,9 @@ def main() -> int:
                 "job_id": job_id,
                 "attempts_total": attempts_allowed,
                 "attempts_completed": completed,
-                "successes_out_of_10": min(10, successes * 10),
+                "k": attempts_allowed,
+                "successes_out_of_k": successes,
+                "pass_at_k": f"{(1.0 if successes > 0 else 0.0):.1f}",
                 "timeout_count": 0,
                 "infra_fail_count": labels.count("infra_failure"),
                 "score_values": ",".join("1" if label == "none" else "0" for label in labels),

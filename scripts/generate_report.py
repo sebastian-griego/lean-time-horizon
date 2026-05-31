@@ -101,7 +101,7 @@ def summarize_run_results(rows: list[dict[str, str]]) -> dict[str, dict[str, flo
     grouped: dict[str, list[float]] = defaultdict(list)
     for row in rows:
         try:
-            grouped[row["scaffold"]].append(float(row["successes_out_of_10"]) / 10.0)
+            grouped[row["scaffold"]].append(float(row["pass_at_k"]))
         except (KeyError, ValueError):
             continue
     return {
@@ -121,13 +121,15 @@ def main() -> int:
     family_counts = Counter(row["family"] for row in metadata)
     split_counts = Counter(row["split"] for row in metadata)
     bucket_counts = Counter(row["human_time_bucket"] for row in metadata)
+    acceptance_counts = Counter(row.get("acceptance_status", "unspecified") for row in metadata)
+    review_counts = Counter(row.get("difficulty_review_status", "unspecified") for row in metadata)
     skill_counts: Counter[str] = Counter()
     for row in metadata:
         skill_counts.update(parse_list(row.get("skills", "")))
 
     figures = ROOT / "reports" / "figures"
-    write_bar_svg(figures / "task_counts_by_family.svg", "Accepted tasks by family", dict(family_counts), "tasks")
-    write_bar_svg(figures / "task_counts_by_bucket.svg", "Accepted tasks by human-time bucket", dict(bucket_counts), "tasks")
+    write_bar_svg(figures / "task_counts_by_family.svg", "Candidate tasks by family", dict(family_counts), "tasks")
+    write_bar_svg(figures / "task_counts_by_bucket.svg", "Candidate tasks by human-time bucket", dict(bucket_counts), "tasks")
     write_bar_svg(figures / "top_skills.svg", "Most common required skills", dict(skill_counts.most_common(10)), "tasks")
     if run_rows:
         model_counts = Counter(row["model"] for row in run_rows)
@@ -140,6 +142,8 @@ def main() -> int:
     families_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(family_counts.items()))
     buckets_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(bucket_counts.items()))
     splits_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(split_counts.items()))
+    acceptance_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(acceptance_counts.items()))
+    review_md = "\n".join(f"- `{k}`: {v}" for k, v in sorted(review_counts.items()))
     run_md = "\n".join(
         f"- `{scaffold}`: mean score {stats['mean']:.2f} over {int(stats['n'])} committed rows, CI proxy {stats['ci95']:.2f}"
         for scaffold, stats in sorted(run_summary.items())
@@ -150,11 +154,21 @@ def main() -> int:
 
 ## Summary
 
-This repository contains {len(metadata)} accepted Lean tasks for evaluating how far models get on realistic formalization and verification work as task horizon increases.
+This repository currently contains {len(metadata)} validated Lean task candidates for evaluating how far models get on realistic formalization and verification work as task horizon increases.
+
+The current pool is intentionally not marked as final accepted. The original 20 tasks have been downgraded to candidates after difficulty audit; five harder replacement candidates have been added under `tasks/candidates` and still require manual difficulty review before acceptance.
 
 The split is:
 
 {splits_md}
+
+Acceptance status:
+
+{acceptance_md}
+
+Difficulty review status:
+
+{review_md}
 
 Task families:
 
@@ -168,17 +182,19 @@ Human-time buckets:
 
 The task set intentionally mixes algorithm correctness, proof repair, semantic formalization, invariant verification, small formal library construction, and a small direct theorem-proving slice. The benchmark is not designed as an olympiad theorem-proving set.
 
-The current accepted set is Lean/Std-only and pinned to Lean 4.28.0. This keeps clean-checkout validation fast and reduces dependency drift, at the cost of excluding Mathlib-heavy domains from this first batch.
+The current candidate pool is pinned to Lean 4.28.0 and now includes both Std-only tasks and a Mathlib-backed replacement candidate. This improves coverage, but the Mathlib task should still be reviewed for clean-checkout dependency cost before final acceptance.
 
 ## Grading
 
-Each accepted task has:
+Each validated candidate task has:
 
 - a public prompt and public `Task.lean`
 - hidden reference solution and hidden semantic pins
 - at least one plausible wrong submission
 - metadata with split, family, domain, human-time estimate, skills, scaffold sensitivity, and expected failures
 - local validation through `scripts/validate_task.py`
+
+The difficulty audit is generated at `reports/difficulty_audit.md` and `data/difficulty_audit.csv`.
 
 The grader scans forbidden constructs before Lean runs, compiles the submitted task, compiles hidden pins against the submitted declarations, and audits axioms. The allowed axiom policy is documented in `docs/axiom_policy.md`.
 
@@ -187,7 +203,7 @@ The grader scans forbidden constructs before Lean runs, compiles the submitted t
 The supported scaffold ladder is:
 
 - `one-shot`: one submission, no lookup
-- `lookup`: one submission with read-only Lean/Std lookup available
+- `lookup`: one submission with read-only Lean/Std/Mathlib lookup available
 - `lookup_unlimited`: lookup plus iterative compile/debug attempts
 
 `scripts/run_model_sweep.py` implements the scaffold loop and transcript/result writing. Provider-specific API calls are intentionally delegated to environment-configured commands so API keys remain outside the repo.
@@ -215,11 +231,11 @@ Failures should be labeled with one primary label from `data/failure_labels.csv`
 - No expensive frontier-model pass@10 sweep is committed by default. The repo includes the runner and schema; users can run real sweeps with environment-provided model commands.
 - Hosted Taiga/Env Linter QA is not represented in this local artifact. The local gate enforces the playbook acceptance checklist, but hosted QA would still be required before platform delivery.
 - Human-time estimates are author estimates with confidence notes, not second-reviewer measured times.
-- The first accepted batch uses Lean/Std only. A future Mathlib batch should add richer algebra, analysis, and real verification codebases.
+- The current task pool is a candidate pool, not a final accepted benchmark. Replacement candidates need manual difficulty review before promotion.
 
 ## Next Batch
 
-The next increment should add Mathlib-backed tasks, at least one T3 codebase repair package, and real pass@10 model results across the three scaffold variants.
+The next increment should add more Mathlib-backed tasks, at least one T3 codebase repair package, and real pass@10 model results across the three scaffold variants.
 """,
         encoding="utf-8",
     )

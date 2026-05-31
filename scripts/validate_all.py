@@ -15,7 +15,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 def discover_tasks() -> list[Path]:
     task_dirs: list[Path] = []
-    for split in ["dev", "test"]:
+    for split in ["dev", "test", "candidates"]:
         base = ROOT / "tasks" / split
         if base.exists():
             task_dirs.extend(sorted(p for p in base.iterdir() if (p / "metadata.json").exists()))
@@ -70,6 +70,9 @@ def write_metadata_csv(rows: list[dict[str, object]], path: Path) -> None:
         "expected_failure_modes",
         "scaffold_sensitivity",
         "qa_status",
+        "acceptance_status",
+        "difficulty_review_status",
+        "difficulty_review_notes",
     ]
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)

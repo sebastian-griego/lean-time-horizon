@@ -1,38 +1,43 @@
 {
-  "task_id": "lt-113",
-  "title": "append-only log library",
-  "split": "test",
-  "family": "small_formal_library_construction",
-  "domain": "append_only_log_interface",
-  "source_type": "authored",
-  "human_time_bucket": "T2",
-  "human_minutes_p50": 55,
-  "human_minutes_p90": 110,
-  "human_estimate_confidence": "medium; small multi-lemma interface around a representation",
-  "skills": [
-    "library construction",
-    "structure equality",
-    "list append associativity",
-    "length accounting"
-  ],
-  "scaffolds": [
-    "one-shot",
-    "lookup",
-    "lookup_unlimited"
-  ],
-  "expected_failure_modes": [
-    "reverses append semantics",
-    "forgets length accounting",
-    "cannot prove associativity over structure wrapper"
-  ],
-  "scaffold_sensitivity": "high; lookup should help find List.append_assoc and length simplification",
-  "qa_status": "local_only",
-  "axiom_audit_declarations": [
-    "LT113.append_empty",
-    "LT113.empty_append",
-    "LT113.append_assoc",
-    "LT113.length_append"
-  ],
-  "extra_forbidden": [],
-  "timeout_seconds": 60
+    "task_id":  "lt-113",
+    "title":  "append-only log library",
+    "split":  "test",
+    "family":  "small_formal_library_construction",
+    "domain":  "append_only_log_interface",
+    "source_type":  "authored",
+    "human_time_bucket":  "T2",
+    "human_minutes_p50":  55,
+    "human_minutes_p90":  110,
+    "human_estimate_confidence":  "medium; small multi-lemma interface around a representation",
+    "skills":  [
+                   "library construction",
+                   "structure equality",
+                   "list append associativity",
+                   "length accounting"
+               ],
+    "scaffolds":  [
+                      "one-shot",
+                      "lookup",
+                      "lookup_unlimited"
+                  ],
+    "expected_failure_modes":  [
+                                   "reverses append semantics",
+                                   "forgets length accounting",
+                                   "cannot prove associativity over structure wrapper"
+                               ],
+    "scaffold_sensitivity":  "high; lookup should help find List.append_assoc and length simplification",
+    "qa_status":  "local_only",
+    "axiom_audit_declarations":  [
+                                     "LT113.append_empty",
+                                     "LT113.empty_append",
+                                     "LT113.append_assoc",
+                                     "LT113.length_append"
+                                 ],
+    "extra_forbidden":  [
+
+                        ],
+    "timeout_seconds":  60,
+    "acceptance_status":  "candidate_not_accepted",
+    "difficulty_review_status":  "audited_downgraded",
+    "difficulty_review_notes":  "candidate_calibration_only: multi-lemma wrapper but cases/simp dominated"
 }

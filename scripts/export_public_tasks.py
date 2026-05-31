@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def discover_tasks() -> list[Path]:
     tasks: list[Path] = []
-    for split in ["dev", "test"]:
+    for split in ["dev", "test", "candidates"]:
         base = ROOT / "tasks" / split
         if base.exists():
             tasks.extend(sorted(p for p in base.iterdir() if (p / "metadata.json").exists()))

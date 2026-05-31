@@ -1,35 +1,40 @@
 {
-  "task_id": "lt-101",
-  "title": "tail-recursive reverse preserves length",
-  "split": "test",
-  "family": "algorithm_correctness",
-  "domain": "tail_recursion_list_reverse",
-  "source_type": "authored",
-  "human_time_bucket": "T1",
-  "human_minutes_p50": 35,
-  "human_minutes_p90": 70,
-  "human_estimate_confidence": "medium; estimate by author for a Lean user familiar with list induction",
-  "skills": [
-    "generalized induction",
-    "accumulator invariants",
-    "arithmetic normalization"
-  ],
-  "scaffolds": [
-    "one-shot",
-    "lookup",
-    "lookup_unlimited"
-  ],
-  "expected_failure_modes": [
-    "fails to generalize accumulator",
-    "proves only empty-accumulator case",
-    "arithmetic associativity cleanup"
-  ],
-  "scaffold_sensitivity": "medium; lookup and retries help discover generalizing acc and length_append",
-  "qa_status": "local_only",
-  "axiom_audit_declarations": [
-    "LT101.revAcc_length",
-    "LT101.reverseTR_length"
-  ],
-  "extra_forbidden": [],
-  "timeout_seconds": 60
+    "task_id":  "lt-101",
+    "title":  "tail-recursive reverse preserves length",
+    "split":  "test",
+    "family":  "algorithm_correctness",
+    "domain":  "tail_recursion_list_reverse",
+    "source_type":  "authored",
+    "human_time_bucket":  "T1",
+    "human_minutes_p50":  35,
+    "human_minutes_p90":  70,
+    "human_estimate_confidence":  "medium; estimate by author for a Lean user familiar with list induction",
+    "skills":  [
+                   "generalized induction",
+                   "accumulator invariants",
+                   "arithmetic normalization"
+               ],
+    "scaffolds":  [
+                      "one-shot",
+                      "lookup",
+                      "lookup_unlimited"
+                  ],
+    "expected_failure_modes":  [
+                                   "fails to generalize accumulator",
+                                   "proves only empty-accumulator case",
+                                   "arithmetic associativity cleanup"
+                               ],
+    "scaffold_sensitivity":  "medium; lookup and retries help discover generalizing acc and length_append",
+    "qa_status":  "local_only",
+    "axiom_audit_declarations":  [
+                                     "LT101.revAcc_length",
+                                     "LT101.reverseTR_length"
+                                 ],
+    "extra_forbidden":  [
+
+                        ],
+    "timeout_seconds":  60,
+    "acceptance_status":  "candidate_not_accepted",
+    "difficulty_review_status":  "audited_downgraded",
+    "difficulty_review_notes":  "candidate_calibration_only: accumulator invariant but still short T1"
 }
