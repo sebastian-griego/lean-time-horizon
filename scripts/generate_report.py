@@ -466,6 +466,48 @@ Accepted-core quality rows:
 """
 
 
+def human_time_calibration_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/human_time_calibration_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_human_time_calibration.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("calibration_status", "unknown") for row in rows)
+    bucket_counts = Counter(row.get("human_time_bucket", "unknown") for row in rows)
+    accepted = [row for row in rows if row.get("acceptance_status") == "accepted_v0"]
+    accepted_without_timing = [
+        row for row in accepted
+        if int(row.get("successful_independent_observation_count", "0") or "0") == 0
+    ]
+    issue_counts: Counter[str] = Counter()
+    for row in rows:
+        issue_counts.update(parse_list(row.get("issues", "")))
+    table_lines = [
+        "| task | bucket | p50/p90 | bucket range | status | timings | issues |",
+        "| --- | --- | ---: | --- | --- | ---: | --- |",
+    ]
+    for row in accepted:
+        table_lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('human_time_bucket', '')} | "
+            f"{row.get('human_minutes_p50', '')}/{row.get('human_minutes_p90', '')} | "
+            f"{row.get('bucket_range_minutes', '')} | {row.get('calibration_status', '')} | "
+            f"{row.get('successful_independent_observation_count', '')} | "
+            f"`{row.get('issues', '')}` |"
+        )
+    return f"""`reports/human_time_calibration_audit.md` and `data/human_time_calibration_audit.csv` check that metadata p50 estimates fall inside their assigned bucket, p90 is not below p50, manual review status is recorded, and independent human timing observations are explicitly counted.
+
+- tasks audited: `{len(rows)}`
+- calibration statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- task buckets: `{compact_json(dict(sorted(bucket_counts.items())))}`
+- issue counts: `{compact_json(dict(sorted(issue_counts.items())))}`
+- accepted-core tasks without successful independent timing: `{len(accepted_without_timing)}/{len(accepted)}`
+
+Accepted-core human-time rows:
+
+{chr(10).join(table_lines)}
+"""
+
+
 def task_asset_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -677,6 +719,7 @@ def main() -> int:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract_rows = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
@@ -812,6 +855,10 @@ Human-time buckets follow the project playbook:
 
 The p50/p90 estimates in metadata are reviewer estimates, not measured independent solves. The hard review downgraded three rows from accepted core to calibration-only because their proof surface and likely one-shot solvability did not justify accepted T2 status.
 
+## Human-Time Calibration Audit
+
+{human_time_calibration_section(human_time_rows)}
+
 ## Grader And Integrity Controls
 
 The grader is Lean-first. For each submission it copies the public files listed in `metadata.json`, replaces the submission file, scans forbidden constructs, compiles public Lean files, compiles hidden semantic pins, and audits axioms on declared targets. Accepted and calibration tasks must have at least two wrong submissions.
@@ -913,6 +960,7 @@ lake build
 python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
+python scripts/audit_human_time_calibration.py
 python scripts/record_local_qa_results.py
 python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py

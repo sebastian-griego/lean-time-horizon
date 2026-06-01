@@ -208,6 +208,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    human_time_audit = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
+    human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
@@ -604,6 +606,43 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if quality_ok else "Regenerate scripts/generate_task_quality_matrix.py after difficulty audit.",
     ))
 
+    human_time_fields = set(human_time_audit[0].keys()) if human_time_audit else set()
+    required_human_time_fields = {
+        "task_id",
+        "human_time_bucket",
+        "human_minutes_p50",
+        "human_minutes_p90",
+        "p50_bucket_consistent",
+        "p90_at_or_above_p50",
+        "independent_observation_count",
+        "successful_independent_observation_count",
+        "calibration_status",
+        "issues",
+    }
+    human_time_failures = [row_data for row_data in human_time_audit if row_data.get("calibration_status") == "fail"]
+    accepted_human_time_rows = [row_data for row_data in human_time_audit if row_data.get("acceptance_status") == "accepted_v0"]
+    accepted_without_timing = [
+        row_data for row_data in accepted_human_time_rows
+        if int(row_data.get("successful_independent_observation_count", "0") or "0") == 0
+    ]
+    human_time_audit_ok = (
+        bool(human_time_audit)
+        and len(human_time_audit) == len(metadata)
+        and required_human_time_fields.issubset(human_time_fields)
+        and not human_time_failures
+        and (ROOT / "data" / "human_time_observations.csv").exists()
+        and (ROOT / "data" / "human_time_observations_schema.json").exists()
+        and (ROOT / "reports" / "human_time_calibration_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "human_time_calibration_audit",
+        "reporting",
+        "Human-time calibration audit should verify bucket and p50/p90 consistency and explicitly track missing independent timing evidence.",
+        status_from_bool(human_time_audit_ok, partial=bool(human_time_audit)),
+        f"human-time audit rows: {len(human_time_audit)}; metadata rows: {len(metadata)}; failures: {len(human_time_failures)}; accepted without independent timing: {len(accepted_without_timing)}/{len(accepted_human_time_rows)}; observation rows: {len(human_time_observations)}; report exists: {(ROOT / 'reports' / 'human_time_calibration_audit.md').exists()}.",
+        "No gap." if human_time_audit_ok else "Regenerate scripts/audit_human_time_calibration.py and fix failed bucket or estimate rows.",
+    ))
+
     accepted_pin_rows = [row_data for row_data in pin_coverage if row_data.get("acceptance_status") == "accepted_v0"]
     pin_fields = set(pin_coverage[0].keys()) if pin_coverage else set()
     required_pin_fields = {
@@ -781,14 +820,20 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if scaffold_audit_ok else "Regenerate scripts/audit_scaffold_support.py and fix failed scaffold or lookup checks.",
     ))
 
-    human_independent_ok = "independent" in " ".join(task.get("human_estimate_confidence", "").lower() for task in metadata)
+    accepted_successful_timing = {
+        row_data.get("task_id")
+        for row_data in human_time_audit
+        if row_data.get("acceptance_status") == "accepted_v0"
+        and int(row_data.get("successful_independent_observation_count", "0") or "0") > 0
+    }
+    human_independent_ok = bool(accepted) and len(accepted_successful_timing) == len(accepted)
     human_review_partial = any(task.get("difficulty_review_status") == "manual_review_complete" for task in accepted)
     requirement_rows.append(row(
         "independent_human_time_review",
         "calibration",
         "Human-time estimates should be separately reviewed or measured, not inferred from model pass rates.",
-        status_from_bool(human_independent_ok, partial=human_review_partial),
-        f"Accepted tasks with manual_review_complete: {sum(task.get('difficulty_review_status') == 'manual_review_complete' for task in accepted)}/{len(accepted)}; no independent timed solves detected in metadata.",
+        status_from_bool(human_independent_ok, partial=human_review_partial or bool(human_time_audit)),
+        f"Accepted tasks with manual_review_complete: {sum(task.get('difficulty_review_status') == 'manual_review_complete' for task in accepted)}/{len(accepted)}; accepted tasks with successful independent timing observations: {len(accepted_successful_timing)}/{len(accepted)}; observation rows: {len(human_time_observations)}.",
         "Collect independent Lean-human timed solves or second-reviewer timing notes before freeze.",
     ))
 

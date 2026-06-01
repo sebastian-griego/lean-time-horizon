@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lean Time-Horizon human timing observation",
+  "type": "object",
+  "required": [
+    "task_id",
+    "reviewer_id_hash",
+    "reviewer_role",
+    "observed_minutes",
+    "outcome",
+    "date_utc",
+    "notes"
+  ],
+  "properties": {
+    "task_id": {"type": "string"},
+    "reviewer_id_hash": {"type": "string"},
+    "reviewer_role": {"type": "string"},
+    "observed_minutes": {"type": "integer", "minimum": 1},
+    "outcome": {
+      "enum": [
+        "solved",
+        "completed",
+        "pass",
+        "partial",
+        "unsolved",
+        "timeout",
+        "abandoned"
+      ]
+    },
+    "date_utc": {"type": "string"},
+    "notes": {"type": "string"}
+  }
+}

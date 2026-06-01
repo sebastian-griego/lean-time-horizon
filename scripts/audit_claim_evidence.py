@@ -129,6 +129,7 @@ def build_rows() -> list[dict[str, str]]:
         "difficulty_audit_report",
         "manual_accepted_task_review",
         "task_quality_matrix",
+        "human_time_calibration_audit",
         "pin_coverage_audit",
         "run_integrity_audit",
         "release_decision_log",
@@ -161,7 +162,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, task-asset hashes, prompt-contract checks, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
@@ -205,7 +206,7 @@ def build_rows() -> list[dict[str, str]]:
         "construct_validity",
         "partial",
         "low",
-        f"{evidence(reqs, 'time_horizon_spread')}; accepted buckets: {compact_json(dict(Counter(task.get('human_time_bucket') for task in accepted)))}",
+        f"{evidence(reqs, 'time_horizon_spread')}; {evidence(reqs, 'human_time_calibration_audit')}; accepted buckets: {compact_json(dict(Counter(task.get('human_time_bucket') for task in accepted)))}",
         "Accepted core has only T2/T3 coverage and no T4; human times are author/reviewer estimates rather than independent solves.",
         "Add independently timed T3/T4 tasks before claiming strong time-horizon measurement.",
     ))
