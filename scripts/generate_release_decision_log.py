@@ -209,6 +209,7 @@ def build_rows() -> list[dict[str, str]]:
         (
             f"accepted-core rows={len(accepted_quality)}; caveat rows={caveat_count}; automation-dominated rows={automation_count}; "
             f"{evidence(reqs, 'portfolio_accepted_count')}; {evidence(reqs, 'task_quality_matrix')}; "
+            f"{evidence(reqs, 'accepted_task_cards')}; "
             f"{evidence(reqs, 'diagnostic_coverage_audit')}"
         ),
         "The core is intentionally small and several rows retain caveats.",

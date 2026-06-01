@@ -131,6 +131,7 @@ def main() -> int:
     requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
     diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     construct = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
+    accepted_cards = read_csv(ROOT / "data" / "accepted_task_cards.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
@@ -190,6 +191,11 @@ def main() -> int:
     })
     construct_support_counts = Counter(row.get("claim_support_level", "unknown") for row in construct)
     construct_singleton_rows = sum(1 for row in construct if row.get("singleton_capabilities"))
+    card_recommendation_counts = Counter(row.get("review_recommendation", "unknown") for row in accepted_cards)
+    card_hidden_pin_exercised = sum(
+        1 for row in accepted_cards
+        if row.get("pin_coverage_grade") == "semantic_pins_exercised"
+    )
     statistical_status_counts = Counter(row.get("current_status", "unknown") for row in statistical_design)
     precision_half_rows = [row for row in wilson_precision if row.get("assumed_p") == "0.5"]
     figure_status_counts = Counter(row.get("current_status", "unknown") for row in figure_manifest)
@@ -257,6 +263,9 @@ def main() -> int:
         f"- support levels: `{compact_json(dict(sorted(construct_support_counts.items())))}`",
         f"- rows with singleton-covered capabilities: `{construct_singleton_rows}/{len(construct)}`",
         "- this is task-level construct evidence, not capability-level performance evidence.",
+        f"- accepted-task card recommendations: `{compact_json(dict(sorted(card_recommendation_counts.items())))}`",
+        f"- accepted-task cards with wrong controls reaching semantic pins: `{card_hidden_pin_exercised}/{len(accepted_cards)}`",
+        "- `reports/accepted_task_cards.md` gives a per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers without exposing hidden proof contents.",
         "",
         "Most common accepted-task skills:",
         "",
@@ -308,6 +317,7 @@ def main() -> int:
         "",
         "- `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.",
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
+        "- `reports/accepted_task_cards.md` makes per-task caveats and benchmark-grade blockers easy to inspect without turning them into stronger claims.",
         "- `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.",
         "- `reports/reviewer_reproduction_packet.md` gives an ordered local replay workflow and separates external-evidence blockers.",
         "- `reports/clean_workspace_replay.md` records a bounded temporary-workspace replay outside the dirty working directory.",
@@ -346,7 +356,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/accepted_task_cards.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

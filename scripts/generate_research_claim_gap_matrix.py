@@ -68,6 +68,7 @@ GAP_PLAN: dict[str, dict[str, object]] = {
         "artifacts": [
             "reports/accepted_task_review.md",
             "reports/task_quality_matrix.md",
+            "reports/accepted_task_cards.md",
             "reports/construct_validity_matrix.md",
             "data/human_time_observations.csv",
         ],

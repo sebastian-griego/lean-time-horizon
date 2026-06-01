@@ -190,7 +190,7 @@ def build_rows() -> list[dict[str, str]]:
             "Accepted, calibration, and rejected rows are separated so small-core claims are visible.",
             "Reach the 20-50 accepted-task target while preserving family and capability diversity.",
             ["frontier_performance", "locked_benchmark", "family_level_performance"],
-            ["data/task_metadata.csv", "reports/task_quality_matrix.md", "reports/accepted_task_review.md"],
+            ["data/task_metadata.csv", "reports/task_quality_matrix.md", "reports/accepted_task_cards.md", "reports/accepted_task_review.md"],
         ),
         row(
             "author_estimated_human_time",
@@ -215,7 +215,7 @@ def build_rows() -> list[dict[str, str]]:
             "Automation-dominated accepted rows are marked with caveats and excluded from claims of standalone proof-depth difficulty.",
             "Replace or independently validate retained caveat rows before locked benchmark status.",
             ["accepted_core_reviewed", "time_horizon_measurement"],
-            ["data/difficulty_audit.csv", "reports/accepted_task_review.md"],
+            ["data/difficulty_audit.csv", "reports/accepted_task_cards.md", "reports/accepted_task_review.md"],
         ),
         row(
             "semantic_pin_finiteness",

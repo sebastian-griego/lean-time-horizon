@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 58
+- `supported`: 59
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 41
+- `required_for_research_report` / `supported`: 42
 
 ## Coverage Table
 
@@ -49,13 +49,14 @@ This generated audit maps the local repository state to the committed checklist 
 | `task_asset_manifest` | reproducibility | required_for_research_report | supported | Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping. | task asset rows: 171; missing assets: 0; release public export misses: 0; hidden/wrong exported: 0; accepted wrong gaps: 0; accepted hidden gaps: 0; report exists: True. | No gap. |
 | `report_from_committed_data` | reporting | required_for_research_report | supported | The METR-style report and plots should regenerate from committed CSVs. | metr_style_report.md exists: True; generate_report reads CSV: True. | No gap. |
 | `figure_manifest_audit` | reporting | required_for_research_report | supported | Figure manifest should map generated SVGs to source CSVs allowed interpretations and blocked performance-plot overclaims. | figure rows: 10; required plots covered: 10/10; generated rows: 5; blocked performance rows: 5; problem rows: 0; report exists: True. | No gap. |
-| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 389; appendix exists: True; appendix lines: 1381; missing appendix phrases: []; main links appendix: True. | No gap. |
-| `report_source_traceability` | reporting | required_for_research_report | supported | Report source-traceability audit should map main-report sections to committed CSV report script and export evidence and check section-level boundary phrases. | traceability rows: 28; required sections covered: 25/25; failures: 0; report exists: True. | No gap. |
-| `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 196; missing required phrases: []; generator reads CSV: True. | No gap. |
+| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 412; appendix exists: True; appendix lines: 1431; missing appendix phrases: []; main links appendix: True. | No gap. |
+| `report_source_traceability` | reporting | required_for_research_report | supported | Report source-traceability audit should map main-report sections to committed CSV report script and export evidence and check section-level boundary phrases. | traceability rows: 29; required sections covered: 26/26; failures: 0; report exists: True. | No gap. |
+| `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 203; missing required phrases: []; generator reads CSV: True. | No gap. |
 | `report_shape_audit` | reporting | required_for_research_report | supported | Report-shape audit should check the concise METR-style report against the playbook questions and distinguish answered limitations from unsupported performance claims. | report-shape rows: 7; required checks covered: 7/7; needs_attention rows: 0; blocked_by_evidence rows: 2; report exists: True. | No gap. |
 | `difficulty_audit_report` | reporting | required_for_research_report | supported | Difficulty audit should include proof length, tactic profile, automation dominance, hidden-pin strength, and model-solvability estimates. | difficulty_audit rows: 26; report exists: True. | No gap. |
 | `manual_accepted_task_review` | reporting | required_for_research_report | supported | Accepted tasks should have hard reviewer-style notes and benchmark-grade caveats. | accepted_task_review.md exists: True. | No gap. |
 | `task_quality_matrix` | reporting | required_for_research_report | supported | Reviewer-facing task quality matrix should join metadata, difficulty signals, caveats, and next-review actions. | task_quality_matrix rows: 26; metadata rows: 26; report exists: True. | No gap. |
+| `accepted_task_cards` | reporting | required_for_research_report | supported | Accepted-task cards should synthesize each accepted_v0 row's review status proof signals pin coverage local QA evidence asset counts and benchmark-grade blockers. | accepted task cards: 6; accepted rows: 6; missing ids: 0; extra ids: 0; blocker rows: 6; report exists: True. | No gap. |
 | `diagnostic_coverage_audit` | reporting | required_for_research_report | supported | Diagnostic coverage audit should map accepted tasks to playbook capabilities families failure labels and construct-validity gaps. | diagnostic coverage rows: 15; required checks covered: 15/15; failures: 0; cautions: 3; blocks: 1; report exists: True. | No gap. |
 | `construct_validity_matrix` | reporting | required_for_research_report | supported | Construct-validity matrix should trace each accepted task to claimed capabilities evidence singleton limits and task-level claim boundaries. | construct rows: 6; accepted rows: 6; missing accepted ids: 0; extra ids: 0; singleton-limit rows: 3; claim-limit rows: 6; report exists: True. | No gap. |
 | `human_time_calibration_audit` | reporting | required_for_research_report | supported | Human-time calibration audit should verify bucket and p50/p90 consistency and explicitly track missing independent timing evidence. | human-time audit rows: 26; metadata rows: 26; failures: 0; accepted without independent timing: 6/6; observation rows: 0; report exists: True. | No gap. |

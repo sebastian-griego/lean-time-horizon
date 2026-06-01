@@ -1099,6 +1099,57 @@ Accepted-core quality rows:
 """
 
 
+def accepted_task_cards_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/accepted_task_cards.md` has not been generated yet. Run "
+            "`python scripts/generate_accepted_task_cards.py` after task-quality, "
+            "construct-validity, pin-coverage, asset, validation-command, and local-QA "
+            "evidence are current, then regenerate this report."
+        )
+    recommendation_counts = Counter(row.get("review_recommendation", "unknown") for row in rows)
+    automation_rows = [row for row in rows if row.get("automation_dominated") == "true"]
+    hidden_exercised = [
+        row for row in rows
+        if row.get("pin_coverage_grade") == "semantic_pins_exercised"
+    ]
+    caveat_rows = [row for row in rows if "caveat" in row.get("benchmark_grade_status", "")]
+    lines = [
+        "| task | recommendation | proof signal | hidden-pin coverage | local QA | blocker summary |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        proof = (
+            f"{row.get('proof_lines', '')} lines; "
+            f"automation={row.get('automation_dominated', '')}; "
+            f"one-shot={row.get('frontier_one_shot_likelihood', '')}"
+        )
+        pin = (
+            f"{row.get('pin_coverage_grade', '')}; "
+            f"stages `{row.get('wrong_stage_summary', '').replace('|', '/')}`"
+        )
+        blocker = row.get("before_benchmark_grade", "").replace("|", "/")
+        if len(blocker) > 220:
+            blocker = blocker[:217].rstrip() + "..."
+        lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('review_recommendation', '')} | "
+            f"{proof} | {pin} | `{row.get('local_qa_summary', '').replace('|', '/')}` | "
+            f"{blocker} |"
+        )
+    return f"""`reports/accepted_task_cards.md` and `data/accepted_task_cards.csv` synthesize one reviewer card per accepted_v0 task from metadata, difficulty, task-quality, construct-validity, hidden-pin coverage, asset-manifest, validation-command, and local-QA evidence. The cards are a review navigation layer only: they do not expose hidden proof contents and are not model-performance evidence.
+
+- accepted task cards: `{len(rows)}`
+- recommendations: `{compact_json(dict(sorted(recommendation_counts.items())))}`
+- automation-dominated rows: `{len(automation_rows)}/{len(rows)}`
+- rows whose wrong controls exercise semantic hidden pins: `{len(hidden_exercised)}/{len(rows)}`
+- caveated accepted rows: `{len(caveat_rows)}/{len(rows)}`
+
+Accepted-task card summary:
+
+{chr(10).join(lines)}
+"""
+
+
 def diagnostic_coverage_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1575,6 +1626,7 @@ def main() -> int:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    accepted_task_card_rows = read_csv(ROOT / "data" / "accepted_task_cards.csv")
     diagnostic_coverage_rows = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     construct_validity_rows = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
@@ -1721,6 +1773,10 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 ## Accepted Core Evidence Matrix
 
 {evidence_table(accepted, audit_by_id)}
+
+## Accepted Task Cards
+
+{accepted_task_cards_section(accepted_task_card_rows)}
 
 ## Calibration-Only Release Tasks
 
@@ -1922,6 +1978,10 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 {task_quality_section(task_quality_rows)}
 
+## Accepted Task Cards
+
+{accepted_task_cards_section(accepted_task_card_rows)}
+
 ## Task Asset Manifest
 
 {task_asset_manifest_section(task_asset_rows)}
@@ -1972,6 +2032,7 @@ python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
 python scripts/audit_hosted_qa_readiness.py
 python scripts/generate_task_asset_manifest.py --public-export public_tasks
+python scripts/generate_accepted_task_cards.py
 python scripts/audit_prompt_contracts.py
 python scripts/audit_scaffold_support.py
 python scripts/generate_threats_to_validity.py
@@ -2141,6 +2202,10 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 
 {evidence_table(accepted, audit_by_id)}
 
+## Accepted Task Cards
+
+{accepted_task_cards_section(accepted_task_card_rows)}
+
 ## Calibration-Only Release Tasks
 
 {task_table(calibration)}
@@ -2239,6 +2304,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
+- `reports/accepted_task_cards.md`: per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.

@@ -43,7 +43,7 @@ Data schema ledger:
 | `failure_label_reviews` | schema_valid | 3 | `data/failure_label_review_schema.json` | These are single-review smoke rows, not independent distributional adjudication. | Use the transcript review packet and adjudication fields for future broad sweeps. |
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 52 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 53 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -79,6 +79,28 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 | `lt-205` | 42 | false | semantic | 2 | unlikely | high |
 | `lt-206` | 60 | true | semantic | 2 | maybe | high |
 
+## Accepted Task Cards
+
+`reports/accepted_task_cards.md` and `data/accepted_task_cards.csv` synthesize one reviewer card per accepted_v0 task from metadata, difficulty, task-quality, construct-validity, hidden-pin coverage, asset-manifest, validation-command, and local-QA evidence. The cards are a review navigation layer only: they do not expose hidden proof contents and are not model-performance evidence.
+
+- accepted task cards: `6`
+- recommendations: `{"keep": 3, "keep_with_caveat": 3}`
+- automation-dominated rows: `2/6`
+- rows whose wrong controls exercise semantic hidden pins: `4/6`
+- caveated accepted rows: `3/6`
+
+Accepted-task card summary:
+
+| task | recommendation | proof signal | hidden-pin coverage | local QA | blocker summary |
+| --- | --- | --- | --- | --- | --- |
+| `lt-201` | keep_with_caveat | 25 lines; automation=true; one-shot=maybe | pins_not_exercised_by_wrongs; stages `{"public_stage": 2}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence;... |
+| `lt-203` | keep | 30 lines; automation=false; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 2}` | `{"expected_failure": 2, "passed": 1}` | Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence; at least one more accepted task for... |
+| `lt-202` | keep_with_caveat | 46 lines; automation=false; one-shot=maybe | pins_not_exercised_by_wrongs; stages `{"public_stage": 2}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence;... |
+| `lt-204` | keep | 36 lines; automation=false; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 1, "public_stage": 1}` | `{"expected_failure": 2, "passed": 1}` | Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence Mutable definitions have public-comp... |
+| `lt-205` | keep | 42 lines; automation=false; one-shot=unlikely | semantic_pins_exercised; stages `{"hidden_pin": 1, "public_stage": 1}` | `{"expected_failure": 2, "passed": 1}` | Independently time at least one human solve and run the planned scaffold sweep before using this as long-horizon evidence. independent human timing; accepted-core scaffold sweep; hosted QA evidence; extra timing revie... |
+| `lt-206` | keep_with_caveat | 60 lines; automation=true; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 1, "unknown": 1}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence M... |
+
+
 ## Calibration-Only Release Tasks
 
 | task | split | family | bucket | p50/p90 | diagnostic role |
@@ -97,7 +119,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 58}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 59}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -303,6 +325,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
+- `reports/accepted_task_cards.md`: per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.

@@ -201,7 +201,7 @@ def build_rows() -> list[dict[str, str]]:
         "Reach 20-50 accepted_v0 tasks after hard review, with candidate/rejected rows retained for pruning evidence.",
         "Author a small batch of high-quality T2/T3/T4 candidates, then apply the existing hard review before accepting any row.",
         ["locked_benchmark", "frontier_performance"],
-        ["data/task_metadata.csv", "reports/accepted_task_review.md", "reports/task_quality_matrix.md"],
+        ["data/task_metadata.csv", "reports/accepted_task_review.md", "reports/task_quality_matrix.md", "reports/accepted_task_cards.md"],
     ))
     rows.append(row(
         "time_horizon_depth",

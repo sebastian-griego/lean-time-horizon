@@ -208,6 +208,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    accepted_task_cards = read_csv(ROOT / "data" / "accepted_task_cards.csv")
     diagnostic_coverage = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     construct_validity = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
     human_time_audit = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
@@ -896,6 +897,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "task_selection",
         "accepted_core",
         "accepted_evidence_matrix",
+        "accepted_task_cards",
         "calibration_tasks",
         "portfolio_counts",
         "capabilities",
@@ -1068,6 +1070,47 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(quality_ok),
         f"task_quality_matrix rows: {len(task_quality)}; metadata rows: {len(metadata)}; report exists: {(ROOT / 'reports' / 'task_quality_matrix.md').exists()}.",
         "No gap." if quality_ok else "Regenerate scripts/generate_task_quality_matrix.py after difficulty audit.",
+    ))
+
+    card_fields = set(accepted_task_cards[0].keys()) if accepted_task_cards else set()
+    required_card_fields = {
+        "task_id",
+        "review_recommendation",
+        "benchmark_grade_status",
+        "proof_lines",
+        "tactic_profile",
+        "automation_dominated",
+        "pin_coverage_grade",
+        "wrong_stage_summary",
+        "local_qa_summary",
+        "asset_summary",
+        "claim_boundary",
+        "before_benchmark_grade",
+    }
+    card_ids = {row_data.get("task_id", "") for row_data in accepted_task_cards}
+    accepted_ids = {row_data.get("task_id", "") for row_data in accepted}
+    missing_card_ids = sorted(accepted_ids - card_ids)
+    extra_card_ids = sorted(card_ids - accepted_ids)
+    card_blocker_rows = [
+        row_data for row_data in accepted_task_cards
+        if row_data.get("before_benchmark_grade", "").strip()
+    ]
+    card_ok = (
+        bool(accepted_task_cards)
+        and len(accepted_task_cards) == len(accepted)
+        and required_card_fields.issubset(card_fields)
+        and not missing_card_ids
+        and not extra_card_ids
+        and len(card_blocker_rows) == len(accepted_task_cards)
+        and (ROOT / "reports" / "accepted_task_cards.md").exists()
+    )
+    requirement_rows.append(row(
+        "accepted_task_cards",
+        "reporting",
+        "Accepted-task cards should synthesize each accepted_v0 row's review status proof signals pin coverage local QA evidence asset counts and benchmark-grade blockers.",
+        status_from_bool(card_ok, partial=bool(accepted_task_cards)),
+        f"accepted task cards: {len(accepted_task_cards)}; accepted rows: {len(accepted)}; missing ids: {len(missing_card_ids)}; extra ids: {len(extra_card_ids)}; blocker rows: {len(card_blocker_rows)}; report exists: {(ROOT / 'reports' / 'accepted_task_cards.md').exists()}.",
+        "No gap." if card_ok else "Regenerate scripts/generate_accepted_task_cards.py after task quality, construct-validity, pin coverage, asset, and local-QA evidence.",
     ))
 
     required_diagnostic_checks = {

@@ -209,6 +209,7 @@ def build_rows() -> list[dict[str, str]]:
         ["scaffold_result_comparison", "frontier_model_evidence", "independent_human_time_review", "hosted_qa_env_linter"],
         [
             "reports/metr_style_report.md",
+            "reports/accepted_task_cards.md",
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
@@ -224,12 +225,13 @@ def build_rows() -> list[dict[str, str]]:
         "The six accepted-core tasks are internally reviewed and stronger than the original candidate pool.",
         "Say the core is small, internally reviewed, and still has caveat rows; do not generalize from family-level singletons.",
         "Do not say the accepted set is benchmark-grade, representative, or sufficient for population-level model claims.",
-        f"{claim_evidence(claims, 'accepted_core_reviewed')}; {req_evidence(reqs, 'portfolio_accepted_count')}; {req_evidence(reqs, 'diagnostic_coverage_audit')}; {req_evidence(reqs, 'construct_validity_matrix')}",
+        f"{claim_evidence(claims, 'accepted_core_reviewed')}; {req_evidence(reqs, 'portfolio_accepted_count')}; {req_evidence(reqs, 'accepted_task_cards')}; {req_evidence(reqs, 'diagnostic_coverage_audit')}; {req_evidence(reqs, 'construct_validity_matrix')}",
         "Independent Lean-human review plus more hard-reviewed T2/T3/T4 accepted tasks.",
         blocking_requirements(reqs, ["portfolio_accepted_count", "time_horizon_spread"]).split(";") if blocking_requirements(reqs, ["portfolio_accepted_count", "time_horizon_spread"]) else [],
         [
             "reports/accepted_task_review.md",
             "reports/task_quality_matrix.md",
+            "reports/accepted_task_cards.md",
             "reports/construct_validity_matrix.md",
             "reports/difficulty_audit.md",
         ],

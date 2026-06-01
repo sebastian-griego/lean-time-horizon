@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 58}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 59}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -70,6 +70,9 @@ Construct-validity matrix:
 - support levels: `{"task_level_internal_review": 2, "task_level_internal_review_singleton_capability": 1, "task_level_with_caveat": 3}`
 - rows with singleton-covered capabilities: `3/6`
 - this is task-level construct evidence, not capability-level performance evidence.
+- accepted-task card recommendations: `{"keep": 3, "keep_with_caveat": 3}`
+- accepted-task cards with wrong controls reaching semantic pins: `4/6`
+- `reports/accepted_task_cards.md` gives a per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers without exposing hidden proof contents.
 
 Most common accepted-task skills:
 
@@ -131,6 +134,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 
 - `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.
 - `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.
+- `reports/accepted_task_cards.md` makes per-task caveats and benchmark-grade blockers easy to inspect without turning them into stronger claims.
 - `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.
 - `reports/reviewer_reproduction_packet.md` gives an ordered local replay workflow and separates external-evidence blockers.
 - `reports/clean_workspace_replay.md` records a bounded temporary-workspace replay outside the dirty working directory.
@@ -196,4 +200,4 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 
 ## Evidence Appendix
 
-Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.
+Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/accepted_task_cards.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.

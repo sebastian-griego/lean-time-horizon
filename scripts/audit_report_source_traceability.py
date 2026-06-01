@@ -151,6 +151,25 @@ SECTION_SPECS = [
         "next_action": "Use the accepted-task review before strengthening benchmark-grade wording.",
     },
     {
+        "section_id": "accepted_task_cards",
+        "heading": "Accepted Task Cards",
+        "source_artifacts": [
+            "data/accepted_task_cards.csv",
+            "reports/accepted_task_cards.md",
+            "data/pin_coverage_audit.csv",
+            "data/task_asset_manifest.csv",
+            "data/run_results.csv",
+        ],
+        "required_phrases": [
+            "accepted task cards",
+            "local-QA evidence",
+            "do not expose hidden proof contents",
+            "not model-performance evidence",
+        ],
+        "limitation": "Task cards synthesize existing local evidence and caveats; they are not a new acceptance decision or performance evidence.",
+        "next_action": "Regenerate accepted-task cards after task, pin, asset, validation, or local-QA evidence changes.",
+    },
+    {
         "section_id": "calibration_tasks",
         "heading": "Calibration-Only Release Tasks",
         "source_artifacts": [
@@ -410,6 +429,7 @@ SECTION_SPECS = [
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
+            "reports/accepted_task_cards.md",
             "reports/failure_label_review_audit.md",
             "reports/statistical_analysis_plan.md",
             "reports/figure_manifest.md",
@@ -421,6 +441,7 @@ SECTION_SPECS = [
             "data_schema_manifest.md",
             "reviewer_reproduction_packet.md",
             "clean_workspace_replay.md",
+            "accepted_task_cards.md",
             "failure_label_review_audit.md",
             "statistical_analysis_plan.md",
             "figure_manifest.md",
