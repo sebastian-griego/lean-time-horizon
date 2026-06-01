@@ -446,6 +446,44 @@ Data schema ledger:
 """
 
 
+def reviewer_reproduction_packet_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/reviewer_reproduction_packet.md` has not been generated yet. Run "
+            "`python scripts/generate_reviewer_reproduction_packet.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    phase_counts = Counter(row.get("phase", "unknown") for row in rows)
+    local_rows = [row for row in rows if row.get("phase") == "local_replay"]
+    local_problem_rows = [
+        row for row in local_rows
+        if row.get("status") != "ready"
+    ]
+    external_rows = [row for row in rows if row.get("phase") == "external_evidence"]
+    lines = [
+        "| step | phase | status | command | limitation |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        limitation = row.get("limitation", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('step_id', '')}` | {row.get('phase', '')} | "
+            f"{row.get('status', '')} | `{row.get('command', '')}` | {limitation} |"
+        )
+    return f"""`reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
+
+- reproduction steps: `{len(rows)}`
+- phase counts: `{compact_json(dict(sorted(phase_counts.items())))}`
+- status counts: `{compact_json(dict(sorted(status_counts.items())))}`
+- local replay problem rows: `{len(local_problem_rows)}`
+- external-evidence rows still blocked: `{len(external_rows)}`
+
+Reviewer reproduction ledger:
+
+{chr(10).join(lines)}
+"""
+
+
 def figure_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1522,6 +1560,7 @@ def main() -> int:
     report_claim_conformance_rows = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     report_shape_rows = read_csv(ROOT / "data" / "report_shape_audit.csv")
     data_schema_manifest_rows = read_csv(ROOT / "data" / "data_schema_manifest.csv")
+    reviewer_reproduction_rows = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1890,6 +1929,7 @@ python scripts/generate_report.py
 python scripts/audit_statistical_reporting.py
 python scripts/audit_figure_manifest.py
 python scripts/audit_data_schema_manifest.py
+python scripts/generate_reviewer_reproduction_packet.py
 python scripts/audit_provider_readiness.py
 python scripts/generate_report.py
 python scripts/audit_report_source_traceability.py
@@ -1939,6 +1979,10 @@ python scripts/generate_report.py
 ```
 
 The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+## Reviewer Reproduction Packet
+
+{reviewer_reproduction_packet_section(reviewer_reproduction_rows)}
 
 {validation_manifest_section(validation_manifest)}
 
@@ -2154,6 +2198,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
+- `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
@@ -2164,7 +2209,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 ## Reproducibility Checklist
 
-The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, and `reports/validation_manifest_audit.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+{reviewer_reproduction_packet_section(reviewer_reproduction_rows)}
+
+The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, and `reports/reviewer_reproduction_packet.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 ## Claim Ledger
 

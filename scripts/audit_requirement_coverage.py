@@ -237,6 +237,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
+    reviewer_reproduction_steps = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_review_template = read_csv(ROOT / "data" / "failure_label_review_template.csv")
@@ -2077,6 +2078,61 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(manifest_audit_ok, partial=bool(validation_manifest_audit)),
         f"manifest audit rows: {len(validation_manifest_audit)}; required checks covered: {len(required_manifest_audit_ids & manifest_audit_ids)}/{len(required_manifest_audit_ids)}; failures: {len(manifest_audit_failures)}; report exists: {(ROOT / 'reports' / 'validation_manifest_audit.md').exists()}.",
         "No gap." if manifest_audit_ok else "Run scripts/audit_validation_manifest.py after writing the validation manifest and inspect failed manifest checks.",
+    ))
+
+    required_reproduction_step_ids = {
+        "toolchain_build",
+        "task_validation",
+        "difficulty_review",
+        "local_qa_rows",
+        "run_integrity",
+        "grader_hardening",
+        "public_export",
+        "public_export_validation",
+        "report_regeneration",
+        "claim_and_shape_audits",
+        "validation_manifest",
+        "provider_sweep",
+        "independent_human_timing",
+        "hosted_qa",
+    }
+    reproduction_step_ids = {row_data.get("step_id", "") for row_data in reviewer_reproduction_steps}
+    reproduction_fields = set(reviewer_reproduction_steps[0].keys()) if reviewer_reproduction_steps else set()
+    required_reproduction_fields = {
+        "step_id",
+        "phase",
+        "status",
+        "command",
+        "expected_artifacts",
+        "claim_supported",
+        "evidence_basis",
+        "failure_interpretation",
+        "limitation",
+        "next_action",
+    }
+    local_replay_problem_rows = [
+        row_data for row_data in reviewer_reproduction_steps
+        if row_data.get("phase") == "local_replay" and row_data.get("status") != "ready"
+    ]
+    external_evidence_rows = [
+        row_data for row_data in reviewer_reproduction_steps
+        if row_data.get("phase") == "external_evidence"
+    ]
+    reviewer_reproduction_ok = (
+        bool(reviewer_reproduction_steps)
+        and required_reproduction_step_ids.issubset(reproduction_step_ids)
+        and required_reproduction_fields.issubset(reproduction_fields)
+        and not local_replay_problem_rows
+        and external_evidence_rows
+        and (ROOT / "reports" / "reviewer_reproduction_packet.md").exists()
+    )
+    requirement_rows.append(row(
+        "reviewer_reproduction_packet",
+        "reproducibility",
+        "Reviewer reproduction packet should give an ordered local replay workflow external-evidence boundaries expected artifacts and failure interpretations.",
+        status_from_bool(reviewer_reproduction_ok, partial=bool(reviewer_reproduction_steps)),
+        f"reproduction steps: {len(reviewer_reproduction_steps)}; required covered: {len(required_reproduction_step_ids & reproduction_step_ids)}/{len(required_reproduction_step_ids)}; local problem rows: {len(local_replay_problem_rows)}; external evidence rows: {len(external_evidence_rows)}; report exists: {(ROOT / 'reports' / 'reviewer_reproduction_packet.md').exists()}.",
+        "No gap." if reviewer_reproduction_ok else "Run scripts/generate_reviewer_reproduction_packet.py and inspect missing local replay or external-boundary rows.",
     ))
 
     requirement_rows.append(row(

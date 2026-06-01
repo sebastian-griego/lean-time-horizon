@@ -176,6 +176,7 @@ def build_rows() -> list[dict[str, str]]:
         "; ".join([
             requirement(requirements, "public_export_no_hidden_leak"),
             requirement(requirements, "data_schema_manifest"),
+            requirement(requirements, "reviewer_reproduction_packet"),
             requirement(requirements, "run_integrity_audit"),
             requirement(requirements, "grader_hardening_audit"),
         ]),
@@ -184,6 +185,7 @@ def build_rows() -> list[dict[str, str]]:
         ["local_release_artifact"],
         [
             "reports/validation_manifest.json",
+            "reports/reviewer_reproduction_packet.md",
             "reports/run_integrity_audit.md",
             "reports/grader_hardening_audit.md",
         ],

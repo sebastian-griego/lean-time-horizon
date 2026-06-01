@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 56}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 57}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -102,6 +102,8 @@ The grader is Lean-first: submissions must pass forbidden-construct scanning, pu
 - run-integrity failures: `0`
 - data-schema manifest statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 2, "inventory_documented": 1, "schema_valid": 3}`
 - data-schema problem rows: `0`
+- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 11}`
+- reviewer reproduction local problem rows: `0`; external-evidence rows blocked: `3`
 - grader-hardening failures: `0`
 - public export validator checks hidden/wrong files are absent from `public_tasks`.
 - hidden pins are meaningful finite probes, not proof of full semantic equivalence.
@@ -128,6 +130,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 - `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.
 - `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.
 - `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.
+- `reports/reviewer_reproduction_packet.md` gives an ordered local replay workflow and separates external-evidence blockers.
 - `reports/research_claim_gap_matrix.md` records the evidence packages needed before stronger claims are allowed.
 - `reports/statistical_analysis_plan.md` records minimum evidence thresholds, blocked overclaim wording, and Wilson precision limits before broader model sweeps.
 - `reports/figure_manifest.md` maps generated figures to source data and records blocked performance plots.
@@ -190,4 +193,4 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 
 ## Evidence Appendix
 
-Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.
+Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.

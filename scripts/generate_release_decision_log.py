@@ -183,6 +183,7 @@ def build_rows() -> list[dict[str, str]]:
             f"unsupported claims={compact_json([row_data.get('claim_id') for row_data in unsupported_claims])}; "
             f"{evidence(reqs, 'concise_metr_report')}; "
             f"{evidence(reqs, 'data_schema_manifest')}; "
+            f"{evidence(reqs, 'reviewer_reproduction_packet')}; "
             f"{evidence(reqs, 'report_source_traceability')}; "
             f"{evidence(reqs, 'report_shape_audit')}; "
             f"{evidence(reqs, 'model_evidence_provenance_audit')}; "

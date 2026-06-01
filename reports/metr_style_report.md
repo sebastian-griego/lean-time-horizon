@@ -43,7 +43,7 @@ Data schema ledger:
 | `failure_label_reviews` | schema_valid | 3 | `data/failure_label_review_schema.json` | These are single-review smoke rows, not independent distributional adjudication. | Use the transcript review packet and adjudication fields for future broad sweeps. |
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 50 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 51 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -97,7 +97,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 56}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 57}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -301,6 +301,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
+- `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
@@ -311,7 +312,35 @@ The long generated evidence tables are intentionally outside this main report:
 
 ## Reproducibility Checklist
 
-The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, and `reports/validation_manifest_audit.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+`reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
+
+- reproduction steps: `14`
+- phase counts: `{"external_evidence": 3, "local_replay": 11}`
+- status counts: `{"blocked_external_evidence": 3, "ready": 11}`
+- local replay problem rows: `0`
+- external-evidence rows still blocked: `3`
+
+Reviewer reproduction ledger:
+
+| step | phase | status | command | limitation |
+| --- | --- | --- | --- | --- |
+| `toolchain_build` | local_replay | ready | `lake build` | This is local build evidence; it is not hosted QA or provider-sandbox evidence. |
+| `task_validation` | local_replay | ready | `python scripts/validate_all.py` | This validates local hidden checks and wrong submissions; it does not prove model performance. |
+| `difficulty_review` | local_replay | ready | `python scripts/audit_difficulty.py` | The audit combines static heuristics with human judgment; it is not independent human timing. |
+| `local_qa_rows` | local_replay | ready | `python scripts/record_local_qa_results.py` | Local QA rows must stay excluded from model-performance estimates. |
+| `run_integrity` | local_replay | ready | `python scripts/audit_run_integrity.py` | Passing integrity checks do not imply adequate provider sample size. |
+| `grader_hardening` | local_replay | ready | `python scripts/audit_grader_hardening.py` | The scanner remains lexical source scanning, not a complete Lean parser. |
+| `public_export` | local_replay | ready | `python scripts/export_public_tasks.py --out public_tasks` | The export is a local directory snapshot, not a hosted problem version. |
+| `public_export_validation` | local_replay | ready | `python scripts/validate_public_export.py --out public_tasks` | This does not run Taiga Full Env QA or Env Linter. |
+| `report_regeneration` | local_replay | ready | `python scripts/generate_report.py` | Generated report text can still overclaim unless claim-conformance checks pass. |
+| `claim_and_shape_audits` | local_replay | ready | `python scripts/audit_report_claim_conformance.py; python scripts/audit_report_shape.py` | Text audits are guardrails, not substitutes for substantive external evidence. |
+| `validation_manifest` | local_replay | ready | `python scripts/write_validation_manifest.py --public-export public_tasks; python scripts/audit_validation_manifest.py` | The manifest intentionally omits self-referential report hashes and is not clean-checkout proof. |
+| `provider_sweep` | external_evidence | blocked_external_evidence | `python scripts/run_model_sweep.py --provider PROVIDER --model MODEL --scaffold SCAFFOLD --attempts 10 --acceptance-status accepted_v0` | Requires external provider runners and API keys kept only in environment variables. |
+| `independent_human_timing` | external_evidence | blocked_external_evidence | `Fill data/human_time_observations.csv from non-author timed solves` | Must not be inferred from model pass rates or author expectations. |
+| `hosted_qa` | external_evidence | blocked_external_evidence | `Run hosted Full Env QA and Env Linter on exact final problem versions` | This repository currently records readiness only, not hosted QA pass evidence. |
+
+
+The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, and `reports/reviewer_reproduction_packet.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 ## Claim Ledger
 
