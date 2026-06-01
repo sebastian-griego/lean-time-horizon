@@ -821,16 +821,16 @@ High-priority claim gaps:
 | `frontier_model_performance` | blocked | high | `frontier_model_evidence;scaffold_result_comparison;hosted_qa_env_linter` | Documented frontier/open-model provider rows with model versions, transcripts, infra notes, hosted-QA-cleared tasks, and integrity audits. | Frontier-performance wording remains blocked until broad provider rows exist on stable, locally and hosted-QA-checked task versions. |
 | `statistical_performance_reporting` | blocked | high | `scaffold_result_comparison;frontier_model_evidence;portfolio_accepted_count` | Sufficiently covered accepted-core sweeps, raw task-row numerators, Wilson intervals, claim-tier threshold checks, and regenerated statistical reporting checks. | Performance plots should stay blocked until scaffold/provider coverage and accepted-task scale support the plotted comparisons. |
 | `hosted_qa_status` | blocked | high | `hosted_qa_env_linter` | Hosted/Taiga package evidence, exact problem-version mapping, Full Env QA runs, Env Linter findings, and rebuttal/fix dispositions. | Hosted-QA wording can be upgraded only after warning/error/critical findings are fixed or concretely rebutted for exact final versions. |
-| `locked_benchmark_status` | blocked | highest | `portfolio_accepted_count;time_horizon_spread;scaffold_result_comparison;frontier_model_evidence;independent_human_time_review;hosted_qa_env_linter` | 20-50 accepted tasks, T2/T3/T4 depth, independent timing, completed scaffold/provider sweeps, hosted QA, settled findings, and frozen exact public versions. | The locked-benchmark claim remains blocked until every locked-benchmark requirement is supported and the release/freeze gates have no blocking rows. |
+| `locked_benchmark_status` | blocked | highest | `portfolio_accepted_count;time_horizon_spread;scaffold_result_comparison;frontier_model_evidence;independent_human_time_review;independent_task_quality_review;hosted_qa_env_linter` | 20-50 accepted tasks, T2/T3/T4 depth, independent timing, completed non-author task-quality reviews, completed scaffold/provider sweeps, hosted QA, settled findings, and frozen exact public versions. | The locked-benchmark claim remains blocked until every locked-benchmark requirement is supported and the release/freeze gates have no blocking rows. |
 
 
 ## Report Claim Conformance Audit
 
 `reports/report_claim_conformance_audit.md` and `data/report_claim_conformance_audit.csv` check that the concise report, detailed report, and README obey the claim-authorization matrix. The audit scans for missing caveats, blocked-claim phrase contexts, and report-shape drift.
 
-- checks: `10`
-- statuses: `{"pass": 10}`
-- scopes: `{"claim_authorization": 1, "concise_report": 1, "main_report": 6, "readme": 1, "reports_and_readme": 1}`
+- checks: `11`
+- statuses: `{"pass": 11}`
+- scopes: `{"claim_authorization": 1, "claim_gap_matrix": 1, "concise_report": 1, "main_report": 6, "readme": 1, "reports_and_readme": 1}`
 
 Claim-conformance checks:
 
@@ -842,10 +842,11 @@ Claim-conformance checks:
 | `run_result_boundary_wording` | main_report | pass | committed-run section checked for local-QA and smoke-row boundaries | Keep local QA and tiny provider smoke rows explicitly separated from benchmark performance claims. |
 | `claim_ledger_blocks_overclaims` | main_report | pass | claim ledger checked for explicit not-supported locked-benchmark and frontier-performance rows | Keep tempting overclaims in the claim ledger as unsupported, not as conclusions. |
 | `concise_report_scope_and_length` | concise_report | pass | concise report exists=True; line_count=214; missing_scope_phrases=[] | Regenerate scripts/generate_concise_report.py and keep the reviewer-facing report concise and claim-bounded. |
+| `locked_benchmark_blocker_consistency` | claim_gap_matrix | pass | locked_blockers=["frontier_model_evidence", "hosted_qa_env_linter", "independent_human_time_review", "independent_task_quality_review", "portfolio_accepted_count", "scaffold_result_comparison", "time_horizon_spread"]; gap_row_count=1; gap_blockers=["portfolio_accepted_count", "time_horizon_spread", "scaffold_result_comparison", "frontier_model_evidence", "independent_human_time_review", "independent_task_quality_review", "hosted_qa_env_linter"]; gap_missing=[]; concise_missing=[] | Regenerate the research claim gap matrix and concise report whenever locked-benchmark requirement coverage changes. |
 | `blocked_phrase_context_scan` | reports_and_readme | pass | blocked-claim phrase contexts scanned across reports\metr_style_report.md, reports\concise_metr_report.md, reports\evidence_appendix.md, reports\report_source_traceability.md, and README.md; unsafe_contexts=0 | Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work. |
 | `readme_scope_boundaries` | readme | pass | README checked for locked-benchmark, model-result, and credential-scope boundaries | Keep the README top-level scope aligned with the report's claim authorization matrix. |
 | `limitations_cover_blockers` | main_report | pass | limitations section checked against blocked authorization themes | Keep task-count, T4, independent-timing, provider-smoke, hosted-QA, and locked-benchmark caveats in the limitations section. |
-| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=463; markdown_table_rows=157; evidence_appendix_exists=True; evidence_appendix_line_count=1499 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
+| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=463; markdown_table_rows=157; evidence_appendix_exists=True; evidence_appendix_line_count=1500 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
 
 
 ## Report Shape Audit
@@ -1183,9 +1184,9 @@ Clean workspace replay ledger:
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T20:19:53.728766+00:00`
+Generated at UTC: `2026-06-01T20:55:01.894031+00:00`
 
-Git branch/head at generation: `main` / `9b936ae9b4b6`. Worktree status at generation: `62 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `8ab06249352c`. Worktree status at generation: `19 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -1334,20 +1335,20 @@ Key artifact hashes:
 | `data/pin_coverage_audit.csv` | `3e6fd3f10e92` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
 | `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `2e43bba4d14d` | 9 | 21598 |
+| `data/claim_evidence_audit.csv` | `9adcc1d3ff50` | 9 | 21597 |
 | `data/claim_authorization_matrix.csv` | `e9d425e23dba` | 12 | 16546 |
-| `data/research_claim_gap_matrix.csv` | `0e5fa3259b67` | 12 | 16228 |
-| `data/report_claim_conformance_audit.csv` | `d02e1b4390f1` | 10 | 3274 |
+| `data/research_claim_gap_matrix.csv` | `afdef5e23a7c` | 12 | 16565 |
+| `data/report_claim_conformance_audit.csv` | `0691888ba359` | 11 | 4101 |
 | `data/report_source_traceability.csv` | `1ac5aaa1f24f` | 31 | 13643 |
 | `data/report_shape_audit.csv` | `9efa80987212` | 7 | 3350 |
 | `data/figure_manifest.csv` | `41b703492d89` | 10 | 5376 |
 | `data/data_schema_manifest.csv` | `09d3eb148b61` | 9 | 3823 |
 | `data/reviewer_reproduction_steps.csv` | `0be804f614cf` | 15 | 8678 |
 | `data/clean_workspace_replay.csv` | `be2899712c87` | 7 | 3641 |
-| `data/release_decision_log.csv` | `8271a981c05f` | 8 | 11525 |
-| `data/freeze_readiness_roadmap.csv` | `31680625ed83` | 10 | 12704 |
+| `data/release_decision_log.csv` | `08242bc87e32` | 8 | 11525 |
+| `data/freeze_readiness_roadmap.csv` | `f416594927d9` | 10 | 12704 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `2e3b2c7891c2` | 68 | 26386 |
+| `data/requirement_coverage.csv` | `b5e824987272` | 68 | 26386 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/candidate_pruning_audit.md` | `07b1cb1ed464` |  | 7227 |
@@ -1365,17 +1366,17 @@ Key artifact hashes:
 | `reports/grader_hardening_audit.md` | `b543474dd490` |  | 4073 |
 | `reports/claim_evidence_audit.md` | `2274d5afe470` |  | 6495 |
 | `reports/claim_authorization_matrix.md` | `f2efb00e0b08` |  | 7893 |
-| `reports/research_claim_gap_matrix.md` | `d96eccde534f` |  | 11482 |
-| `reports/report_claim_conformance_audit.md` | `abbc39840e74` |  | 3563 |
+| `reports/research_claim_gap_matrix.md` | `1ca79f308321` |  | 11700 |
+| `reports/report_claim_conformance_audit.md` | `6ecf3211c4db` |  | 4268 |
 | `reports/report_source_traceability.md` | `631f2716d9f1` |  | 14413 |
 | `reports/report_shape_audit.md` | `c5057bfda4d7` |  | 3373 |
 | `reports/figure_manifest.md` | `b39eb8a92c4c` |  | 6198 |
 | `reports/data_schema_manifest.md` | `5cda6b7bf692` |  | 4381 |
 | `reports/reviewer_reproduction_packet.md` | `f48c501206ea` |  | 5634 |
 | `reports/clean_workspace_replay.md` | `a7727d6727df` |  | 2739 |
-| `reports/concise_metr_report.md` | `c9c0ac60d43c` |  | 18357 |
-| `reports/release_decision_log.md` | `bc40aff6c7f7` |  | 12114 |
-| `reports/freeze_readiness_roadmap.md` | `4a5980fa06d4` |  | 6032 |
+| `reports/concise_metr_report.md` | `8c8ceced6c03` |  | 18389 |
+| `reports/release_decision_log.md` | `8e6416e61717` |  | 12114 |
+| `reports/freeze_readiness_roadmap.md` | `6b3e1cef3203` |  | 6032 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
@@ -1389,7 +1390,7 @@ Key artifact hashes:
 | `reports/threats_to_validity.md` | `43116dfa76d2` |  | 6684 |
 | `reports/transcript_review_packet.md` | `58c5e52bf1b5` |  | 4276 |
 | `reports/failure_label_review_audit.md` | `b8aa8b111870` |  | 2775 |
-| `reports/requirement_coverage.md` | `2b9b646de8c4` |  | 23810 |
+| `reports/requirement_coverage.md` | `11bf860faf63` |  | 23810 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -1414,8 +1415,8 @@ Key artifact hashes:
 | `scripts/audit_grader_hardening.py` | `7bcba063dd41` |  | 14898 |
 | `scripts/audit_claim_evidence.py` | `7c0e9d3d73e2` |  | 18672 |
 | `scripts/generate_claim_authorization_matrix.py` | `96d55e2df744` |  | 22884 |
-| `scripts/generate_research_claim_gap_matrix.py` | `f256461f68ae` |  | 17712 |
-| `scripts/audit_report_claim_conformance.py` | `8994979b6578` |  | 16422 |
+| `scripts/generate_research_claim_gap_matrix.py` | `53e3bdfcd86c` |  | 17966 |
+| `scripts/audit_report_claim_conformance.py` | `b77d0684f1f2` |  | 18920 |
 | `scripts/audit_report_source_traceability.py` | `677684e51c61` |  | 28754 |
 | `scripts/audit_figure_manifest.py` | `9d1717d9a6ff` |  | 11955 |
 | `scripts/audit_data_schema_manifest.py` | `42a7e152571a` |  | 18608 |
@@ -1426,7 +1427,7 @@ Key artifact hashes:
 | `scripts/generate_release_decision_log.py` | `3e3c631059fa` |  | 16375 |
 | `scripts/generate_freeze_readiness_roadmap.py` | `26ffefe8ecd1` |  | 20676 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `c902457fe654` |  | 126653 |
+| `scripts/audit_requirement_coverage.py` | `ae5afe817d87` |  | 126701 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/generate_statistical_analysis_plan.py` | `fc6d38797a90` |  | 18559 |
 | `scripts/generate_model_sweep_packet.py` | `338ab30af454` |  | 14347 |
@@ -1466,7 +1467,7 @@ Validation manifest audit rows:
 | `artifact_hash_integrity` | artifact_hashes | pass | artifacts=162; checked_hashes=162; hash_mismatches=0; missing_recorded_paths=0; examples=[] | The manifest hashes generated local artifacts but intentionally avoids self-referential report hashes. |
 | `self_reference_boundary` | artifact_hashes | pass | main_report_omitted=True; evidence_appendix_omitted=True; policy_note_mentions_omission=True | The main report and appendix are regenerated after manifest writing and therefore cannot be hashed by the manifest without circularity. |
 | `public_export_snapshot` | public_export | pass | configured=True; exists=True; task_count=14; hidden_or_wrong_path_count=0 | This is a local public-export snapshot, not hosted QA evidence. |
-| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=62; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
+| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=19; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
 | `summary_count_snapshot` | counts | pass | task_count=26; acceptance_status_counts={"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}; run_rows=69; local_qa_rows=66; model_rows=3 | Count snapshots are local evidence and do not imply benchmark-scale sufficiency. |
 
 

@@ -1,76 +1,33 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-06-01T20:19:53.728766+00:00",
+  "generated_at_utc": "2026-06-01T20:55:01.894031+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md and reports/evidence_appendix.md to avoid self-referential report hashes. The validation-manifest audit is generated after this manifest and is checked by requirement coverage rather than hashed by the manifest. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "9b936ae9b4b6a2ef4548468cc52befc9e5661ba0",
+    "head": "8ab06249352cf121763fd7d4053093dcf37f6e5b",
     "dirty": true,
     "status_short": [
-      " M README.md",
-      " M data/accepted_task_cards.csv",
-      " M data/benchmark_requirements.csv",
-      " M data/claim_authorization_matrix.csv",
       " M data/claim_evidence_audit.csv",
-      " M data/data_schema_manifest.csv",
       " M data/freeze_readiness_roadmap.csv",
-      " M data/model_evidence_provenance_audit.csv",
-      " M data/pin_coverage_audit.csv",
       " M data/release_decision_log.csv",
       " M data/report_claim_conformance_audit.csv",
-      " M data/report_shape_audit.csv",
-      " M data/report_source_traceability.csv",
       " M data/requirement_coverage.csv",
       " M data/research_claim_gap_matrix.csv",
-      " M data/statistical_design_thresholds.csv",
-      " M data/threats_to_validity.csv",
       " M data/validation_manifest_audit.csv",
-      " M data/wilson_precision_table.csv",
-      " M reports/accepted_task_cards.md",
-      " M reports/claim_authorization_matrix.md",
-      " M reports/claim_evidence_audit.md",
       " M reports/concise_metr_report.md",
-      " M reports/data_schema_manifest.md",
       " M reports/evidence_appendix.md",
       " M reports/freeze_readiness_roadmap.md",
-      " M reports/metr_style_report.md",
-      " M reports/model_evidence_provenance_audit.md",
-      " M reports/pin_coverage_audit.md",
       " M reports/release_decision_log.md",
       " M reports/report_claim_conformance_audit.md",
-      " M reports/report_shape_audit.md",
-      " M reports/report_source_traceability.md",
       " M reports/requirement_coverage.md",
       " M reports/research_claim_gap_matrix.md",
-      " M reports/statistical_analysis_plan.md",
-      " M reports/threats_to_validity.md",
       " M reports/validation_manifest.json",
       " M reports/validation_manifest_audit.md",
-      " M scripts/audit_claim_evidence.py",
-      " M scripts/audit_data_schema_manifest.py",
       " M scripts/audit_report_claim_conformance.py",
-      " M scripts/audit_report_source_traceability.py",
       " M scripts/audit_requirement_coverage.py",
-      " M scripts/audit_validation_manifest.py",
-      " M scripts/generate_claim_authorization_matrix.py",
-      " M scripts/generate_concise_report.py",
-      " M scripts/generate_freeze_readiness_roadmap.py",
-      " M scripts/generate_release_decision_log.py",
-      " M scripts/generate_report.py",
-      " M scripts/generate_research_claim_gap_matrix.py",
-      " M scripts/generate_threats_to_validity.py",
-      " M scripts/write_validation_manifest.py",
-      "?? data/independent_review_status_audit.csv",
-      "?? data/independent_task_review_plan.csv",
-      "?? data/independent_task_review_schema.json",
-      "?? data/independent_task_review_template.csv",
-      "?? data/independent_task_reviews.csv",
-      "?? reports/independent_review_status_audit.md",
-      "?? reports/independent_task_review_packet.md",
-      "?? scripts/audit_independent_review_status.py",
-      "?? scripts/generate_independent_review_packet.py"
+      " M scripts/generate_research_claim_gap_matrix.py"
     ],
-    "status_summary_first_line": " M README.md"
+    "status_summary_first_line": " M data/claim_evidence_audit.csv"
   },
   "tool_versions": {
     "python": "3.11.9",
@@ -625,8 +582,8 @@
     {
       "path": "data/claim_evidence_audit.csv",
       "exists": true,
-      "bytes": 21598,
-      "sha256": "2e43bba4d14d35b29fb1f91c527f6027887edbf6dcda8cd06340f95f49a22c92",
+      "bytes": 21597,
+      "sha256": "9adcc1d3ff5014db02847f7219a63a7fd8a31e54daa095ed49207db695370828",
       "line_count": 10,
       "row_count": 9
     },
@@ -641,18 +598,18 @@
     {
       "path": "data/research_claim_gap_matrix.csv",
       "exists": true,
-      "bytes": 16228,
-      "sha256": "0e5fa3259b672ac65867c53cbf36bee333e396181463a7853a02f8b7a570607c",
+      "bytes": 16565,
+      "sha256": "afdef5e23a7c5404f0bcb59b10926af2d000b0e050434da6040e1cdb87b92b13",
       "line_count": 13,
       "row_count": 12
     },
     {
       "path": "data/report_claim_conformance_audit.csv",
       "exists": true,
-      "bytes": 3274,
-      "sha256": "d02e1b4390f1e6450b0f8f572493b82bb908a784861b611ac1e00d1542044cc0",
-      "line_count": 11,
-      "row_count": 10
+      "bytes": 4101,
+      "sha256": "0691888ba359b09943d05a3eba9d4162e109f9d704e5077d90b4ccb22903125b",
+      "line_count": 12,
+      "row_count": 11
     },
     {
       "path": "data/report_source_traceability.csv",
@@ -706,7 +663,7 @@
       "path": "data/release_decision_log.csv",
       "exists": true,
       "bytes": 11525,
-      "sha256": "8271a981c05f10e4f11288b00df1af94d1ee3ba96b7861edfaf3d941690d452a",
+      "sha256": "08242bc87e32eba917ca3e93835f82f7409850d3e820c41c9430e9bd299de785",
       "line_count": 9,
       "row_count": 8
     },
@@ -714,7 +671,7 @@
       "path": "data/freeze_readiness_roadmap.csv",
       "exists": true,
       "bytes": 12704,
-      "sha256": "31680625ed83abd8ccb3ce46db3dac6e3243ebf03ee90f5937edd2709aac29be",
+      "sha256": "f416594927d9c77627908bef8a63e6ca9dee80fcd60b07f5ee95c718a8d83072",
       "line_count": 11,
       "row_count": 10
     },
@@ -730,7 +687,7 @@
       "path": "data/requirement_coverage.csv",
       "exists": true,
       "bytes": 26386,
-      "sha256": "2e3b2c7891c2fbec1e5a0a4b862152c89438d24e76b91fe843c1cd0f9b574f20",
+      "sha256": "b5e824987272a141fe99121411276736a3f155f6615c7f0f94a1bb2827b8d6cf",
       "line_count": 69,
       "row_count": 68
     },
@@ -856,16 +813,16 @@
     {
       "path": "reports/research_claim_gap_matrix.md",
       "exists": true,
-      "bytes": 11482,
-      "sha256": "d96eccde534f1fc675f6f56e6f7ca8c34efe26aa614cf605167de2bfa0032b3d",
+      "bytes": 11700,
+      "sha256": "1ca79f3083214511aeaea9057804fa4d4cff4f77e785e35afc22fdcc294ec4cb",
       "line_count": 43
     },
     {
       "path": "reports/report_claim_conformance_audit.md",
       "exists": true,
-      "bytes": 3563,
-      "sha256": "abbc39840e74fdca7871ebce2f26d5fb91769fc216393ed0f692e192e5d2280c",
-      "line_count": 28
+      "bytes": 4268,
+      "sha256": "6ecf3211c4db85d4a90978831c769ab16a3e9ecc919f9304c13db280b6922d0f",
+      "line_count": 29
     },
     {
       "path": "reports/report_source_traceability.md",
@@ -912,22 +869,22 @@
     {
       "path": "reports/concise_metr_report.md",
       "exists": true,
-      "bytes": 18357,
-      "sha256": "c9c0ac60d43c0149d75db6271d692a38c30ebafc18fed1e0525f6c10b3162255",
+      "bytes": 18389,
+      "sha256": "8c8ceced6c0399f58b17076daebec81eaaf17f155360c0ab4a05847a5d2d6631",
       "line_count": 214
     },
     {
       "path": "reports/release_decision_log.md",
       "exists": true,
       "bytes": 12114,
-      "sha256": "bc40aff6c7f7e037452484292e59204460fda58d29eaf1106b47eb71925a200b",
+      "sha256": "8e6416e6171738a29e86b96834cb00c7f76d69007a93d91d7b78c990f6494ede",
       "line_count": 25
     },
     {
       "path": "reports/freeze_readiness_roadmap.md",
       "exists": true,
       "bytes": 6032,
-      "sha256": "4a5980fa06d43660df36c8c5a8773c51f75a8631ce3a216ecbd790d3c4b67f8f",
+      "sha256": "6b3e1cef320338628a78dc1eea58ac036b7323ade6b36660f487ca9fcd6e7b54",
       "line_count": 30
     },
     {
@@ -1025,7 +982,7 @@
       "path": "reports/requirement_coverage.md",
       "exists": true,
       "bytes": 23810,
-      "sha256": "2b9b646de8c43ba7bf8a5a337b74f65e9d93e507bca19583e0a69082f62e2398",
+      "sha256": "11bf860faf63fb3cdb744c3c9052d970f50e6daadc2dc3219d2fafae77292b46",
       "line_count": 90
     },
     {
@@ -1199,16 +1156,16 @@
     {
       "path": "scripts/generate_research_claim_gap_matrix.py",
       "exists": true,
-      "bytes": 17712,
-      "sha256": "f256461f68ae457608605db2ceb6e730de1975c60b5a7e36837b2d4ee28e0089",
-      "line_count": 400
+      "bytes": 17966,
+      "sha256": "53e3bdfcd86ca9c450ca1091ec79abefca3dc4c6e1244325494bf4770ee02d1f",
+      "line_count": 404
     },
     {
       "path": "scripts/audit_report_claim_conformance.py",
       "exists": true,
-      "bytes": 16422,
-      "sha256": "8994979b6578a2e8cd7b313928f7db56b7139b24a4ed3fc89cbf44cc175b0a4b",
-      "line_count": 441
+      "bytes": 18920,
+      "sha256": "b77d0684f1f2cc0d840ac715dda892f58895db861e20133f12ff0333d2e9ae4e",
+      "line_count": 502
     },
     {
       "path": "scripts/audit_report_source_traceability.py",
@@ -1283,9 +1240,9 @@
     {
       "path": "scripts/audit_requirement_coverage.py",
       "exists": true,
-      "bytes": 126653,
-      "sha256": "c902457fe654caed204ac7dcc99d2decbd5cbb31b7757fd3ee78af33e7ede69c",
-      "line_count": 2480
+      "bytes": 126701,
+      "sha256": "ae5afe817d87d35bb2c6fc0974a278652ac952915f072db2220578f954873400",
+      "line_count": 2481
     },
     {
       "path": "scripts/generate_evaluation_protocol.py",

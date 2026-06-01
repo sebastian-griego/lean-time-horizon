@@ -1989,6 +1989,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "run_result_boundary_wording",
         "claim_ledger_blocks_overclaims",
         "concise_report_scope_and_length",
+        "locked_benchmark_blocker_consistency",
         "blocked_phrase_context_scan",
         "readme_scope_boundaries",
         "limitations_cover_blockers",

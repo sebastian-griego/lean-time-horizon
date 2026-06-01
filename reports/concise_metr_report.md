@@ -177,7 +177,7 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 | `frontier_model_performance` | high | blocked | frontier_model_evidence;scaffold_result_comparison;hosted_qa_env_linter |
 | `statistical_performance_reporting` | high | blocked | scaffold_result_comparison;frontier_model_evidence;portfolio_accepted_count |
 | `hosted_qa_status` | high | blocked | hosted_qa_env_linter |
-| `locked_benchmark_status` | highest | blocked | portfolio_accepted_count;time_horizon_spread;scaffold_result_comparison;frontier_model_evidence;independent_human_time_review;hosted_qa_env_linter |
+| `locked_benchmark_status` | highest | blocked | portfolio_accepted_count;time_horizon_spread;scaffold_result_comparison;frontier_model_evidence;independent_human_time_review;independent_task_quality_review;hosted_qa_env_linter |
 
 ## Remaining Blockers
 

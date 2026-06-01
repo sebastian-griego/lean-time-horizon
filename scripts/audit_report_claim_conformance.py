@@ -22,6 +22,8 @@ MAIN_REPORT = ROOT / "reports" / "metr_style_report.md"
 CONCISE_REPORT = ROOT / "reports" / "concise_metr_report.md"
 APPENDIX_REPORT = ROOT / "reports" / "evidence_appendix.md"
 SOURCE_TRACE_REPORT = ROOT / "reports" / "report_source_traceability.md"
+REQUIREMENT_COVERAGE = ROOT / "data" / "requirement_coverage.csv"
+CLAIM_GAP_MATRIX = ROOT / "data" / "research_claim_gap_matrix.csv"
 README = ROOT / "README.md"
 
 NEGATIVE_MARKERS = [
@@ -100,6 +102,12 @@ def compact_json(value: object) -> str:
     return json.dumps(value, sort_keys=True)
 
 
+def split_semicolon(value: str) -> list[str]:
+    if not value or value == "none":
+        return []
+    return [item.strip() for item in value.split(";") if item.strip()]
+
+
 def row(
     check_id: str,
     scope: str,
@@ -163,6 +171,8 @@ def section(text: str, heading: str) -> str:
 
 def build_rows() -> list[dict[str, str]]:
     authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    requirement_coverage = read_csv(REQUIREMENT_COVERAGE)
+    claim_gap_matrix = read_csv(CLAIM_GAP_MATRIX)
     main_report = read_text(MAIN_REPORT)
     concise_report = read_text(CONCISE_REPORT)
     readme = read_text(README)
@@ -298,6 +308,57 @@ def build_rows() -> list[dict[str, str]]:
         concise_missing + ([f"line_count={concise_line_count}"] if concise_line_count > 220 else []),
         "Regenerate scripts/generate_concise_report.py and keep the reviewer-facing report concise and claim-bounded.",
         ["reports/concise_metr_report.md", "scripts/generate_concise_report.py"],
+    ))
+
+    locked_blockers = sorted(
+        row_data.get("requirement_id", "")
+        for row_data in requirement_coverage
+        if row_data.get("freeze_relevance") == "required_for_locked_benchmark"
+        and row_data.get("status") != "supported"
+        and row_data.get("requirement_id", "")
+    )
+    locked_gap_rows = [
+        row_data for row_data in claim_gap_matrix
+        if row_data.get("claim_id") == "locked_benchmark_status"
+    ]
+    locked_gap_blockers = (
+        split_semicolon(locked_gap_rows[0].get("blocking_requirements", ""))
+        if locked_gap_rows else []
+    )
+    gap_missing = sorted(set(locked_blockers) - set(locked_gap_blockers))
+    concise_missing_blockers = [
+        requirement_id for requirement_id in locked_blockers
+        if requirement_id not in concise_report
+    ]
+    blocker_ok = (
+        bool(requirement_coverage)
+        and len(locked_gap_rows) == 1
+        and not gap_missing
+        and not concise_missing_blockers
+    )
+    rows.append(row(
+        "locked_benchmark_blocker_consistency",
+        "claim_gap_matrix",
+        "pass" if blocker_ok else "fail",
+        (
+            f"locked_blockers={compact_json(locked_blockers)}; "
+            f"gap_row_count={len(locked_gap_rows)}; "
+            f"gap_blockers={compact_json(locked_gap_blockers)}; "
+            f"gap_missing={compact_json(gap_missing)}; "
+            f"concise_missing={compact_json(concise_missing_blockers)}"
+        ),
+        (
+            ([f"locked_benchmark_status rows={len(locked_gap_rows)}"] if len(locked_gap_rows) != 1 else [])
+            + [f"missing_from_gap:{item}" for item in gap_missing]
+            + [f"missing_from_concise:{item}" for item in concise_missing_blockers]
+        ),
+        "Regenerate the research claim gap matrix and concise report whenever locked-benchmark requirement coverage changes.",
+        [
+            "data/requirement_coverage.csv",
+            "data/research_claim_gap_matrix.csv",
+            "reports/research_claim_gap_matrix.md",
+            "reports/concise_metr_report.md",
+        ],
     ))
 
     unsafe_examples = unsafe_blocked_phrase_examples([
