@@ -1000,6 +1000,38 @@ Report-shape checks:
 """
 
 
+def report_count_consistency_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/report_count_consistency_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_report_count_consistency.py` after report generation, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    lines = [
+        "| check | area | status | evidence | required action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        action = row.get("required_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{evidence} | {action} |"
+        )
+    return f"""`reports/report_count_consistency_audit.md` and `data/report_count_consistency_audit.csv` check that repeated top-line counts in the concise report, main report, evidence appendix, and validation manifest agree with committed CSV/JSON sources. This is a drift detector for reviewer-facing numbers, not a new benchmark-evidence source.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+
+Count-consistency checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def release_decision_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1733,6 +1765,7 @@ def main() -> int:
     research_claim_gap_rows = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     report_claim_conformance_rows = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     report_shape_rows = read_csv(ROOT / "data" / "report_shape_audit.csv")
+    report_count_consistency_rows = read_csv(ROOT / "data" / "report_count_consistency_audit.csv")
     data_schema_manifest_rows = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     reviewer_reproduction_rows = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
     clean_workspace_replay_rows = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
@@ -2056,6 +2089,10 @@ Observed model-sweep failure labels:
 
 {report_shape_section(report_shape_rows)}
 
+## Report Count Consistency Audit
+
+{report_count_consistency_section(report_count_consistency_rows)}
+
 ## Release Decision Log
 
 {release_decision_section(release_decision_rows)}
@@ -2141,6 +2178,7 @@ python scripts/generate_research_claim_gap_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/audit_report_shape.py
+python scripts/audit_report_count_consistency.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
@@ -2151,6 +2189,7 @@ python scripts/generate_research_claim_gap_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/audit_report_shape.py
+python scripts/audit_report_count_consistency.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
@@ -2161,6 +2200,7 @@ python scripts/generate_research_claim_gap_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/audit_report_shape.py
+python scripts/audit_report_count_consistency.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks
@@ -2326,6 +2366,10 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - release-decision gates: `{compact_json(dict(sorted(release_gate_counts.items())))}`
 - freeze-readiness gates: `{compact_json(dict(sorted(freeze_gate_counts.items())))}`
 
+## Report Count Consistency Audit
+
+{report_count_consistency_section(report_count_consistency_rows)}
+
 ## What The Tasks Measure
 
 The accepted core tasks are intended to test library/API search, theorem decomposition, semantic formalization, proof debugging, codebase navigation, invariant design, and small library construction. The calibration-only rows are retained to verify the harness, establish lower time-bucket behavior, and catch regressions in simple Lean proof generation.
@@ -2407,6 +2451,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
+- `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.

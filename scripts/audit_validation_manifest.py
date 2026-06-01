@@ -49,6 +49,7 @@ REQUIRED_COMMANDS = {
     "python scripts/generate_concise_report.py",
     "python scripts/audit_report_claim_conformance.py",
     "python scripts/audit_report_shape.py",
+    "python scripts/audit_report_count_consistency.py",
     "python scripts/write_validation_manifest.py --public-export public_tasks",
     "python scripts/audit_validation_manifest.py",
 }

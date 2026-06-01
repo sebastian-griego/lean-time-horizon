@@ -241,6 +241,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     figure_manifest = read_csv(ROOT / "data" / "figure_manifest.csv")
     data_schema_manifest = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
+    report_count_consistency = read_csv(ROOT / "data" / "report_count_consistency_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
     reviewer_reproduction_steps = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
@@ -1036,6 +1037,38 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(shape_ok, partial=bool(report_shape)),
         f"report-shape rows: {len(report_shape)}; required checks covered: {len(required_shape_ids & report_shape_ids)}/{len(required_shape_ids)}; needs_attention rows: {len(shape_needs_attention)}; blocked_by_evidence rows: {len(shape_blocked)}; report exists: {(ROOT / 'reports' / 'report_shape_audit.md').exists()}.",
         "No gap." if shape_ok else "Regenerate scripts/audit_report_shape.py after the concise report and inspect any needs_attention rows.",
+    ))
+
+    required_count_consistency_ids = {
+        "task_status_counts",
+        "requirement_status_counts",
+        "claim_authorization_counts",
+        "release_and_freeze_gate_counts",
+        "model_coverage_counts",
+        "run_and_manifest_counts",
+        "locked_benchmark_blocker_counts",
+        "public_export_counts",
+    }
+    count_consistency_ids = {
+        row_data.get("check_id", "") for row_data in report_count_consistency
+    }
+    count_consistency_failures = [
+        row_data for row_data in report_count_consistency
+        if row_data.get("status") == "fail"
+    ]
+    count_consistency_ok = (
+        bool(report_count_consistency)
+        and required_count_consistency_ids.issubset(count_consistency_ids)
+        and not count_consistency_failures
+        and (ROOT / "reports" / "report_count_consistency_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "report_count_consistency_audit",
+        "reporting",
+        "Report count-consistency audit should verify that repeated top-line counts in reports and manifests agree with committed CSV and JSON sources.",
+        status_from_bool(count_consistency_ok, partial=bool(report_count_consistency)),
+        f"count-consistency rows: {len(report_count_consistency)}; required checks covered: {len(required_count_consistency_ids & count_consistency_ids)}/{len(required_count_consistency_ids)}; failures: {len(count_consistency_failures)}; report exists: {(ROOT / 'reports' / 'report_count_consistency_audit.md').exists()}.",
+        "No gap." if count_consistency_ok else "Regenerate scripts/audit_report_count_consistency.py after report generation and inspect stale top-line counts.",
     ))
 
     requirement_rows.append(row(

@@ -167,10 +167,32 @@ Independent review status:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 61}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 62}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
+
+## Report Count Consistency Audit
+
+`reports/report_count_consistency_audit.md` and `data/report_count_consistency_audit.csv` check that repeated top-line counts in the concise report, main report, evidence appendix, and validation manifest agree with committed CSV/JSON sources. This is a drift detector for reviewer-facing numbers, not a new benchmark-evidence source.
+
+- checks: `8`
+- statuses: `{"pass": 8}`
+- areas: `{"blocker_counts": 1, "gate_counts": 1, "manifest_counts": 2, "model_counts": 1, "portfolio_counts": 1, "report_counts": 2}`
+
+Count-consistency checks:
+
+| check | area | status | evidence | required action |
+| --- | --- | --- | --- | --- |
+| `task_status_counts` | portfolio_counts | pass | Task-status counts are checked against task metadata, the validation manifest, and the main/concise report top lines. | Regenerate task metadata, validation manifest, concise report, and main report after any task-status change. |
+| `requirement_status_counts` | report_counts | pass | Requirement status counts are checked where the report summarizes supported/partial/not_met evidence. | Regenerate requirement coverage and all report layers after requirement status changes. |
+| `claim_authorization_counts` | report_counts | pass | Claim-authorization status counts are checked against generated report summaries. | Regenerate claim authorization, concise report, and main report after claim status changes. |
+| `release_and_freeze_gate_counts` | gate_counts | pass | Release-decision and freeze-readiness status counts are checked wherever the report repeats them. | Regenerate release/freeze reports and all report layers after gate-status changes. |
+| `model_coverage_counts` | model_counts | pass | Model-sweep coverage counts are checked against the source summary and report wording that keeps performance claims blocked. | Regenerate model-result analysis and reports after provider rows or sweep plans change. |
+| `run_and_manifest_counts` | manifest_counts | pass | Run-result counts are checked against the validation manifest and the appendix manifest summary. | Regenerate local QA rows, validation manifest, and report appendix after run-result changes. |
+| `locked_benchmark_blocker_counts` | blocker_counts | pass | Locked-benchmark blocker identifiers are checked against requirement coverage, the claim-gap row, and report blocker tables. | Regenerate requirement coverage, claim gap matrix, and reports when locked-benchmark blockers change. |
+| `public_export_counts` | manifest_counts | pass | Public-export task and hidden/wrong-path counts are checked against the manifest and appendix summary. | Regenerate public export, validation manifest, and report appendix after public task export changes. |
+
 
 ## What The Tasks Measure
 
@@ -370,6 +392,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
+- `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
