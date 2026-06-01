@@ -190,7 +190,7 @@ def build_rows() -> list[dict[str, str]]:
             "Accepted, calibration, and rejected rows are separated so small-core claims are visible.",
             "Reach the 20-50 accepted-task target while preserving family and capability diversity.",
             ["frontier_performance", "locked_benchmark", "family_level_performance"],
-            ["data/task_metadata.csv", "reports/task_quality_matrix.md", "reports/accepted_task_cards.md", "reports/accepted_task_review.md"],
+            ["data/task_metadata.csv", "reports/task_quality_matrix.md", "reports/candidate_pruning_audit.md", "reports/accepted_task_cards.md", "reports/accepted_task_review.md"],
         ),
         row(
             "author_estimated_human_time",

@@ -131,6 +131,7 @@ def main() -> int:
     requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
     diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     construct = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
+    candidate_pruning = read_csv(ROOT / "data" / "candidate_pruning_audit.csv")
     accepted_cards = read_csv(ROOT / "data" / "accepted_task_cards.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
@@ -191,6 +192,8 @@ def main() -> int:
     })
     construct_support_counts = Counter(row.get("claim_support_level", "unknown") for row in construct)
     construct_singleton_rows = sum(1 for row in construct if row.get("singleton_capabilities"))
+    pruning_decision_counts = Counter(row.get("pruning_decision", "unknown") for row in candidate_pruning)
+    pruning_status_counts = Counter(row.get("acceptance_status", "unknown") for row in candidate_pruning)
     card_recommendation_counts = Counter(row.get("review_recommendation", "unknown") for row in accepted_cards)
     card_hidden_pin_exercised = sum(
         1 for row in accepted_cards
@@ -250,6 +253,13 @@ def main() -> int:
         "Accepted core rows:",
         "",
         task_table(accepted),
+        "",
+        "Candidate pruning evidence:",
+        "",
+        f"- pruning rows: `{len(candidate_pruning)}`",
+        f"- pruning decisions: `{compact_json(dict(sorted(pruning_decision_counts.items())))}`",
+        f"- acceptance statuses in pruning audit: `{compact_json(dict(sorted(pruning_status_counts.items())))}`",
+        "- `reports/candidate_pruning_audit.md` gives a per-task ledger for accepted, calibration-only, and rejected decisions; it is pruning transparency, not model-performance evidence.",
         "",
         "## Capabilities And Expected Failures",
         "",
@@ -317,6 +327,7 @@ def main() -> int:
         "",
         "- `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.",
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
+        "- `reports/candidate_pruning_audit.md` makes the aggressive pruning decision reviewable for every tracked task.",
         "- `reports/accepted_task_cards.md` makes per-task caveats and benchmark-grade blockers easy to inspect without turning them into stronger claims.",
         "- `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.",
         "- `reports/reviewer_reproduction_packet.md` gives an ordered local replay workflow and separates external-evidence blockers.",
@@ -356,7 +367,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/accepted_task_cards.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

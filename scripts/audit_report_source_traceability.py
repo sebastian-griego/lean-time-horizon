@@ -123,6 +123,25 @@ SECTION_SPECS = [
         "next_action": "Keep metadata status as the source of truth for accepted/calibration/rejected rows.",
     },
     {
+        "section_id": "candidate_pruning",
+        "heading": "Candidate Pruning Audit",
+        "source_artifacts": [
+            "data/candidate_pruning_audit.csv",
+            "reports/candidate_pruning_audit.md",
+            "data/task_metadata.csv",
+            "data/difficulty_audit.csv",
+            "data/task_quality_matrix.csv",
+        ],
+        "required_phrases": [
+            "pruning decision visible",
+            "accepted-core rate",
+            "rejected archive rows",
+            "not model performance",
+        ],
+        "limitation": "The pruning audit explains internal v0.1 selection decisions; it is not evidence for benchmark-scale sufficiency.",
+        "next_action": "Regenerate candidate-pruning rows after metadata, difficulty, or task-quality changes.",
+    },
+    {
         "section_id": "accepted_core",
         "heading": "Accepted v0.1 Core Task Set",
         "source_artifacts": [
@@ -429,6 +448,7 @@ SECTION_SPECS = [
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
+            "reports/candidate_pruning_audit.md",
             "reports/accepted_task_cards.md",
             "reports/failure_label_review_audit.md",
             "reports/statistical_analysis_plan.md",
@@ -441,6 +461,7 @@ SECTION_SPECS = [
             "data_schema_manifest.md",
             "reviewer_reproduction_packet.md",
             "clean_workspace_replay.md",
+            "candidate_pruning_audit.md",
             "accepted_task_cards.md",
             "failure_label_review_audit.md",
             "statistical_analysis_plan.md",

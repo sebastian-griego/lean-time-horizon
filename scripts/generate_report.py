@@ -204,6 +204,50 @@ def evidence_table(rows: list[dict[str, str]], audit_by_id: dict[str, dict[str, 
     return "\n".join(lines)
 
 
+def candidate_pruning_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/candidate_pruning_audit.md` has not been generated yet. Run "
+            "`python scripts/generate_candidate_pruning_audit.py` after the difficulty "
+            "audit and task-quality matrix, then regenerate this report."
+        )
+    status_counts = Counter(row.get("acceptance_status", "unknown") for row in rows)
+    decision_counts = Counter(row.get("pruning_decision", "unknown") for row in rows)
+    accepted = [row for row in rows if row.get("acceptance_status") == "accepted_v0"]
+    calibration = [row for row in rows if row.get("acceptance_status") == "calibration_only"]
+    rejected = [row for row in rows if row.get("acceptance_status", "").startswith("rejected_")]
+    noncore_with_reasons = [
+        row for row in rows
+        if row.get("acceptance_status") != "accepted_v0"
+        and row.get("core_exclusion_reason", "").strip()
+    ]
+    families = sorted({row.get("family", "") for row in rows})
+    statuses = ["accepted_v0", "calibration_only", "rejected_duplicate", "rejected_too_easy"]
+    family_lines = [
+        "| family | " + " | ".join(statuses) + " |",
+        "| --- | " + " | ".join("---:" for _ in statuses) + " |",
+    ]
+    for family in families:
+        counts = Counter(row.get("acceptance_status", "") for row in rows if row.get("family") == family)
+        family_lines.append(
+            f"| `{family}` | " + " | ".join(str(counts.get(status, 0)) for status in statuses) + " |"
+        )
+    return f"""`reports/candidate_pruning_audit.md` and `data/candidate_pruning_audit.csv` make the v0.1 pruning decision visible for every tracked task. The audit joins metadata, difficulty signals, and the task-quality matrix so the small accepted core is explained by task-quality review rather than directory placement. It is not model performance evidence.
+
+- pruning rows: `{len(rows)}`
+- acceptance statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- pruning decisions: `{compact_json(dict(sorted(decision_counts.items())))}`
+- accepted-core rate: `{len(accepted)}/{len(rows)}`
+- calibration-only rows: `{len(calibration)}`
+- rejected archive rows: `{len(rejected)}`
+- non-core rows with explicit core-exclusion reasons: `{len(noncore_with_reasons)}/{len(calibration) + len(rejected)}`
+
+Family/status pruning table:
+
+{chr(10).join(family_lines)}
+"""
+
+
 def requirement_coverage_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1627,6 +1671,7 @@ def main() -> int:
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     accepted_task_card_rows = read_csv(ROOT / "data" / "accepted_task_cards.csv")
+    candidate_pruning_rows = read_csv(ROOT / "data" / "candidate_pruning_audit.csv")
     diagnostic_coverage_rows = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     construct_validity_rows = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
@@ -1765,6 +1810,10 @@ Task status is assigned by metadata, not by directory alone:
 - `candidate_review_pending`: generated task not yet accepted.
 
 Acceptance requires more than a passing reference solution: wrong submissions must fail, hidden checks must test meaningful behavior where possible, metadata must include human-time and diagnostic fields, and the accepted-task review must document known limitations. Tasks can be downgraded after review even when they validate.
+
+## Candidate Pruning Audit
+
+{candidate_pruning_section(candidate_pruning_rows)}
 
 ## Accepted v0.1 Core Task Set
 
@@ -2194,6 +2243,10 @@ Task status is assigned by metadata, not by directory alone:
 
 Acceptance requires more than a passing reference solution: wrong submissions must fail, hidden checks must test meaningful behavior where possible, metadata must include human-time and diagnostic fields, and the accepted-task review must document known limitations. Tasks can be downgraded after review even when they validate.
 
+## Candidate Pruning Audit
+
+{candidate_pruning_section(candidate_pruning_rows)}
+
 ## Accepted v0.1 Core Task Set
 
 {task_table(accepted)}
@@ -2304,6 +2357,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
+- `reports/candidate_pruning_audit.md`: per-task pruning ledger explaining accepted, calibration-only, and rejected decisions from metadata and difficulty signals.
 - `reports/accepted_task_cards.md`: per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.

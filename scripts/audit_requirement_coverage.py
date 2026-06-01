@@ -211,6 +211,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     accepted_task_cards = read_csv(ROOT / "data" / "accepted_task_cards.csv")
     diagnostic_coverage = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     construct_validity = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
+    candidate_pruning = read_csv(ROOT / "data" / "candidate_pruning_audit.csv")
     human_time_audit = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     human_timing_plan = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
@@ -895,6 +896,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "research_questions",
         "unit_scoring",
         "task_selection",
+        "candidate_pruning",
         "accepted_core",
         "accepted_evidence_matrix",
         "accepted_task_cards",
@@ -2224,13 +2226,54 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if clean_workspace_replay_ok else "Run scripts/run_clean_workspace_replay.py and inspect dependency, grader, or public-export failures.",
     ))
 
+    pruning_fields = set(candidate_pruning[0].keys()) if candidate_pruning else set()
+    required_pruning_fields = {
+        "task_id",
+        "acceptance_status",
+        "pruning_decision",
+        "counts_toward_accepted_core",
+        "public_export_role",
+        "decision_flags",
+        "decision_basis",
+        "core_exclusion_reason",
+        "retained_role",
+        "next_action",
+    }
+    pruning_ids = {row_data.get("task_id", "") for row_data in candidate_pruning}
+    metadata_ids = {row_data.get("task_id", "") for row_data in metadata}
+    missing_pruning_ids = sorted(metadata_ids - pruning_ids)
+    extra_pruning_ids = sorted(pruning_ids - metadata_ids)
+    rejected_pruning_rows = [
+        row_data for row_data in candidate_pruning
+        if row_data.get("acceptance_status", "").startswith("rejected_")
+    ]
+    calibration_pruning_rows = [
+        row_data for row_data in candidate_pruning
+        if row_data.get("acceptance_status") == "calibration_only"
+    ]
+    core_exclusion_rows = [
+        row_data for row_data in candidate_pruning
+        if row_data.get("acceptance_status") != "accepted_v0"
+        and row_data.get("core_exclusion_reason", "").strip()
+    ]
+    pruning_ok = (
+        bool(candidate_pruning)
+        and len(candidate_pruning) == len(metadata)
+        and required_pruning_fields.issubset(pruning_fields)
+        and not missing_pruning_ids
+        and not extra_pruning_ids
+        and len(rejected_pruning_rows) == len(rejected)
+        and len(calibration_pruning_rows) == len(calibration)
+        and len(core_exclusion_rows) == len(rejected) + len(calibration)
+        and (ROOT / "reports" / "candidate_pruning_audit.md").exists()
+    )
     requirement_rows.append(row(
         "candidate_pruning_audit",
         "portfolio",
         "Candidate tasks should be separated from accepted tasks and pruned aggressively.",
-        status_from_bool(bool(rejected)),
-        f"Rejected archive tasks: {len(rejected)}; calibration-only tasks: {len(calibration)}; accepted tasks: {len(accepted)}.",
-        "No gap." if rejected else "Retain rejected/candidate archive and rejection rationales.",
+        status_from_bool(pruning_ok, partial=bool(candidate_pruning)),
+        f"pruning rows: {len(candidate_pruning)}; metadata rows: {len(metadata)}; rejected rows: {len(rejected_pruning_rows)}/{len(rejected)}; calibration rows: {len(calibration_pruning_rows)}/{len(calibration)}; non-core rows with exclusion reasons: {len(core_exclusion_rows)}/{len(rejected) + len(calibration)}; report exists: {(ROOT / 'reports' / 'candidate_pruning_audit.md').exists()}.",
+        "No gap." if pruning_ok else "Run scripts/generate_candidate_pruning_audit.py and inspect missing pruning decisions, core-exclusion reasons, or archive separation.",
     ))
 
     semantic_rows = [row_data for row_data in difficulty if row_data.get("family") == "informal_spec_to_formal" and row_data.get("acceptance_status") == "accepted_v0"]

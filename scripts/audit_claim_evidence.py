@@ -154,6 +154,7 @@ def build_rows() -> list[dict[str, str]]:
         "difficulty_audit_report",
         "manual_accepted_task_review",
         "task_quality_matrix",
+        "candidate_pruning_audit",
         "accepted_task_cards",
         "diagnostic_coverage_audit",
         "construct_validity_matrix",
@@ -221,7 +222,7 @@ def build_rows() -> list[dict[str, str]]:
         "task_validity",
         "supported",
         "medium",
-        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}; {evidence(reqs, 'accepted_task_cards')}; {evidence(reqs, 'diagnostic_coverage_audit')}; {evidence(reqs, 'construct_validity_matrix')}",
+        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}; {evidence(reqs, 'candidate_pruning_audit')}; {evidence(reqs, 'accepted_task_cards')}; {evidence(reqs, 'diagnostic_coverage_audit')}; {evidence(reqs, 'construct_validity_matrix')}",
         "This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size.",
         "Independent Lean-human review and more accepted high-quality T2/T3/T4 rows.",
     ))

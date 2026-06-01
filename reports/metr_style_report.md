@@ -43,7 +43,7 @@ Data schema ledger:
 | `failure_label_reviews` | schema_valid | 3 | `data/failure_label_review_schema.json` | These are single-review smoke rows, not independent distributional adjudication. | Use the transcript review packet and adjudication fields for future broad sweeps. |
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 53 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 54 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -56,6 +56,30 @@ Task status is assigned by metadata, not by directory alone:
 - `candidate_review_pending`: generated task not yet accepted.
 
 Acceptance requires more than a passing reference solution: wrong submissions must fail, hidden checks must test meaningful behavior where possible, metadata must include human-time and diagnostic fields, and the accepted-task review must document known limitations. Tasks can be downgraded after review even when they validate.
+
+## Candidate Pruning Audit
+
+`reports/candidate_pruning_audit.md` and `data/candidate_pruning_audit.csv` make the v0.1 pruning decision visible for every tracked task. The audit joins metadata, difficulty signals, and the task-quality matrix so the small accepted core is explained by task-quality review rather than directory placement. It is not model performance evidence.
+
+- pruning rows: `26`
+- acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
+- pruning decisions: `{"accepted_core": 6, "rejected_archive": 12, "retained_calibration_only": 8}`
+- accepted-core rate: `6/26`
+- calibration-only rows: `8`
+- rejected archive rows: `12`
+- non-core rows with explicit core-exclusion reasons: `20/20`
+
+Family/status pruning table:
+
+| family | accepted_v0 | calibration_only | rejected_duplicate | rejected_too_easy |
+| --- | ---: | ---: | ---: | ---: |
+| `algorithm_correctness` | 1 | 3 | 0 | 2 |
+| `direct_theorem_proving` | 1 | 0 | 0 | 1 |
+| `informal_spec_to_formal` | 1 | 3 | 1 | 0 |
+| `invariant_verification_ml_optimization` | 1 | 0 | 0 | 4 |
+| `proof_repair_codebase` | 1 | 2 | 1 | 0 |
+| `small_formal_library_construction` | 1 | 0 | 0 | 3 |
+
 
 ## Accepted v0.1 Core Task Set
 
@@ -325,6 +349,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
+- `reports/candidate_pruning_audit.md`: per-task pruning ledger explaining accepted, calibration-only, and rejected decisions from metadata and difficulty signals.
 - `reports/accepted_task_cards.md`: per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
