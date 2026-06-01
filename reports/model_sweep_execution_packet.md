@@ -45,7 +45,7 @@ This generated packet turns the planned accepted-core scaffold sweep into concre
 | `planned_primary_cells` | run | planned | accepted_tasks=6; planned_rows=18; scaffolds=["lookup", "lookup_unlimited", "one-shot"]; planned_k=["10"]; command_rows=12 | Run exactly the accepted_v0 x scaffold commands for each provider/model being reported. |
 | `transcript_and_run_result_evidence` | post_run | blocked | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Commit run_results rows and transcript JSONL files, then rerun integrity and model-result analysis. |
 | `frontier_claim_boundary` | post_run | blocked | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Keep frontier and scaffold-effect claims unsupported until non-infra accepted-core coverage is broad enough. |
-| `statistical_report_refresh` | post_run | blocked | rows=8; statuses={"block": 5, "pass": 3} | Rerun statistical reporting after provider rows are committed; report raw n and Wilson intervals. |
+| `statistical_report_refresh` | post_run | blocked | rows=9; statuses={"block": 5, "pass": 4} | Rerun statistical reporting after provider rows are committed; report raw n and Wilson intervals. |
 
 ## Post-Run Refresh
 

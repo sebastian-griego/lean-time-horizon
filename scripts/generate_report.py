@@ -34,6 +34,13 @@ def parse_list(value: str) -> list[str]:
     return [x.strip() for x in value.split(";") if x.strip()]
 
 
+def as_int(value: object) -> int:
+    try:
+        return int(str(value))
+    except (TypeError, ValueError):
+        return 0
+
+
 def write_bar_svg(path: Path, title: str, counts: dict[str, float], y_label: str = "count") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     labels = list(counts)
@@ -1314,13 +1321,31 @@ def main() -> int:
     model_rows = [row for row in run_rows if row.get("qa_stage") != "local_qa"]
     accepted_model_rows = [row for row in model_rows if metadata_by_id.get(row.get("task_id", ""), {}).get("acceptance_status") == "accepted_v0"]
     model_summary = summarize_model_results(accepted_model_rows)
+    model_result_by_key = {
+        (row.get("analysis_set", ""), row.get("group_by", ""), row.get("group", "")): row
+        for row in model_result_summary
+    }
+    primary_model_summary = model_result_by_key.get(("primary_plan_coverage", "all", "all"), {})
+    accepted_model_summary = model_result_by_key.get(("accepted_core_results", "all", "all"), {})
+    planned_primary_cells = as_int(primary_model_summary.get("planned_cells", "0"))
+    covered_primary_noninfra = as_int(primary_model_summary.get("covered_cells_noninfra", "0"))
+    accepted_noninfra_count = as_int(accepted_model_summary.get("rows_noninfra", "0"))
+    accepted_noninfra_successes = as_int(accepted_model_summary.get("successes", "0"))
     infra_model_rows = [row for row in model_rows if row.get("infra_fail_count") not in {"", "0", 0}]
     model_failure_counts = Counter(row.get("failure_label", "unknown") for row in model_rows if row.get("failure_label") != "none")
-    model_md = "\n".join(
-        f"- `{scaffold}`: pass@k mean {stats['mean']:.2f} "
-        f"({int(stats['successes'])}/{int(stats['n'])} rows; Wilson 95% CI {stats['ci_low']:.2f}-{stats['ci_high']:.2f})"
-        for scaffold, stats in sorted(model_summary.items())
-    ) or "- No accepted-core non-infra provider rows are committed. Local QA rows are validation evidence only."
+    if planned_primary_cells and covered_primary_noninfra < planned_primary_cells:
+        model_md = "\n".join([
+            f"- accepted-core non-infra provider smoke rows: `{accepted_noninfra_count}`",
+            f"- successful smoke rows: `{accepted_noninfra_successes}`",
+            f"- primary sweep coverage: `{covered_primary_noninfra}/{planned_primary_cells}` planned cells covered",
+            "- performance estimate status: `blocked_by_undercoverage`; no benchmark pass-rate or interval is reported.",
+        ])
+    else:
+        model_md = "\n".join(
+            f"- `{scaffold}`: pass@k mean {stats['mean']:.2f} "
+            f"({int(stats['successes'])}/{int(stats['n'])} rows; Wilson 95% CI {stats['ci_low']:.2f}-{stats['ci_high']:.2f})"
+            for scaffold, stats in sorted(model_summary.items())
+        ) or "- No accepted-core non-infra provider rows are committed. Local QA rows are validation evidence only."
     local_rows = [row for row in run_rows if row.get("qa_stage") == "local_qa"]
     local_md = f"{len(local_rows)} local QA rows are committed for reference solutions and plausible wrong submissions." if local_rows else "No local QA rows are committed yet."
     local_status_counts = Counter(row.get("qa_findings_status", "unknown") for row in local_rows)

@@ -1154,6 +1154,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
 
     required_statistical_checks = {
         "primary_sweep_coverage",
+        "main_report_performance_estimate_suppression",
         "scaffold_pass_at_k_plot",
         "bucket_success_plot",
         "family_success_plot",

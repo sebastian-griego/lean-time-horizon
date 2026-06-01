@@ -136,6 +136,27 @@ def build_rows() -> list[dict[str, str]]:
         "The committed provider rows cannot support accepted-core performance estimates.",
         "Run the planned accepted_v0 x scaffold sweep before reporting benchmark performance.",
     ))
+    performance_terms = ["pass@k mean", "Wilson 95% CI"]
+    undercovered = not (planned_cells and covered_cells >= planned_cells)
+    forbidden_performance_terms = [
+        term for term in performance_terms
+        if term.lower() in report_text.lower()
+    ]
+    suppression_phrase_present = "no benchmark pass-rate or interval is reported" in report_text.lower()
+    rows.append(row(
+        "main_report_performance_estimate_suppression",
+        "report_text",
+        "pass" if not undercovered or (not forbidden_performance_terms and suppression_phrase_present) else "fail",
+        (
+            f"undercovered={undercovered}; forbidden_terms={compact_json(forbidden_performance_terms)}; "
+            f"suppression_phrase_present={suppression_phrase_present}"
+        ),
+        f"{len(covered_cells)}/{len(planned_cells)} accepted task/scaffold cells covered by non-infra provider rows",
+        "All planned accepted_v0 x scaffold cells covered with non-infra rows before reporting means or intervals.",
+        "Smoke row provenance only.",
+        "The main report should not display performance-style estimates when primary sweep coverage is blocked.",
+        "Suppress mean/interval wording in the main report until the planned accepted-core sweep is covered.",
+    ))
     rows.append(row(
         "scaffold_pass_at_k_plot",
         "recommended_plot",

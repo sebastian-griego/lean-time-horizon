@@ -133,7 +133,10 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 
 Accepted-core provider row summary:
 
-- `one-shot`: pass@k mean 0.00 (0/1 rows; Wilson 95% CI 0.00-0.79)
+- accepted-core non-infra provider smoke rows: `1`
+- successful smoke rows: `0`
+- primary sweep coverage: `1/18` planned cells covered
+- performance estimate status: `blocked_by_undercoverage`; no benchmark pass-rate or interval is reported.
 
 All committed non-local rows:
 
