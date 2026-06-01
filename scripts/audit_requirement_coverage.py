@@ -210,6 +210,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
+    claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -548,6 +549,45 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(integrity_ok, partial=bool(run_integrity)),
         f"run_integrity rows: {len(run_integrity)}; run_results rows: {len(run_results)}; failing rows: {len(integrity_failures)}; report exists: {(ROOT / 'reports' / 'run_integrity_audit.md').exists()}.",
         "No gap." if integrity_ok else "Regenerate scripts/audit_run_integrity.py after run_results and transcripts, then fix any failing rows.",
+    ))
+
+    required_claim_ids = {
+        "local_release_artifact",
+        "research_report_evidence",
+        "accepted_core_reviewed",
+        "hidden_pin_strength",
+        "run_data_integrity",
+        "time_horizon_measurement",
+        "scaffold_effects",
+        "frontier_performance",
+        "locked_benchmark",
+    }
+    claim_ids = {row_data.get("claim_id", "") for row_data in claim_evidence}
+    unsupported_claims = [row_data for row_data in claim_evidence if row_data.get("support_status") == "unsupported"]
+    claim_fields = set(claim_evidence[0].keys()) if claim_evidence else set()
+    required_claim_fields = {
+        "claim_id",
+        "claim_type",
+        "support_status",
+        "evidence_strength",
+        "primary_evidence",
+        "counterevidence_or_limits",
+        "stronger_claim_requires",
+    }
+    claim_audit_ok = (
+        bool(claim_evidence)
+        and required_claim_ids.issubset(claim_ids)
+        and len(unsupported_claims) >= 2
+        and required_claim_fields.issubset(claim_fields)
+        and (ROOT / "reports" / "claim_evidence_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "claim_evidence_audit",
+        "reporting",
+        "Claim-evidence audit should map artifact, report, performance, and benchmark-status claims to evidence strength and limits.",
+        status_from_bool(claim_audit_ok, partial=bool(claim_evidence)),
+        f"claim_evidence rows: {len(claim_evidence)}; required claims covered: {len(required_claim_ids & claim_ids)}/{len(required_claim_ids)}; unsupported overclaim rows: {len(unsupported_claims)}; report exists: {(ROOT / 'reports' / 'claim_evidence_audit.md').exists()}.",
+        "No gap." if claim_audit_ok else "Regenerate scripts/audit_claim_evidence.py after requirement coverage and inspect missing claim rows.",
     ))
 
     human_independent_ok = "independent" in " ".join(task.get("human_estimate_confidence", "").lower() for task in metadata)

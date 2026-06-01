@@ -1,0 +1,27 @@
+# Claim Evidence Audit
+
+This generated audit turns the report's claim ledger into explicit evidence rows. It separates local artifact-validity claims from performance and locked-benchmark claims, so unsupported conclusions are visible rather than implied.
+
+## Summary
+
+- claims audited: `9`
+- support statuses: `{"partial": 2, "supported": 4, "unsupported": 3}`
+- claim types: `{"artifact_validity": 1, "benchmark_status": 1, "construct_validity": 1, "data_validity": 1, "grading_validity": 1, "performance_claim": 2, "report_validity": 1, "task_validity": 1}`
+
+## Claim Table
+
+| claim id | type | support | strength | claim | limits | stronger claim requires |
+| --- | --- | --- | --- | --- | --- | --- |
+| `local_release_artifact` | artifact_validity | supported | high | The repository is a locally validated v0.1 release artifact with public scaffolds, hidden checks, Lean scoring, integrity controls, and complete metadata. | This is a local artifact claim, not a hosted/frozen benchmark claim. | Hosted QA, independent review, and broader accepted task count are still required for a locked benchmark. |
+| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, pin coverage, run integrity, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
+| `accepted_core_reviewed` | task_validity | supported | medium | The six accepted-core tasks are internally reviewed and higher quality than the original candidate pool. | This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size. | Independent Lean-human review and more accepted high-quality T2/T3/T4 rows. |
+| `hidden_pin_strength` | grading_validity | partial | medium | Hidden semantic checks provide meaningful anti-gaming evidence for accepted tasks. | Some accepted fixed-statement/proof-repair rows have wrong submissions that fail before hidden pins run; hidden pins are finite probes. | Add stronger same-signature semantic wrongs where possible and expand negative hidden examples for retained caveat rows. |
+| `run_data_integrity` | data_validity | supported | high | Committed run-result rows are internally consistent with transcripts, failure labels, score vectors, and pass@k semantics. | This validates data hygiene only; it does not make the smoke rows representative. | Maintain this audit for future provider sweeps and require zero failing rows before reporting results. |
+| `time_horizon_measurement` | construct_validity | partial | low | The current artifact measures model behavior across increasing time horizons. | Accepted core has only T2/T3 coverage and no T4; human times are author/reviewer estimates rather than independent solves. | Add independently timed T3/T4 tasks before claiming strong time-horizon measurement. |
+| `scaffold_effects` | performance_claim | unsupported | none | The report supports conclusions about how lookup and iterative compile/debug scaffolds change model performance. | The scaffold ladder is implemented and planned, but real accepted-core provider data cover only one one-shot cell. | Run accepted-core pass@10 or equivalent rows across one-shot, lookup, and lookup_unlimited. |
+| `frontier_performance` | performance_claim | unsupported | none | Committed provider rows characterize frontier-model performance on this benchmark. | Only tiny smoke evidence is committed, including an infra failure; local QA rows are not model performance. | Run the planned accepted-core scaffold sweep with documented provider versions and cost/infra notes. |
+| `locked_benchmark` | benchmark_status | unsupported | none | v0.1 is a locked benchmark suitable for population-level frontier-model claims. | The artifact has 6 accepted tasks, no hosted QA, no independent timing, no T4 accepted task, and limited provider data. | Reach the 20-50 accepted-task target, run hosted QA, collect independent timing, complete scaffold sweeps, and freeze exact public task versions. |
+
+## Interpretation
+
+Claims marked `supported` are supported by the current local artifact. Claims marked `partial` have meaningful evidence but should not be stated without caveats. Claims marked `unsupported` are included because they are tempting overclaims that the current evidence explicitly does not justify.

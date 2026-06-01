@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 25
+- `supported`: 26
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 14
-- `required_for_research_report` / `supported`: 9
+- `required_for_research_report` / `supported`: 10
 
 ## Coverage Table
 
@@ -46,6 +46,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `task_quality_matrix` | reporting | required_for_research_report | supported | Reviewer-facing task quality matrix should join metadata, difficulty signals, caveats, and next-review actions. | task_quality_matrix rows: 26; metadata rows: 26; report exists: True. | No gap. |
 | `pin_coverage_audit` | reporting | required_for_research_report | supported | Hidden-pin audit should distinguish public-stage wrong failures from wrong submissions that reach semantic pins. | pin_coverage rows: 26; accepted rows: 6; accepted hidden-pin wrong failures: 5; report exists: True. | No gap. |
 | `run_integrity_audit` | reporting | required_for_research_report | supported | Run-result integrity audit should verify transcripts, score vectors, failure labels, and pass@k arithmetic. | run_integrity rows: 69; run_results rows: 69; failing rows: 0; report exists: True. | No gap. |
+| `claim_evidence_audit` | reporting | required_for_research_report | supported | Claim-evidence audit should map artifact, report, performance, and benchmark-status claims to evidence strength and limits. | claim_evidence rows: 9; required claims covered: 9/9; unsupported overclaim rows: 3; report exists: True. | No gap. |
 | `independent_human_time_review` | calibration | required_for_locked_benchmark | partial | Human-time estimates should be separately reviewed or measured, not inferred from model pass rates. | Accepted tasks with manual_review_complete: 6/6; no independent timed solves detected in metadata. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted Taiga/Env Linter QA should be run before delivery/freeze. | Hosted QA artifacts present: 0/2. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 | `reproducibility_manifest` | reproducibility | required_for_research_report | supported | A clean regeneration trail should record toolchain, commands, counts, and artifact hashes. | validation_manifest.json exists: True. | No gap. |

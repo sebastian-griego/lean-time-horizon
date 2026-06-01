@@ -326,6 +326,38 @@ Failing integrity rows:
 """
 
 
+def claim_evidence_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/claim_evidence_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_claim_evidence.py` after requirement coverage, then regenerate this report."
+        )
+    status_counts = Counter(row.get("support_status", "unknown") for row in rows)
+    type_counts = Counter(row.get("claim_type", "unknown") for row in rows)
+    lines = [
+        "| claim | type | support | strength | claim text | limit | stronger claim requires |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        claim = row.get("claim", "").replace("|", "/")
+        limit = row.get("counterevidence_or_limits", "").replace("|", "/")
+        stronger = row.get("stronger_claim_requires", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('claim_id', '')}` | {row.get('claim_type', '')} | {row.get('support_status', '')} | "
+            f"{row.get('evidence_strength', '')} | {claim} | {limit} | {stronger} |"
+        )
+    return f"""`reports/claim_evidence_audit.md` and `data/claim_evidence_audit.csv` map report claims to evidence strength and limits. This keeps local artifact-validity claims separate from performance and locked-benchmark claims.
+
+- claims audited: `{len(rows)}`
+- support statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- claim types: `{compact_json(dict(sorted(type_counts.items())))}`
+
+Claim support table:
+
+{chr(10).join(lines)}
+"""
+
+
 def task_quality_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -488,6 +520,7 @@ def main() -> int:
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
+    claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -668,6 +701,10 @@ Observed model-sweep failure labels:
 
 {run_integrity_section(run_integrity_rows)}
 
+## Claim Evidence Audit
+
+{claim_evidence_section(claim_evidence_rows)}
+
 ## Difficulty Audit Summary
 
 The regenerated difficulty audit separates mechanical signals from manual judgments. Mechanical signals include reference proof lines, declaration count, public file count, public lemma count, tactic profile, automation dominance, Mathlib use, multi-file context, hidden pin strength, and wrong-submission count. Manual fields include frontier one-shot solvability estimates, p50/p90 human time, scaffold sensitivity, diagnostic value, and final accept/reject rationale.
@@ -705,6 +742,8 @@ python scripts/analyze_model_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/audit_requirement_coverage.py --public-export public_tasks
+python scripts/audit_claim_evidence.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
