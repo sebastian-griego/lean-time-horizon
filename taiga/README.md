@@ -7,15 +7,17 @@ It provides:
 - `Dockerfile`: a candidate container image that installs the Lean toolchain,
   builds the repo, exports `public_tasks`, and starts the wrapper.
 - `mcp_server.py`: a small adapter exposing `setup_problem` and `grade_problem`
-  functions that delegate grading to `scripts/validate_task.py`.
+  functions. In hosted mode it grades against public task files plus an
+  in-memory hidden-pin bundle generated at image build time.
 - `problems_metadata.template.json`: generated Taiga problems-metadata with a
   placeholder image value.
 
-The scaffold is not hidden-material-safe by itself. The Dockerfile copies the
-repo so the Lean grader can see hidden checks, and hosted filesystem tools must
-not be allowed to read those files. Before upload, either split public task files
-from grader-private material or enforce and test file permissions that keep
-hidden references and `hidden/PinCheck.lean` inaccessible to the model tools.
+The scaffold mitigates, but does not by itself prove, hidden-material isolation.
+During image build the Dockerfile generates a private hidden-pin bundle, removes
+`tasks/` from the final filesystem, and the MCP server deletes the bundle file
+after loading it into memory. Hosted filesystem tools still need preflight/Env
+Linter evidence showing that the model can only read the public workdir and not
+grader-private state.
 
 Before using this as hosted evidence:
 

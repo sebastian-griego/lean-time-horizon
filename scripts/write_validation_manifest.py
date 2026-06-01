@@ -267,6 +267,7 @@ HASHED_ARTIFACTS = [
     "scripts/audit_provider_readiness.py",
     "scripts/audit_hosted_qa_readiness.py",
     "scripts/generate_taiga_problem_metadata.py",
+    "scripts/generate_taiga_hidden_bundle.py",
     "scripts/generate_threats_to_validity.py",
     "scripts/audit_threat_coverage.py",
     "scripts/generate_transcript_review_packet.py",

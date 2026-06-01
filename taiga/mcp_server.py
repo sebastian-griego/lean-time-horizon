@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import sys
+import tempfile
 import traceback
 from pathlib import Path
 from typing import Any
@@ -13,12 +14,42 @@ REPO_ROOT = Path(os.environ.get("LEAN_TIME_HORIZON_ROOT", Path(__file__).resolve
 DEFAULT_WORKDIR = Path("/workdir") if os.name != "nt" else REPO_ROOT / "tmp" / "taiga_workdir"
 WORKDIR = Path(os.environ.get("TAIGA_WORKDIR", DEFAULT_WORKDIR))
 PUBLIC_TASKS = REPO_ROOT / "public_tasks"
+HIDDEN_BUNDLE_PATH = Path(os.environ.get("TAIGA_HIDDEN_BUNDLE", "/opt/lean-time-horizon-private/hidden_bundle.json"))
+DELETE_HIDDEN_BUNDLE = os.environ.get("TAIGA_DELETE_HIDDEN_BUNDLE", "1") != "0"
 
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
-from validate_task import load_metadata, metadata_public_files, metadata_submission_file, validate_submission  # noqa: E402
+from validate_task import (  # noqa: E402
+    audit_axioms,
+    check_forbidden,
+    load_metadata,
+    metadata_entry_file,
+    metadata_public_files,
+    metadata_submission_file,
+    module_name,
+    run,
+    validate_submission,
+)
 
 
 FENCE_RE = re.compile(r"```(?:lean|lean4)?\s*\n(?P<code>.*?)```", re.IGNORECASE | re.DOTALL)
+
+
+def _load_hidden_bundle() -> dict[str, str]:
+    if not HIDDEN_BUNDLE_PATH.exists():
+        return {}
+    payload = json.loads(HIDDEN_BUNDLE_PATH.read_text(encoding="utf-8"))
+    tasks = payload.get("tasks", {})
+    pins = {
+        str(task_id): str(task_data.get("pincheck_lean", ""))
+        for task_id, task_data in tasks.items()
+        if isinstance(task_data, dict) and task_data.get("pincheck_lean")
+    }
+    if DELETE_HIDDEN_BUNDLE:
+        HIDDEN_BUNDLE_PATH.unlink(missing_ok=True)
+    return pins
+
+
+HIDDEN_PINCHECKS = _load_hidden_bundle()
 
 
 def _metadata_paths(base: Path) -> list[Path]:
@@ -71,6 +102,90 @@ def _copy_public_task(task_id: str) -> tuple[Path, dict[str, Any]]:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(src, target)
     return dest, metadata
+
+
+def _validate_with_hidden_pin_bundle(public_dir: Path, submission: Path, pincheck_text: str) -> dict[str, Any]:
+    metadata = load_metadata(public_dir)
+    metadata_path = public_dir / "metadata.json"
+    tmp_root = WORKDIR / "grader_tmp"
+    tmp_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=f"{metadata['task_id']}-", dir=tmp_root) as td:
+        tmp = Path(td)
+        for public_file in metadata_public_files(metadata):
+            src = public_dir / public_file
+            dest = tmp / public_file
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src, dest)
+        submission_dest = tmp / metadata_submission_file(metadata)
+        submission_dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(submission, submission_dest)
+        (tmp / "PinCheck.lean").write_text(pincheck_text, encoding="utf-8")
+
+        forbidden = check_forbidden(submission_dest, metadata_path)
+        if forbidden:
+            ok = False
+            detail = json.dumps({"forbidden": forbidden}, indent=2)
+        else:
+            build_outputs: list[str] = []
+            build_failed = False
+            files_to_build = list(dict.fromkeys([*metadata_public_files(metadata), metadata_entry_file(metadata)]))
+            for lean_file in files_to_build:
+                path = tmp / lean_file
+                build = run(
+                    [
+                        "lake",
+                        "env",
+                        "lean",
+                        "-o",
+                        str(path.with_suffix(".olean")),
+                        "-i",
+                        str(path.with_suffix(".ilean")),
+                        str(path),
+                    ],
+                    cwd=REPO_ROOT,
+                    timeout=metadata.get("timeout_seconds", 60),
+                    lean_path_dir=tmp,
+                )
+                build_outputs.append(build.stdout)
+                if build.returncode != 0:
+                    build_failed = True
+                    break
+            if build_failed:
+                ok = False
+                detail = "\n".join(build_outputs)
+            else:
+                pins = run(
+                    [
+                        "lake",
+                        "env",
+                        "lean",
+                        "-o",
+                        str((tmp / "PinCheck").with_suffix(".olean")),
+                        "-i",
+                        str((tmp / "PinCheck").with_suffix(".ilean")),
+                        str(tmp / "PinCheck.lean"),
+                    ],
+                    cwd=REPO_ROOT,
+                    timeout=metadata.get("timeout_seconds", 60),
+                    lean_path_dir=tmp,
+                )
+                if pins.returncode != 0:
+                    ok = False
+                    detail = pins.stdout
+                else:
+                    ok, detail = audit_axioms(
+                        tmp,
+                        module_name(metadata_entry_file(metadata)),
+                        metadata.get("axiom_audit_declarations", []),
+                    )
+    return {
+        "task_id": metadata["task_id"],
+        "submission": str(submission),
+        "expected": "pass",
+        "ok": ok,
+        "accepted": ok,
+        "detail": detail,
+    }
 
 
 def setup_problem(problem_id: str, use_hinted_problem: bool = False, extra_fields: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -127,10 +242,16 @@ def _submission_from_workdir_or_transcript(task_id: str, metadata: dict[str, Any
 
 def grade_problem(problem_id: str, transcript: str, extra_fields: dict[str, Any] | None = None) -> dict[str, Any]:
     try:
-        source_dir = _source_task_dir(problem_id)
-        metadata = load_metadata(source_dir)
+        public_dir = _public_task_dir(problem_id)
+        metadata = load_metadata(public_dir)
         submission, submission_source = _submission_from_workdir_or_transcript(problem_id, metadata, transcript)
-        result = validate_submission(source_dir, submission, expect_pass=True)
+        if problem_id in HIDDEN_PINCHECKS:
+            result = _validate_with_hidden_pin_bundle(public_dir, submission, HIDDEN_PINCHECKS[problem_id])
+            hidden_bundle_used = True
+        else:
+            source_dir = _source_task_dir(problem_id)
+            result = validate_submission(source_dir, submission, expect_pass=True)
+            hidden_bundle_used = False
         ok = bool(result["ok"])
         return {
             "subscores": {"lean_validation": 1.0 if ok else 0.0},
@@ -139,6 +260,7 @@ def grade_problem(problem_id: str, transcript: str, extra_fields: dict[str, Any]
                 "task_id": problem_id,
                 "submission": str(submission),
                 "submission_source": submission_source,
+                "hidden_bundle_used": hidden_bundle_used,
                 "accepted": bool(result["accepted"]),
                 "validator_ok": ok,
                 "detail_excerpt": str(result.get("detail", ""))[:4000],

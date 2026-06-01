@@ -236,10 +236,24 @@ def build_rows() -> list[dict[str, str]]:
         and int(problem_metadata["immutable_digest_images"]) == expected_public_task_count
         and int(problem_metadata["placeholder_images"]) == 0
     )
+    mcp_source = "\n".join(read_text(ROOT / path) for path in mcp_hook_files)
     full_repo_copy = "COPY . " in docker_text or "COPY ./" in docker_text
+    hidden_bundle_generated = "generate_taiga_hidden_bundle.py" in docker_text
+    task_sources_removed = "rm -rf tasks" in docker_text
+    hidden_bundle_env = "TAIGA_HIDDEN_BUNDLE" in docker_text
+    hidden_bundle_deleted = "HIDDEN_BUNDLE_PATH.unlink" in mcp_source and "TAIGA_DELETE_HIDDEN_BUNDLE" in mcp_source
+    hidden_bundle_validation = "_validate_with_hidden_pin_bundle" in mcp_source
+    hidden_mitigation_present = (
+        hidden_bundle_generated
+        and task_sources_removed
+        and hidden_bundle_env
+        and hidden_bundle_deleted
+        and hidden_bundle_validation
+    )
     hidden_dirs_present = any((ROOT / "tasks" / split).exists() for split in ["dev", "test", "candidates"])
     filesystem_tools_present = bool(problem_metadata_files)
-    hidden_isolation_documented = "hidden-material-safe" in read_text(ROOT / "taiga" / "README.md")
+    taiga_readme = read_text(ROOT / "taiga" / "README.md")
+    hidden_isolation_documented = "hidden-material isolation" in taiga_readme and "not by itself prove" in taiga_readme
 
     local_ok = (
         (ROOT / "data" / "run_integrity_audit.csv").exists()
@@ -319,18 +333,21 @@ def build_rows() -> list[dict[str, str]]:
         row(
             "hidden_material_isolation",
             "hosted_packaging",
-            "block" if full_repo_copy and hidden_dirs_present and filesystem_tools_present else "caution",
+            "caution" if hidden_mitigation_present else "block",
             (
                 f"full_repo_copy={bool_text(full_repo_copy)}; hidden_dirs_present={bool_text(hidden_dirs_present)}; "
-                f"problem_metadata_files={len(problem_metadata_files)}; isolation_documented={bool_text(hidden_isolation_documented)}"
+                f"problem_metadata_files={len(problem_metadata_files)}; hidden_bundle_generated={bool_text(hidden_bundle_generated)}; "
+                f"task_sources_removed={bool_text(task_sources_removed)}; hidden_bundle_env={bool_text(hidden_bundle_env)}; "
+                f"hidden_bundle_deleted={bool_text(hidden_bundle_deleted)}; hidden_bundle_validation={bool_text(hidden_bundle_validation)}; "
+                f"isolation_documented={bool_text(hidden_isolation_documented)}"
             ),
             "Hosted model tools must not be able to read hidden references, hidden PinCheck files, or wrong submissions.",
             (
-                "The scaffold documents the risk, but the candidate Dockerfile still copies the full repo and no hosted tool-isolation proof is committed."
-                if full_repo_copy and hidden_dirs_present and filesystem_tools_present
-                else "Hidden-material isolation still needs hosted confirmation."
+                "The scaffold removes task sources after creating an in-memory hidden-pin bundle path, but no hosted tool-isolation proof is committed."
+                if hidden_mitigation_present
+                else "The scaffold does not yet show a complete local mitigation for hidden-material filesystem exposure."
             ),
-            "Before upload, split public workdir material from grader-private files or enforce unreadable permissions, then verify with hosted preflight/Env Linter evidence.",
+            "Before upload, verify with hosted preflight/Env Linter that filesystem tools cannot read hidden references, hidden pins, wrong submissions, or the transient bundle.",
         ),
         row(
             "problem_version_evidence",
@@ -420,7 +437,7 @@ def write_markdown(path: Path, rows: list[dict[str, str]]) -> None:
         "",
         "## Interpretation",
         "",
-        "The repo is locally validated and now includes a Taiga packaging scaffold, but it does not yet include hidden-material isolation proof, immutable uploaded image digests, hosted problem-version IDs, preflight/Stage 1 evidence, Full Env QA, Env Linter rows, or finding dispositions. The locked-benchmark hosted-QA gate must remain not met until those artifacts are real and committed.",
+        "The repo is locally validated and now includes a Taiga packaging scaffold with local hidden-material exposure mitigations, but it does not yet include hosted isolation proof, immutable uploaded image digests, hosted problem-version IDs, preflight/Stage 1 evidence, Full Env QA, Env Linter rows, or finding dispositions. The locked-benchmark hosted-QA gate must remain not met until those artifacts are real and committed.",
         "",
         "Packaging `caution` means the repository contains a concrete local scaffold, such as a Dockerfile or generated problems-metadata template, but not immutable uploaded image digests or hosted preflight evidence. Hosted-evidence `block` rows are still the authoritative reason the benchmark is not hosted-QA-cleared.",
         "",

@@ -22,7 +22,7 @@ This generated audit checks whether the main report and README obey the claim-au
 | `blocked_phrase_context_scan` | reports_and_readme | pass | blocked-claim phrase contexts scanned across reports\metr_style_report.md, reports\concise_metr_report.md, reports\evidence_appendix.md, reports\report_source_traceability.md, and README.md; unsafe_contexts=0 | `[]` | Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work. |
 | `readme_scope_boundaries` | readme | pass | README checked for locked-benchmark, model-result, and credential-scope boundaries | `[]` | Keep the README top-level scope aligned with the report's claim authorization matrix. |
 | `limitations_cover_blockers` | main_report | pass | limitations section checked against blocked authorization themes | `[]` | Keep task-count, T4, independent-timing, provider-smoke, hosted-QA, and locked-benchmark caveats in the limitations section. |
-| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=509; markdown_table_rows=175; evidence_appendix_exists=True; evidence_appendix_line_count=1600 | `[]` | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
+| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=509; markdown_table_rows=175; evidence_appendix_exists=True; evidence_appendix_line_count=1601 | `[]` | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
 
 ## Interpretation
 

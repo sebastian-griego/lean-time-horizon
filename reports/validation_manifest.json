@@ -1,13 +1,39 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-06-01T23:26:41.957853+00:00",
+  "generated_at_utc": "2026-06-01T23:32:09.163495+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md and reports/evidence_appendix.md to avoid self-referential report hashes. The validation-manifest audit is generated after this manifest and is checked by requirement coverage rather than hashed by the manifest. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "4e538f8d4c10164a25f7e8703848fa90be782b22",
-    "dirty": false,
-    "status_short": [],
-    "status_summary_first_line": ""
+    "head": "8f9961964ae72a0d6b4065f07ba052062e72e5cd",
+    "dirty": true,
+    "status_short": [
+      " M data/claim_authorization_matrix.csv",
+      " M data/claim_evidence_audit.csv",
+      " M data/freeze_readiness_roadmap.csv",
+      " M data/hosted_qa_readiness_audit.csv",
+      " M data/release_decision_log.csv",
+      " M data/report_claim_conformance_audit.csv",
+      " M data/requirement_coverage.csv",
+      " M data/research_claim_gap_matrix.csv",
+      " M data/threats_to_validity.csv",
+      " M reports/concise_metr_report.md",
+      " M reports/evidence_appendix.md",
+      " M reports/freeze_readiness_roadmap.md",
+      " M reports/hosted_qa_readiness_audit.md",
+      " M reports/metr_style_report.md",
+      " M reports/release_decision_log.md",
+      " M reports/report_claim_conformance_audit.md",
+      " M reports/requirement_coverage.md",
+      " M reports/research_claim_gap_matrix.md",
+      " M reports/threats_to_validity.md",
+      " M scripts/audit_hosted_qa_readiness.py",
+      " M scripts/write_validation_manifest.py",
+      " M taiga/Dockerfile",
+      " M taiga/README.md",
+      " M taiga/mcp_server.py",
+      "?? scripts/generate_taiga_hidden_bundle.py"
+    ],
+    "status_summary_first_line": " M data/claim_authorization_matrix.csv"
   },
   "tool_versions": {
     "python": "3.11.9",
@@ -362,8 +388,8 @@
     {
       "path": "data/hosted_qa_readiness_audit.csv",
       "exists": true,
-      "bytes": 4640,
-      "sha256": "ab73049cc898731c1714611709402c3eb94b3dd281b0f39c19ba8c92885525c7",
+      "bytes": 4783,
+      "sha256": "2f8f1bea8c703c38aef05d5b120d504b788b3dc46cafae030952173f63372a39",
       "line_count": 13,
       "row_count": 12
     },
@@ -371,7 +397,7 @@
       "path": "data/threats_to_validity.csv",
       "exists": true,
       "bytes": 6894,
-      "sha256": "5e97198915ed7fa54ba2b53f19513c2ba81b4b2d8b0e71db06264d245c37f6aa",
+      "sha256": "1238b06551551d027d93052622052a4c8c064ef982feb4772107e31b0245d003",
       "line_count": 14,
       "row_count": 13
     },
@@ -616,7 +642,7 @@
       "path": "data/claim_evidence_audit.csv",
       "exists": true,
       "bytes": 22252,
-      "sha256": "ef73a34ecb4c7ea4775228e22a9ca89bf18c3b4b1dd644678e189caa45b018f8",
+      "sha256": "702822ffa9e59cdd3c9d6925daf11a31140a06773d50a105d31db53e8d27f94b",
       "line_count": 10,
       "row_count": 9
     },
@@ -624,7 +650,7 @@
       "path": "data/claim_authorization_matrix.csv",
       "exists": true,
       "bytes": 16554,
-      "sha256": "95297de91aff3be0778f1d6ebf41523f717094260aa9e17ac26cbd050f183360",
+      "sha256": "0b7143914c753a4ca2d75e2d9e900a3805787b3952360b2f12b416dffa3fcc5b",
       "line_count": 13,
       "row_count": 12
     },
@@ -632,7 +658,7 @@
       "path": "data/research_claim_gap_matrix.csv",
       "exists": true,
       "bytes": 16565,
-      "sha256": "d7d710440704707815893496d88b432ad72cf563d789c2d232f7b56ec894cb36",
+      "sha256": "e6b3f639797670158e869f280f847da3269ff817faf39e96f645321548da1c36",
       "line_count": 13,
       "row_count": 12
     },
@@ -640,7 +666,7 @@
       "path": "data/report_claim_conformance_audit.csv",
       "exists": true,
       "bytes": 4101,
-      "sha256": "28dac3d62aebcb603c5d8a96e052c10493abc2823cec88ab3cee98334a49f586",
+      "sha256": "8eb02bb79486b3f926df06b76d0363e4603900d3c7e812074f6c7bd898216acb",
       "line_count": 12,
       "row_count": 11
     },
@@ -712,7 +738,7 @@
       "path": "data/release_decision_log.csv",
       "exists": true,
       "bytes": 11533,
-      "sha256": "a4c2a0b5dd4d003a2643580149cdad49f564efe486d09311c4ec4e22e34f788a",
+      "sha256": "5803a2d58ecc38d5e0e006b8520cf22026c5517c4eecf7c71e63f7064c42f23d",
       "line_count": 9,
       "row_count": 8
     },
@@ -720,7 +746,7 @@
       "path": "data/freeze_readiness_roadmap.csv",
       "exists": true,
       "bytes": 12854,
-      "sha256": "015e020c191d75e1ca512a3d7633c985bfa94388eb4fbd236b3426de85415c29",
+      "sha256": "a736110f54c478541cd27c4906151b35d728b8bfcb1156ca13d9e6d886c691e5",
       "line_count": 11,
       "row_count": 10
     },
@@ -736,7 +762,7 @@
       "path": "data/requirement_coverage.csv",
       "exists": true,
       "bytes": 27708,
-      "sha256": "446351cd5853771e86ef88da1abd24383c5fed59816285436baa86552ef59b4b",
+      "sha256": "fb411f6c71e20d3d77c11d30a32b839e25558ff07dffd48eb34fb70d6ad210ab",
       "line_count": 72,
       "row_count": 71
     },
@@ -863,14 +889,14 @@
       "path": "reports/research_claim_gap_matrix.md",
       "exists": true,
       "bytes": 11700,
-      "sha256": "be572095dafe18fcda063ce79ecfcbd560293d6ae34c968acd9fa3a1a4a63bec",
+      "sha256": "8f4bd8a124affa0bec3a10383b73e908e83807ae2f3497d189ae919d4a7842d9",
       "line_count": 43
     },
     {
       "path": "reports/report_claim_conformance_audit.md",
       "exists": true,
       "bytes": 4268,
-      "sha256": "8b178ca5b885bc9c0133860eb1ab1518b541515b73366f411d45ec5b2c5d6af0",
+      "sha256": "1cf17661c9d2936beb7ed05b554549e2920fadef95a9ccfab9b2f33c68b613c5",
       "line_count": 29
     },
     {
@@ -933,21 +959,21 @@
       "path": "reports/concise_metr_report.md",
       "exists": true,
       "bytes": 18905,
-      "sha256": "21b68c4efb338d0773c22fd14da18228817797f0714eef1318997f505a9d9daf",
+      "sha256": "2f2d15db5d8a57132027c8af522b0cc1393886a942f6408aadfccc2c02db79eb",
       "line_count": 217
     },
     {
       "path": "reports/release_decision_log.md",
       "exists": true,
       "bytes": 12120,
-      "sha256": "ae156faf5c0ad2a5cd8f13e074570419598fd945cfc18bd6728ffcd606f6bdc0",
+      "sha256": "c9887958fc6ac0b506542cc08c1b60ec1c4ef3f02b77c760a6679a8211965264",
       "line_count": 25
     },
     {
       "path": "reports/freeze_readiness_roadmap.md",
       "exists": true,
       "bytes": 6174,
-      "sha256": "05ac0934e0f14d28cc5740efa3aad810322598a06f58edd43c90e63bbce596e1",
+      "sha256": "91751e5333400b0e3c317af8a8097093520bed464e2f6609c39e3d0e4199d56f",
       "line_count": 30
     },
     {
@@ -1016,30 +1042,30 @@
     {
       "path": "reports/hosted_qa_readiness_audit.md",
       "exists": true,
-      "bytes": 5091,
-      "sha256": "b35a85dd054f859e5bfca97cf053f2267af1153796d3d2ed7c8ae06871f5e6c6",
+      "bytes": 5273,
+      "sha256": "c1ed5322f78f9f7e78be03ba93a9b8438c7a4d059254f592ae99f71c04ab9cc5",
       "line_count": 32
     },
     {
       "path": "taiga/README.md",
       "exists": true,
-      "bytes": 1671,
-      "sha256": "a81eb4e7e4486bd0009638d13c26bb552356e0597302e840fd60c4fa63ddd07f",
-      "line_count": 34
+      "bytes": 1767,
+      "sha256": "5ab0b765e5efaa64305c2efbc9a7ce65ab7c452448753182458e91c231448fd3",
+      "line_count": 36
     },
     {
       "path": "taiga/Dockerfile",
       "exists": true,
-      "bytes": 1133,
-      "sha256": "42f840efb717e0fcfd41015c9354fa9eacb36d2096f6ac3caf16fae75cb7021b",
-      "line_count": 42
+      "bytes": 1481,
+      "sha256": "d3bb463691051194b209dc4f0ec17c1f5a0572672e31244afffe57eb4417e1bc",
+      "line_count": 48
     },
     {
       "path": "taiga/mcp_server.py",
       "exists": true,
-      "bytes": 7846,
-      "sha256": "ddbe3d79bffa574b80e21cca086cb483c1a781763c1b62dbb4b3e16b612044a0",
-      "line_count": 213
+      "bytes": 12424,
+      "sha256": "466e7f7205eedc42a533de03760a6ac55691eb63828a41628780a19190217c1d",
+      "line_count": 335
     },
     {
       "path": "taiga/problems_metadata.template.json",
@@ -1052,7 +1078,7 @@
       "path": "reports/threats_to_validity.md",
       "exists": true,
       "bytes": 6799,
-      "sha256": "bfe5532efb911ec9beb6bb155dac0e9043b603ab067d9cfd398bfd3013b07218",
+      "sha256": "7defee4c0b9b8e7180152bbf72ab7d00ae28dc47e7bbfa298aede8c9921cec98",
       "line_count": 32
     },
     {
@@ -1080,7 +1106,7 @@
       "path": "reports/requirement_coverage.md",
       "exists": true,
       "bytes": 24936,
-      "sha256": "29a3c1854cb608b399ad9a57201a763b277e1d14abd58e836afdcc5dead930a1",
+      "sha256": "e10476f45908db06c4420f5bacf055177deab0d6661d8455a82b8c87397a676b",
       "line_count": 93
     },
     {
@@ -1408,9 +1434,9 @@
     {
       "path": "scripts/audit_hosted_qa_readiness.py",
       "exists": true,
-      "bytes": 20041,
-      "sha256": "d20b9cb50e56325bfd0bc559fe37f3a7de943ca3f49b11a83c3465d086c719fb",
-      "line_count": 440
+      "bytes": 21145,
+      "sha256": "6607b26134b5967288b05a420c0c29b1b0220b075877947dbfa5d61e7b282db9",
+      "line_count": 457
     },
     {
       "path": "scripts/generate_taiga_problem_metadata.py",
@@ -1418,6 +1444,13 @@
       "bytes": 3728,
       "sha256": "8f309a77a488a484be7b574c4a9280fb8cf0b81967d93e8d30d5150d1847ff1f",
       "line_count": 90
+    },
+    {
+      "path": "scripts/generate_taiga_hidden_bundle.py",
+      "exists": true,
+      "bytes": 2931,
+      "sha256": "c88ea320ad4dd722c745ac85ebe00f63a613c45c98741608ddd46bf27a57a029",
+      "line_count": 86
     },
     {
       "path": "scripts/generate_threats_to_validity.py",
@@ -1513,9 +1546,9 @@
     {
       "path": "scripts/write_validation_manifest.py",
       "exists": true,
-      "bytes": 18639,
-      "sha256": "3938d00af69db45981699962ab1a4f0f773ab5b555d93bb88ee1bac00b7bdb2e",
-      "line_count": 468
+      "bytes": 18686,
+      "sha256": "c530c981f70683f21c82210dc47e04ba89f168d929655a8eb090a5f2e64c189c",
+      "line_count": 469
     }
   ]
 }

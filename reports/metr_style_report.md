@@ -402,7 +402,7 @@ Claim authorization table:
 | `frontier_model_evidence` | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
-| `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 7. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
+| `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 6. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 
 ## Report And Evidence Files
 

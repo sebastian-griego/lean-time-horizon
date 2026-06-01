@@ -650,9 +650,9 @@ Provider readiness checks:
 `reports/hosted_qa_readiness_audit.md` and `data/hosted_qa_readiness_audit.csv` distinguish local readiness, Taiga packaging-scaffold readiness, hidden-material isolation risk, and missing hosted QA evidence.
 
 - checks: `12`
-- statuses: `{"block": 7, "caution": 2, "pass": 3}`
+- statuses: `{"block": 6, "caution": 3, "pass": 3}`
 - areas: `{"hosted_evidence": 6, "hosted_packaging": 4, "local_prerequisite": 2}`
-- blocked hosted-QA steps: `7`
+- blocked hosted-QA steps: `6`
 - failing local readiness checks: `0`
 
 `caution` packaging rows mean a local scaffold exists but lacks immutable uploaded image digests or hosted preflight evidence. `block` rows are expected before upload and do not count as generated-script failures. They are evidence that problem-version records, Full Env QA, Env Linter rows, and finding dispositions have not happened and must not be claimed.
@@ -666,7 +666,7 @@ Hosted QA readiness checks:
 | `taiga_container_artifact` | hosted_packaging | caution | A candidate Dockerfile is committed, but no uploaded immutable image digest or hosted preflight result is committed. | Build and upload the container, then record the immutable image digest and hosted preflight result before upgrading this to hosted evidence. |
 | `taiga_problem_metadata` | hosted_packaging | caution | Generated problems-metadata covers the public release task set but still uses placeholder image values. | Replace placeholder image values with immutable uploaded image digests and commit hosted problem-version IDs after upload. |
 | `mcp_hooks` | hosted_packaging | pass | A local wrapper with setup_problem and grade_problem is present and syntactically valid; Taiga preflight has not run it. | Run Taiga local tunnel/preflight against the wrapper and record exact failures or pass evidence. |
-| `hidden_material_isolation` | hosted_packaging | block | The scaffold documents the risk, but the candidate Dockerfile still copies the full repo and no hosted tool-isolation proof is committed. | Before upload, split public workdir material from grader-private files or enforce unreadable permissions, then verify with hosted preflight/Env Linter evidence. |
+| `hidden_material_isolation` | hosted_packaging | caution | The scaffold removes task sources after creating an in-memory hidden-pin bundle path, but no hosted tool-isolation proof is committed. | Before upload, verify with hosted preflight/Env Linter that filesystem tools cannot read hidden references, hidden pins, wrong submissions, or the transient bundle. |
 | `problem_version_evidence` | hosted_evidence | block | No hosted problem-version evidence is committed. | After upload, record environment, problem, problem-version, image digest, and snapshot IDs. |
 | `hosted_preflight_or_stage1` | hosted_evidence | block | No hosted preflight or Stage 1 rows are committed. | Run Taiga preflight/Stage 1 checks and record warning/error/critical findings. |
 | `transcript_health_or_full_env_qa` | hosted_evidence | block | No Transcript Health or Full Env QA result rows are committed. | Run Full Env QA after hosted smoke runs and record result IDs and findings. |
@@ -701,7 +701,7 @@ Threat register:
 | `frontier_performance_undercoverage` | external_validity | high | block | accepted-core non-infra provider rows=1; accepted tasks=6 | Run documented frontier/open-model sweeps across the accepted scaffold plan with model versions and transcripts. | frontier_performance;locked_benchmark |
 | `statistical_power_and_plots` | statistical_validity | high | block | statistical audit rows=9; blocked outputs=5 | Populate the planned sweep and accepted task count before generating scaffold, family, and bucket performance plots. | scaffold_effects;frontier_performance;family_level_performance |
 | `failure_taxonomy_forecast` | internal_validity | medium | caution | accepted-core non-infra provider rows=1; transcript review queue rows=3; single-review rows=3; review-audit failures=0; high/critical queue rows=1 | Label real model transcripts after the scaffold sweep, use independent adjudication for disagreements, and compare observed failures to intended diagnostic modes. | diagnostic_failure_distribution;scaffold_effects |
-| `hosted_environment_gap` | operational_validity | high | block | hosted readiness rows=12; blocked hosted-QA steps=7 | Prove hidden-material isolation, replace template image placeholders with immutable uploaded digests, run Full Env QA/Env Linter on exact problem versions, and commit findings/dispositions. | locked_benchmark;deployment_reliability |
+| `hosted_environment_gap` | operational_validity | high | block | hosted readiness rows=12; blocked hosted-QA steps=6 | Prove hidden-material isolation, replace template image placeholders with immutable uploaded digests, run Full Env QA/Env Linter on exact problem versions, and commit findings/dispositions. | locked_benchmark;deployment_reliability |
 | `secret_and_runner_boundary` | operational_security | medium | controlled | provider readiness failures=0; model-sweep command key-assignment leaks=0 | Repeat secret scans before every commit that touches runner or transcript files. | artifact_security;provider_run_reproducibility |
 | `public_export_hidden_leakage` | operational_security | high | controlled | public_tasks exists=True; hidden/wrong paths in export=0 | Validate the public export after every task-asset or export-script change. | public_release_safety;locked_benchmark |
 
@@ -868,7 +868,7 @@ Claim-conformance checks:
 | `blocked_phrase_context_scan` | reports_and_readme | pass | blocked-claim phrase contexts scanned across reports\metr_style_report.md, reports\concise_metr_report.md, reports\evidence_appendix.md, reports\report_source_traceability.md, and README.md; unsafe_contexts=0 | Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work. |
 | `readme_scope_boundaries` | readme | pass | README checked for locked-benchmark, model-result, and credential-scope boundaries | Keep the README top-level scope aligned with the report's claim authorization matrix. |
 | `limitations_cover_blockers` | main_report | pass | limitations section checked against blocked authorization themes | Keep task-count, T4, independent-timing, provider-smoke, hosted-QA, and locked-benchmark caveats in the limitations section. |
-| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=509; markdown_table_rows=175; evidence_appendix_exists=True; evidence_appendix_line_count=1600 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
+| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=509; markdown_table_rows=175; evidence_appendix_exists=True; evidence_appendix_line_count=1601 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
 
 
 ## Report Shape Audit
@@ -1086,7 +1086,7 @@ Partial or unmet requirements:
 | `frontier_model_evidence` | runs | required_for_locked_benchmark | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | calibration | required_for_locked_benchmark | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | calibration | required_for_locked_benchmark | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
-| `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 7. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
+| `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 6. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 
 
 ## Reproducibility Checklist
@@ -1238,9 +1238,9 @@ Clean workspace replay ledger:
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T23:26:41.957853+00:00`
+Generated at UTC: `2026-06-01T23:32:09.163495+00:00`
 
-Git branch/head at generation: `main` / `4e538f8d4c10`. Worktree status at generation: `clean`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `8f9961964ae7`. Worktree status at generation: `25 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -1369,8 +1369,8 @@ Key artifact hashes:
 | `data/wilson_precision_table.csv` | `70f8b9f29aaf` | 18 | 829 |
 | `data/statistical_reporting_audit.csv` | `dbafbce2a5ad` | 9 | 4740 |
 | `data/provider_readiness_audit.csv` | `391398d0edb7` | 12 | 5378 |
-| `data/hosted_qa_readiness_audit.csv` | `ab73049cc898` | 12 | 4640 |
-| `data/threats_to_validity.csv` | `5e97198915ed` | 13 | 6894 |
+| `data/hosted_qa_readiness_audit.csv` | `2f8f1bea8c70` | 12 | 4783 |
+| `data/threats_to_validity.csv` | `1238b0655155` | 13 | 6894 |
 | `data/threat_coverage_audit.csv` | `babdabd5070c` | 4 | 2834 |
 | `data/transcript_review_queue.csv` | `ae3cbf568c1e` | 3 | 1347 |
 | `data/failure_label_review_template.csv` | `737dcc43903c` | 3 | 373 |
@@ -1401,10 +1401,10 @@ Key artifact hashes:
 | `data/pin_coverage_audit.csv` | `8ab31ee39037` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
 | `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `ef73a34ecb4c` | 9 | 22252 |
-| `data/claim_authorization_matrix.csv` | `95297de91aff` | 12 | 16554 |
-| `data/research_claim_gap_matrix.csv` | `d7d710440704` | 12 | 16565 |
-| `data/report_claim_conformance_audit.csv` | `28dac3d62aeb` | 11 | 4101 |
+| `data/claim_evidence_audit.csv` | `702822ffa9e5` | 9 | 22252 |
+| `data/claim_authorization_matrix.csv` | `0b7143914c75` | 12 | 16554 |
+| `data/research_claim_gap_matrix.csv` | `e6b3f6397976` | 12 | 16565 |
+| `data/report_claim_conformance_audit.csv` | `8eb02bb79486` | 11 | 4101 |
 | `data/report_source_traceability.csv` | `f68cdd76dbef` | 33 | 14906 |
 | `data/regeneration_command_consistency.csv` | `60bf8fa5fedc` | 4 | 1537 |
 | `data/report_shape_audit.csv` | `162dd3825949` | 7 | 3350 |
@@ -1413,10 +1413,10 @@ Key artifact hashes:
 | `data/data_schema_manifest.csv` | `706683d1f73c` | 9 | 3823 |
 | `data/reviewer_reproduction_steps.csv` | `bdc661a24ba8` | 16 | 9264 |
 | `data/clean_workspace_replay.csv` | `be2899712c87` | 7 | 3641 |
-| `data/release_decision_log.csv` | `a4c2a0b5dd4d` | 8 | 11533 |
-| `data/freeze_readiness_roadmap.csv` | `015e020c191d` | 10 | 12854 |
+| `data/release_decision_log.csv` | `5803a2d58ecc` | 8 | 11533 |
+| `data/freeze_readiness_roadmap.csv` | `a736110f54c4` | 10 | 12854 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `446351cd5853` | 71 | 27708 |
+| `data/requirement_coverage.csv` | `fb411f6c71e2` | 71 | 27708 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/candidate_pruning_audit.md` | `07b1cb1ed464` |  | 7227 |
@@ -1434,8 +1434,8 @@ Key artifact hashes:
 | `reports/grader_hardening_audit.md` | `b543474dd490` |  | 4073 |
 | `reports/claim_evidence_audit.md` | `5cd2c5a4f8b4` |  | 6738 |
 | `reports/claim_authorization_matrix.md` | `f2efb00e0b08` |  | 7893 |
-| `reports/research_claim_gap_matrix.md` | `be572095dafe` |  | 11700 |
-| `reports/report_claim_conformance_audit.md` | `8b178ca5b885` |  | 4268 |
+| `reports/research_claim_gap_matrix.md` | `8f4bd8a124af` |  | 11700 |
+| `reports/report_claim_conformance_audit.md` | `1cf17661c9d2` |  | 4268 |
 | `reports/report_source_traceability.md` | `eb3fdfb4c846` |  | 15667 |
 | `reports/regeneration_command_consistency.md` | `d3ea32d278ad` |  | 2166 |
 | `reports/report_shape_audit.md` | `c5a11554e4ae` |  | 3373 |
@@ -1444,9 +1444,9 @@ Key artifact hashes:
 | `reports/data_schema_manifest.md` | `a23c90d22ad4` |  | 4381 |
 | `reports/reviewer_reproduction_packet.md` | `bed850ff6e5e` |  | 5931 |
 | `reports/clean_workspace_replay.md` | `a7727d6727df` |  | 2739 |
-| `reports/concise_metr_report.md` | `21b68c4efb33` |  | 18905 |
-| `reports/release_decision_log.md` | `ae156faf5c0a` |  | 12120 |
-| `reports/freeze_readiness_roadmap.md` | `05ac0934e0f1` |  | 6174 |
+| `reports/concise_metr_report.md` | `2f2d15db5d8a` |  | 18905 |
+| `reports/release_decision_log.md` | `c9887958fc6a` |  | 12120 |
+| `reports/freeze_readiness_roadmap.md` | `91751e533340` |  | 6174 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
@@ -1456,16 +1456,16 @@ Key artifact hashes:
 | `reports/statistical_analysis_plan.md` | `b62e2034bd60` |  | 4710 |
 | `reports/statistical_reporting_audit.md` | `16c69a8d8e03` |  | 3813 |
 | `reports/provider_readiness_audit.md` | `01f5dc9a1da2` |  | 6359 |
-| `reports/hosted_qa_readiness_audit.md` | `b35a85dd054f` |  | 5091 |
-| `taiga/README.md` | `a81eb4e7e448` |  | 1671 |
-| `taiga/Dockerfile` | `42f840efb717` |  | 1133 |
-| `taiga/mcp_server.py` | `ddbe3d79bffa` |  | 7846 |
+| `reports/hosted_qa_readiness_audit.md` | `c1ed5322f78f` |  | 5273 |
+| `taiga/README.md` | `5ab0b765e5ef` |  | 1767 |
+| `taiga/Dockerfile` | `d3bb46369105` |  | 1481 |
+| `taiga/mcp_server.py` | `466e7f7205ee` |  | 12424 |
 | `taiga/problems_metadata.template.json` | `f8ecbc2eeaba` |  | 14677 |
-| `reports/threats_to_validity.md` | `bfe5532efb91` |  | 6799 |
+| `reports/threats_to_validity.md` | `7defee4c0b9b` |  | 6799 |
 | `reports/threat_coverage_audit.md` | `9354eebeb039` |  | 3415 |
 | `reports/transcript_review_packet.md` | `58c5e52bf1b5` |  | 4276 |
 | `reports/failure_label_review_audit.md` | `b8aa8b111870` |  | 2775 |
-| `reports/requirement_coverage.md` | `29a3c1854cb6` |  | 24936 |
+| `reports/requirement_coverage.md` | `e10476f45908` |  | 24936 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -1512,8 +1512,9 @@ Key artifact hashes:
 | `scripts/audit_model_evidence_provenance.py` | `f97a3d01f536` |  | 14136 |
 | `scripts/audit_statistical_reporting.py` | `62d3992d0214` |  | 14208 |
 | `scripts/audit_provider_readiness.py` | `721efbd15df9` |  | 19841 |
-| `scripts/audit_hosted_qa_readiness.py` | `d20b9cb50e56` |  | 20041 |
+| `scripts/audit_hosted_qa_readiness.py` | `6607b26134b5` |  | 21145 |
 | `scripts/generate_taiga_problem_metadata.py` | `8f309a77a488` |  | 3728 |
+| `scripts/generate_taiga_hidden_bundle.py` | `c88ea320ad4d` |  | 2931 |
 | `scripts/generate_threats_to_validity.py` | `2ebd94b4935a` |  | 20148 |
 | `scripts/audit_threat_coverage.py` | `e67a9460521e` |  | 11521 |
 | `scripts/generate_transcript_review_packet.py` | `d65df15a3994` |  | 10925 |
@@ -1527,7 +1528,7 @@ Key artifact hashes:
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `5941c1285ef9` |  | 2425 |
 | `scripts/audit_validation_manifest.py` | `c3257994e172` |  | 14669 |
-| `scripts/write_validation_manifest.py` | `3938d00af69d` |  | 18639 |
+| `scripts/write_validation_manifest.py` | `c530c981f706` |  | 18686 |
 
 
 ## Validation Manifest Audit
@@ -1545,11 +1546,11 @@ Validation manifest audit rows:
 | --- | --- | --- | --- | --- |
 | `schema_and_policy_note` | manifest_schema | pass | schema_version=1; generated_at_present=True; tool_versions_present=True; policy_note_present=True | The manifest records generation-time state and intentionally omits self-referential main-report hashes. |
 | `regeneration_command_coverage` | commands | pass | commands=82; required=36; missing=[] | Command coverage proves the intended local gate is listed, not that it was run on a clean hosted environment. |
-| `artifact_hash_integrity` | artifact_hashes | pass | artifacts=183; checked_hashes=183; hash_mismatches=0; missing_recorded_paths=0; examples=[] | The manifest hashes generated local artifacts but intentionally avoids self-referential report hashes. |
-| `artifact_inventory_coverage` | artifact_hashes | pass | inventory_candidates=167; recorded_artifacts=183; allowed_unhashed=5; missing_inventory=0; examples=[] | The inventory check covers data CSVs, report markdown, and scripts. It intentionally excludes self-referential final reports, the validation-manifest audit output, and the progress log. |
+| `artifact_hash_integrity` | artifact_hashes | pass | artifacts=184; checked_hashes=184; hash_mismatches=0; missing_recorded_paths=0; examples=[] | The manifest hashes generated local artifacts but intentionally avoids self-referential report hashes. |
+| `artifact_inventory_coverage` | artifact_hashes | pass | inventory_candidates=168; recorded_artifacts=184; allowed_unhashed=5; missing_inventory=0; examples=[] | The inventory check covers data CSVs, report markdown, and scripts. It intentionally excludes self-referential final reports, the validation-manifest audit output, and the progress log. |
 | `self_reference_boundary` | artifact_hashes | pass | main_report_omitted=True; evidence_appendix_omitted=True; policy_note_mentions_omission=True | The main report and appendix are regenerated after manifest writing and therefore cannot be hashed by the manifest without circularity. |
 | `public_export_snapshot` | public_export | pass | configured=True; exists=True; task_count=14; hidden_or_wrong_path_count=0 | This is a local public-export snapshot, not hosted QA evidence. |
-| `git_snapshot_policy` | git_state | pass | dirty=False; status_entries=0; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
+| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=25; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
 | `summary_count_snapshot` | counts | pass | task_count=26; acceptance_status_counts={"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}; run_rows=69; local_qa_rows=66; model_rows=3 | Count snapshots are local evidence and do not imply benchmark-scale sufficiency. |
 
 
