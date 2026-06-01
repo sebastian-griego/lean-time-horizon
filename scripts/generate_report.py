@@ -1675,7 +1675,204 @@ The next step is to add more high-quality T2/T3/T4 tasks, run independent human 
 """,
         encoding="utf-8",
     )
-    print(f"wrote {report.relative_to(ROOT)} and figures under {figures.relative_to(ROOT)}")
+    detailed_report_text = report.read_text(encoding="utf-8")
+    appendix = ROOT / "reports" / "evidence_appendix.md"
+    appendix.write_text(
+        detailed_report_text.replace(
+            "# Lean Time-Horizon Benchmark v0.1 Report",
+            "# Lean Time-Horizon Benchmark v0.1 Evidence Appendix",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    provider_versions = sorted({
+        f"{row.get('model', '')}:{row.get('model_version', '')}"
+        for row in model_rows
+        if row.get("model") and row.get("model_version")
+    })
+    requirement_counts = Counter(row.get("status", "unknown") for row in requirement_rows)
+    authorization_counts = Counter(row.get("authorization_status", "unknown") for row in claim_authorization_rows)
+    release_gate_counts = Counter(row.get("status", "unknown") for row in release_decision_rows)
+    freeze_gate_counts = Counter(row.get("roadmap_status", "unknown") for row in freeze_readiness_rows)
+    gap_rows = [row for row in requirement_rows if row.get("status") != "supported"]
+    gap_lines = [
+        "| requirement | status | evidence | next step |",
+        "| --- | --- | --- | --- |",
+    ]
+    for row in gap_rows:
+        gap_lines.append(
+            f"| `{row.get('requirement_id', '')}` | {row.get('status', '')} | "
+            f"{row.get('evidence', '').replace('|', '/')} | "
+            f"{row.get('gap_or_next_step', '').replace('|', '/')} |"
+        )
+
+    report.write_text(
+        f"""# Lean Time-Horizon Benchmark v0.1 Report
+
+## Abstract
+
+This repository is a v0.1 Lean time-horizon evaluation artifact for studying how far models get on realistic formalization and verification tasks as task horizon increases. It is not a locked benchmark. The release set contains {len(accepted)} accepted core tasks and {len(calibration)} calibration-only tasks. The remaining {len(rejected)} tasks are retained as a rejected archive, and {len(pending)} tasks remain pending review.
+
+The accepted core set has limited task count, author-estimated human times, and only tiny smoke-model evidence. The original task batch was downgraded because many rows were dominated by `rfl`, `simp`, `omega`, `cases`, or one obvious library lemma. v0.1 keeps downgraded rows out of benchmark statistics unless they serve a calibration role.
+
+## Reader Guide
+
+This is the main research report. It keeps the narrative, methods, claim boundaries, and blocker summary in one skimmable file. `reports/concise_metr_report.md` is the shortest reviewer-facing summary. `reports/evidence_appendix.md` is the generated evidence appendix with long audit tables, hashes, command lists, and row-level ledgers.
+
+## Research Questions
+
+1. Can a model recover the intended Lean proof or formalization from a public prompt and scaffold?
+2. Which failures are diagnostic of time-horizon bottlenecks such as semantic formalization, theorem decomposition, proof debugging, codebase navigation, invariant design, or library/API search?
+3. How much do scaffold affordances change outcomes, especially lookup and iterative compile/debug attempts?
+
+The current artifact can support local task/grader validity review. It cannot yet answer the third question empirically because committed provider evidence covers only a tiny one-shot smoke sample.
+
+## Unit Of Analysis And Scoring
+
+The unit of analysis is a `(task, model, scaffold, k)` row. A task attempt is scored as pass only if the submitted Lean file passes forbidden-construct scanning, public Lean compilation, hidden `PinCheck.lean`, and axiom audit on the metadata-listed declarations.
+
+`successes_out_of_k` is the number of successful attempts among the allowed attempts for that row. `pass_at_k` is binary for that task row: `1.0` if any attempt succeeds and `0.0` otherwise. Local QA rows for reference solutions and wrong submissions are validation evidence, not model performance.
+
+## Task Selection Protocol
+
+Task status is assigned by metadata, not by directory alone:
+
+- `accepted_v0`: core task retained after manual review and local validation.
+- `calibration_only`: release task retained for lower-bound calibration, harness checks, or simple semantic-pin regression tests.
+- `rejected_*`: archived task retained for auditability but excluded from release claims.
+- `candidate_review_pending`: generated task not yet accepted.
+
+Acceptance requires more than a passing reference solution: wrong submissions must fail, hidden checks must test meaningful behavior where possible, metadata must include human-time and diagnostic fields, and the accepted-task review must document known limitations. Tasks can be downgraded after review even when they validate.
+
+## Accepted v0.1 Core Task Set
+
+{task_table(accepted)}
+
+## Accepted Core Evidence Matrix
+
+{evidence_table(accepted, audit_by_id)}
+
+## Calibration-Only Release Tasks
+
+{task_table(calibration)}
+
+## Portfolio Counts
+
+- acceptance statuses: `{compact_json(dict(sorted(Counter(row.get("acceptance_status", "unspecified") for row in metadata).items())))}`
+- accepted core families: `{compact_json(dict(sorted(Counter(row["family"] for row in accepted).items())))}`
+- release human-time buckets: `{compact_json(dict(sorted(Counter(row["human_time_bucket"] for row in release).items())))}`
+- requirement statuses: `{compact_json(dict(sorted(requirement_counts.items())))}`
+- claim authorizations: `{compact_json(dict(sorted(authorization_counts.items())))}`
+- release-decision gates: `{compact_json(dict(sorted(release_gate_counts.items())))}`
+- freeze-readiness gates: `{compact_json(dict(sorted(freeze_gate_counts.items())))}`
+
+## What The Tasks Measure
+
+The accepted core tasks are intended to test library/API search, theorem decomposition, semantic formalization, proof debugging, codebase navigation, invariant design, and small library construction. The calibration-only rows are retained to verify the harness, establish lower time-bucket behavior, and catch regressions in simple Lean proof generation.
+
+Capability-level claims are weak where a capability is represented by only one accepted task. The diagnostic-coverage and task-quality appendices are the row-level evidence for this claim boundary.
+
+## Human-Time Estimates
+
+Human-time buckets follow the project playbook: `T0` is 5-15 minutes, `T1` is 15-45 minutes, `T2` is 45-120 minutes, `T3` is 2-6 hours, and `T4` is 6+ hours.
+
+The p50/p90 estimates in metadata are reviewer estimates, not measured independent solves. The current accepted set has T2/T3 coverage only and no accepted T4 row.
+
+## Grader And Integrity Controls
+
+The grader is Lean-first. For each submission it copies the public files listed in `metadata.json`, replaces the submission file, scans forbidden constructs, compiles public Lean files, compiles hidden semantic pins, and audits axioms on declared targets. Accepted and calibration tasks must have at least two wrong submissions.
+
+Hidden pins check more than type signatures where possible, but they remain finite probes. The axiom policy allows only the standard Lean axioms documented in `docs/axiom_policy.md`. Source-level escape hatches such as `sorry`, `admit`, `axiom`, `constant`, `unsafe`, custom elaboration, and command execution are rejected before Lean grading.
+
+## Public Export
+
+`scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+## Scaffold And Model-Run Support
+
+The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches metadata-listed public Lean task files and installed Std/Mathlib files when available.
+
+## Model Result Analysis
+
+{model_analysis_section(model_result_summary)}
+
+## Model Evidence Provenance Audit
+
+`reports/model_evidence_provenance_audit.md` checks that committed provider rows expose model versions, `k`, transcripts, sample sizes, infra accounting, and local-QA exclusion.
+
+- provider/model versions in committed smoke rows: `{compact_json(provider_versions)}`
+- provenance audit statuses: `{compact_json(dict(sorted(Counter(row.get("status", "unknown") for row in model_evidence_provenance_rows).items())))}`
+
+## Committed Run Results
+
+{local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
+
+Accepted-core provider row summary:
+
+{model_md}
+
+All committed non-local rows:
+
+{model_run_table(model_rows)}
+
+Model-sweep infra failures: {len(infra_model_rows)}. Infra-failure rows are retained in `data/run_results.csv` and transcripts, but excluded from pass-rate summaries.
+
+No provider API credentials or runner commands are committed. To run a real smoke sweep, configure one of `OPENAI_LEAN_RUNNER`, `ANTHROPIC_LEAN_RUNNER`, `GEMINI_LEAN_RUNNER`, or `LEAN_MODEL_RUNNER` and use `scripts/run_model_sweep.py`.
+
+## Claim Authorization Matrix
+
+{claim_authorization_section(claim_authorization_rows)}
+
+## Remaining Blockers
+
+{chr(10).join(gap_lines) if gap_rows else "_No partial or unmet requirements recorded._"}
+
+## Report And Evidence Files
+
+The long generated evidence tables are intentionally outside this main report:
+
+- `reports/evidence_appendix.md`: full generated report appendix with row-level audit tables and validation manifest details.
+- `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
+- `reports/requirement_coverage.md`: requirement-by-requirement evidence.
+- `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
+- `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
+- `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
+
+## Reproducibility Checklist
+
+The local regeneration gate is recorded in `README.md` and `reports/validation_manifest.json`. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+## Claim Ledger
+
+| claim | current evidence | status |
+| --- | --- | --- |
+| Local references and wrong submissions validate as expected | `python scripts/validate_all.py`; `data/run_results.csv`; local QA transcripts | supported locally |
+| Public task export excludes hidden material | `python scripts/export_public_tasks.py --out public_tasks`; `python scripts/validate_public_export.py --out public_tasks` | supported locally |
+| Accepted core tasks are higher quality than the original pool | `reports/accepted_task_review.md`; `reports/difficulty_audit.md`; downgraded metadata statuses | supported by internal review |
+| v0.1 is a locked benchmark | independent timing, hosted QA, broader model sweeps, and freeze review are missing | not supported |
+| Reported model pass rates characterize frontier performance | only tiny smoke-sweep rows are committed | not supported |
+
+## Limitations
+
+- The v0.1 accepted core is below the 20-task target because the original pool did not meet the diagnostic-quality bar.
+- The release has limited T3 coverage and no accepted T4 stretch task yet.
+- Human-time estimates are author/reviewer estimates, not measured independent solves.
+- Hidden pins are stronger than type checks, but they remain finite semantic probes.
+- Only a tiny real provider smoke sweep is committed; it is adapter/proof-debugging evidence, not a benchmark performance claim.
+- Hosted Taiga/Env Linter QA is not represented in this local artifact.
+- The artifact is not a locked benchmark. The accepted rows still need independent human timing, broader scaffold data, and external QA before a freeze.
+
+## Before Claiming A Locked Benchmark
+
+The next step is to add more high-quality T2/T3/T4 tasks, run independent human review, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.
+""",
+        encoding="utf-8",
+    )
+    print(
+        f"wrote {report.relative_to(ROOT)}, {appendix.relative_to(ROOT)}, "
+        f"and figures under {figures.relative_to(ROOT)}"
+    )
     return 0
 
 

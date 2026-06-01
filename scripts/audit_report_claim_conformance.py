@@ -20,6 +20,7 @@ FIELDS = [
 
 MAIN_REPORT = ROOT / "reports" / "metr_style_report.md"
 CONCISE_REPORT = ROOT / "reports" / "concise_metr_report.md"
+APPENDIX_REPORT = ROOT / "reports" / "evidence_appendix.md"
 README = ROOT / "README.md"
 
 NEGATIVE_MARKERS = [
@@ -291,15 +292,21 @@ def build_rows() -> list[dict[str, str]]:
         ["reports/concise_metr_report.md", "scripts/generate_concise_report.py"],
     ))
 
-    unsafe_examples = unsafe_blocked_phrase_examples([MAIN_REPORT, CONCISE_REPORT, README])
+    unsafe_examples = unsafe_blocked_phrase_examples([MAIN_REPORT, CONCISE_REPORT, APPENDIX_REPORT, README])
     rows.append(row(
         "blocked_phrase_context_scan",
         "reports_and_readme",
         "pass" if not unsafe_examples else "fail",
-        f"blocked-claim phrase contexts scanned across {MAIN_REPORT.relative_to(ROOT)}, {CONCISE_REPORT.relative_to(ROOT)}, and {README.relative_to(ROOT)}; unsafe_contexts={len(unsafe_examples)}",
+        f"blocked-claim phrase contexts scanned across {MAIN_REPORT.relative_to(ROOT)}, {CONCISE_REPORT.relative_to(ROOT)}, {APPENDIX_REPORT.relative_to(ROOT)}, and {README.relative_to(ROOT)}; unsafe_contexts={len(unsafe_examples)}",
         unsafe_examples,
         "Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work.",
-        ["reports/metr_style_report.md", "reports/concise_metr_report.md", "README.md", "data/claim_authorization_matrix.csv"],
+        [
+            "reports/metr_style_report.md",
+            "reports/concise_metr_report.md",
+            "reports/evidence_appendix.md",
+            "README.md",
+            "data/claim_authorization_matrix.csv",
+        ],
     ))
 
     readme_ok, readme_missing = contains_all(
@@ -345,15 +352,20 @@ def build_rows() -> list[dict[str, str]]:
 
     line_count = len(main_report.splitlines())
     table_count = main_report.count("\n| ")
+    appendix_line_count = len(read_text(APPENDIX_REPORT).splitlines())
     too_long = line_count > 800
+    appendix_missing = not APPENDIX_REPORT.exists()
     rows.append(row(
         "report_length_and_appendix_boundary",
         "main_report",
-        "caution" if too_long else "pass",
-        f"main report line_count={line_count}; markdown_table_rows={table_count}",
-        [f"line_count={line_count}"] if too_long else [],
-        "The report is evidence-rich but appendix-heavy; when results mature, move long generated tables out of the main narrative.",
-        ["reports/metr_style_report.md"],
+        "pass" if not too_long and not appendix_missing else "caution",
+        (
+            f"main report line_count={line_count}; markdown_table_rows={table_count}; "
+            f"evidence_appendix_exists={APPENDIX_REPORT.exists()}; evidence_appendix_line_count={appendix_line_count}"
+        ),
+        ([f"line_count={line_count}"] if too_long else []) + (["missing evidence appendix"] if appendix_missing else []),
+        "Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md.",
+        ["reports/metr_style_report.md", "reports/evidence_appendix.md"],
     ))
     return rows
 

@@ -682,6 +682,43 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if report_ok else "Restore report generation from data CSVs.",
     ))
 
+    main_report_path = ROOT / "reports" / "metr_style_report.md"
+    appendix_path = ROOT / "reports" / "evidence_appendix.md"
+    main_report = read_text(main_report_path)
+    evidence_appendix = read_text(appendix_path)
+    main_line_count = len(main_report.splitlines())
+    appendix_line_count = len(evidence_appendix.splitlines())
+    appendix_required_phrases = [
+        "Evidence Appendix",
+        "Validation Manifest",
+        "Requirement Coverage Audit",
+        "Hidden Pin Coverage Audit",
+    ]
+    missing_appendix_phrases = [
+        phrase for phrase in appendix_required_phrases
+        if phrase.lower() not in evidence_appendix.lower()
+    ]
+    appendix_boundary_ok = (
+        main_report_path.exists()
+        and appendix_path.exists()
+        and main_line_count <= 800
+        and appendix_line_count > main_line_count
+        and not missing_appendix_phrases
+        and "reports/evidence_appendix.md" in main_report
+    )
+    requirement_rows.append(row(
+        "evidence_appendix_boundary",
+        "reporting",
+        "Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix.",
+        status_from_bool(appendix_boundary_ok, partial=main_report_path.exists() or appendix_path.exists()),
+        (
+            f"main report lines: {main_line_count}; appendix exists: {appendix_path.exists()}; "
+            f"appendix lines: {appendix_line_count}; missing appendix phrases: {compact_json(missing_appendix_phrases)}; "
+            f"main links appendix: {'reports/evidence_appendix.md' in main_report}."
+        ),
+        "No gap." if appendix_boundary_ok else "Regenerate scripts/generate_report.py and keep long generated tables in reports/evidence_appendix.md.",
+    ))
+
     concise_report_path = ROOT / "reports" / "concise_metr_report.md"
     concise_report = read_text(concise_report_path)
     concise_lines = concise_report.splitlines()

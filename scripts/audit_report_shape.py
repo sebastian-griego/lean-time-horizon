@@ -185,11 +185,12 @@ def main() -> int:
         "Is the main report skimmable?",
         "answered" if line_count <= 220 else "needs_attention",
         f"concise_report_lines={line_count}; conformance_failures={len(conformance_failures)}",
-        "The detailed evidence report remains long and should be treated as an appendix.",
-        "Keep the concise report short and keep long tables in generated appendices.",
+        "The concise report is short, and row-level generated tables live in the evidence appendix instead of the main narrative.",
+        "Keep the concise and main reports short and keep long tables in generated appendices.",
         [
             "reports/concise_metr_report.md",
             "reports/metr_style_report.md",
+            "reports/evidence_appendix.md",
             "reports/report_claim_conformance_audit.md",
         ],
     ))

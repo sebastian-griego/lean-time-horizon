@@ -354,7 +354,8 @@ def main() -> int:
         "note": (
             "This manifest is written after the local regeneration gate has passed. "
             "It hashes inputs and generated evidence files, but intentionally omits "
-            "reports/metr_style_report.md to avoid a self-referential report hash. "
+            "reports/metr_style_report.md and reports/evidence_appendix.md "
+            "to avoid self-referential report hashes. "
             "Git status is captured before the final commit, so a dirty status can "
             "reflect the in-progress report commit rather than a validation failure."
         ),
