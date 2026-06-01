@@ -233,6 +233,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     figure_manifest = read_csv(ROOT / "data" / "figure_manifest.csv")
+    data_schema_manifest = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
@@ -425,6 +426,55 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(schema_ok),
         f"Schema files present: run={((ROOT / 'data' / 'run_results_schema.json').exists())}, failure={((ROOT / 'data' / 'failure_label_schema.json').exists())}, failure_review={((ROOT / 'data' / 'failure_label_review_schema.json').exists())}, metadata={((ROOT / 'data' / 'task_metadata_schema.json').exists())}.",
         "No gap." if schema_ok else "Add or restore missing JSON schema files.",
+    ))
+
+    required_schema_manifest_ids = {
+        "task_metadata_json",
+        "task_metadata_csv_projection",
+        "run_results",
+        "failure_annotations",
+        "failure_label_reviews",
+        "human_time_observations",
+        "failure_label_codebook",
+        "derived_reporting_csv_inventory",
+    }
+    schema_manifest_ids = {row_data.get("dataset_id", "") for row_data in data_schema_manifest}
+    schema_manifest_fields = set(data_schema_manifest[0].keys()) if data_schema_manifest else set()
+    required_schema_manifest_fields = {
+        "dataset_id",
+        "path",
+        "schema_path",
+        "record_scope",
+        "row_count",
+        "column_count",
+        "required_fields_present",
+        "validation_status",
+        "error_count",
+        "error_examples",
+        "coverage_note",
+        "limitation",
+        "next_action",
+    }
+    schema_problem_rows = [
+        row_data for row_data in data_schema_manifest
+        if row_data.get("validation_status") in {"schema_error", "projection_mismatch", "codebook_gap"}
+        or row_data.get("error_count") not in {"", "0"}
+    ]
+    schema_status_counts = Counter(row_data.get("validation_status", "unknown") for row_data in data_schema_manifest)
+    data_schema_manifest_ok = (
+        bool(data_schema_manifest)
+        and required_schema_manifest_ids.issubset(schema_manifest_ids)
+        and required_schema_manifest_fields.issubset(schema_manifest_fields)
+        and not schema_problem_rows
+        and (ROOT / "reports" / "data_schema_manifest.md").exists()
+    )
+    requirement_rows.append(row(
+        "data_schema_manifest",
+        "data",
+        "Data schema manifest should validate schema-backed datasets and document generated CSV schema boundaries.",
+        status_from_bool(data_schema_manifest_ok, partial=bool(data_schema_manifest)),
+        f"schema rows: {len(data_schema_manifest)}; required datasets covered: {len(required_schema_manifest_ids & schema_manifest_ids)}/{len(required_schema_manifest_ids)}; statuses: {compact_json(dict(sorted(schema_status_counts.items())))}; problem rows: {len(schema_problem_rows)}; report exists: {(ROOT / 'reports' / 'data_schema_manifest.md').exists()}.",
+        "No gap." if data_schema_manifest_ok else "Run scripts/audit_data_schema_manifest.py and inspect schema errors, projection mismatches, or codebook gaps.",
     ))
 
     requirement_rows.append(row(

@@ -11,6 +11,7 @@ forbidden_construct_scan,integrity,Submissions should be scanned for forbidden c
 axiom_audit_policy,integrity,Axiom usage should be audited or governed by a documented policy.,required_for_release_artifact,Playbook axiom audit guidance.
 metadata_completeness,data,"Task metadata should include family, domain, human-time, skills, scaffold sensitivity, and failure modes.",required_for_release_artifact,Playbook task metadata schema.
 schemas_present,data,"Task metadata, run results, failure labels, and failure-label reviews should have schemas.",required_for_release_artifact,User data-schema requirement.
+data_schema_manifest,data,Data schema manifest should validate schema-backed datasets and document generated CSV schema boundaries.,required_for_research_report,Research-report quality requirement for data-dictionary and schema-boundary transparency.
 run_result_semantics,data,run_results should represent successes_out_of_k and pass@k consistently.,required_for_release_artifact,User pass@k semantics requirement.
 scaffold_support,scaffolds,"The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants.",required_for_release_artifact,Playbook scaffold ladder.
 lookup_scaffold_no_hidden_leak,integrity,Lookup scaffold must not expose hidden references or wrong submissions.,required_for_release_artifact,Playbook hidden-material non-leak and scaffold lookup requirements.

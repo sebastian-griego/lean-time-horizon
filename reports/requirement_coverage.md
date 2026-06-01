@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 55
+- `supported`: 56
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 38
+- `required_for_research_report` / `supported`: 39
 
 ## Coverage Table
 
@@ -33,6 +33,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `axiom_audit_policy` | integrity | required_for_release_artifact | supported | Axiom usage should be audited or governed by a documented policy. | docs/axiom_policy.md exists: True; validate_task uses #print axioms: True. | No gap. |
 | `metadata_completeness` | data | required_for_release_artifact | supported | Task metadata should include family, domain, human-time, skills, scaffold sensitivity, and failure modes. | 26 task metadata rows checked; missing fields sample: []. | No gap. |
 | `schemas_present` | data | required_for_release_artifact | supported | Task metadata, run results, failure labels, and failure-label reviews should have schemas. | Schema files present: run=True, failure=True, failure_review=True, metadata=True. | No gap. |
+| `data_schema_manifest` | data | required_for_research_report | supported | Data schema manifest should validate schema-backed datasets and document generated CSV schema boundaries. | schema rows: 8; required datasets covered: 8/8; statuses: {"codebook_valid": 1, "documented_projection": 1, "empty_ready": 2, "inventory_documented": 1, "schema_valid": 3}; problem rows: 0; report exists: True. | No gap. |
 | `run_result_semantics` | data | required_for_release_artifact | supported | run_results should represent successes_out_of_k and pass@k consistently. | 69 run-result rows checked; semantic errors sample: []. | No gap. |
 | `scaffold_support` | scaffolds | required_for_release_artifact | supported | The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants. | 3 scaffold variants configured; runner exposes lookup command: True; runner preserves requested k attempts: True; scaffold audit rows: 11; scaffold audit failures: 0. | No gap. |
 | `lookup_scaffold_no_hidden_leak` | integrity | required_for_release_artifact | supported | Lookup scaffold must not expose hidden references or wrong submissions. | lookup_roots_public_only=pass; lookup_hidden_leak_scan=pass. | No gap. |
@@ -48,9 +49,9 @@ This generated audit maps the local repository state to the committed checklist 
 | `task_asset_manifest` | reproducibility | required_for_research_report | supported | Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping. | task asset rows: 171; missing assets: 0; release public export misses: 0; hidden/wrong exported: 0; accepted wrong gaps: 0; accepted hidden gaps: 0; report exists: True. | No gap. |
 | `report_from_committed_data` | reporting | required_for_research_report | supported | The METR-style report and plots should regenerate from committed CSVs. | metr_style_report.md exists: True; generate_report reads CSV: True. | No gap. |
 | `figure_manifest_audit` | reporting | required_for_research_report | supported | Figure manifest should map generated SVGs to source CSVs allowed interpretations and blocked performance-plot overclaims. | figure rows: 10; required plots covered: 10/10; generated rows: 5; blocked performance rows: 5; problem rows: 0; report exists: True. | No gap. |
-| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 315; appendix exists: True; appendix lines: 1290; missing appendix phrases: []; main links appendix: True. | No gap. |
-| `report_source_traceability` | reporting | required_for_research_report | supported | Report source-traceability audit should map main-report sections to committed CSV report script and export evidence and check section-level boundary phrases. | traceability rows: 27; required sections covered: 25/25; failures: 0; report exists: True. | No gap. |
-| `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 186; missing required phrases: []; generator reads CSV: True. | No gap. |
+| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 338; appendix exists: True; appendix lines: 1321; missing appendix phrases: []; main links appendix: True. | No gap. |
+| `report_source_traceability` | reporting | required_for_research_report | supported | Report source-traceability audit should map main-report sections to committed CSV report script and export evidence and check section-level boundary phrases. | traceability rows: 28; required sections covered: 25/25; failures: 0; report exists: True. | No gap. |
+| `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 193; missing required phrases: []; generator reads CSV: True. | No gap. |
 | `report_shape_audit` | reporting | required_for_research_report | supported | Report-shape audit should check the concise METR-style report against the playbook questions and distinguish answered limitations from unsupported performance claims. | report-shape rows: 7; required checks covered: 7/7; needs_attention rows: 0; blocked_by_evidence rows: 2; report exists: True. | No gap. |
 | `difficulty_audit_report` | reporting | required_for_research_report | supported | Difficulty audit should include proof length, tactic profile, automation dominance, hidden-pin strength, and model-solvability estimates. | difficulty_audit rows: 26; report exists: True. | No gap. |
 | `manual_accepted_task_review` | reporting | required_for_research_report | supported | Accepted tasks should have hard reviewer-style notes and benchmark-grade caveats. | accepted_task_review.md exists: True. | No gap. |

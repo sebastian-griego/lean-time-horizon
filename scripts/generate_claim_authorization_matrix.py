@@ -162,6 +162,7 @@ def build_rows() -> list[dict[str, str]]:
         "forbidden_construct_scan",
         "axiom_audit_policy",
         "metadata_completeness",
+        "data_schema_manifest",
         "run_result_semantics",
         "scaffold_support",
         "lookup_scaffold_no_hidden_leak",
@@ -190,6 +191,7 @@ def build_rows() -> list[dict[str, str]]:
         [
             "reports/claim_evidence_audit.md",
             "reports/requirement_coverage.md",
+            "reports/data_schema_manifest.md",
             "reports/validation_manifest.json",
         ],
     ))
@@ -205,6 +207,7 @@ def build_rows() -> list[dict[str, str]]:
         ["scaffold_result_comparison", "frontier_model_evidence", "independent_human_time_review", "hosted_qa_env_linter"],
         [
             "reports/metr_style_report.md",
+            "reports/data_schema_manifest.md",
             "reports/figure_manifest.md",
             "reports/threats_to_validity.md",
             "reports/release_decision_log.md",
@@ -250,11 +253,13 @@ def build_rows() -> list[dict[str, str]]:
         "Committed run-result rows are internally consistent with transcripts, score vectors, failure labels, and pass@k arithmetic.",
         "No extra caveat is needed for this narrow data-integrity wording; add the limitation before discussing model performance.",
         "Do not infer model pass rates, scaffold effects, or failure distributions from local QA rows.",
-        f"{claim_evidence(claims, 'run_data_integrity')}; {req_evidence(reqs, 'run_integrity_audit')}; {req_evidence(reqs, 'run_result_semantics')}",
+        f"{claim_evidence(claims, 'run_data_integrity')}; {req_evidence(reqs, 'data_schema_manifest')}; {req_evidence(reqs, 'run_integrity_audit')}; {req_evidence(reqs, 'run_result_semantics')}",
         "Keep zero failing run-integrity rows after broad provider sweeps and transcript review.",
-        blocking_requirements(reqs, ["run_integrity_audit", "run_result_semantics"]).split(";") if blocking_requirements(reqs, ["run_integrity_audit", "run_result_semantics"]) else [],
+        blocking_requirements(reqs, ["data_schema_manifest", "run_integrity_audit", "run_result_semantics"]).split(";") if blocking_requirements(reqs, ["data_schema_manifest", "run_integrity_audit", "run_result_semantics"]) else [],
         [
             "data/run_results.csv",
+            "data/data_schema_manifest.csv",
+            "reports/data_schema_manifest.md",
             "reports/run_integrity_audit.md",
             "data/run_results_schema.json",
         ],

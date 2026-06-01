@@ -87,6 +87,25 @@ SECTION_SPECS = [
         "next_action": "Keep pass@k and local-QA boundaries explicit whenever run-result rows change.",
     },
     {
+        "section_id": "data_schema_manifest",
+        "heading": "Data Schema Manifest",
+        "source_artifacts": [
+            "reports/data_schema_manifest.md",
+            "data/data_schema_manifest.csv",
+            "data/run_results_schema.json",
+            "data/task_metadata_schema.json",
+            "data/failure_label_review_schema.json",
+        ],
+        "required_phrases": [
+            "schema-backed datasets",
+            "generated CSVs",
+            "problem rows",
+            "Data schema ledger",
+        ],
+        "limitation": "The data schema manifest validates row shape and schema boundaries; it does not make sample-size or benchmark-readiness claims.",
+        "next_action": "Regenerate the manifest after schema, run-result, timing, or transcript-review data changes.",
+    },
+    {
         "section_id": "task_selection",
         "heading": "Task Selection Protocol",
         "source_artifacts": [
@@ -388,6 +407,7 @@ SECTION_SPECS = [
             "reports/concise_metr_report.md",
             "reports/requirement_coverage.md",
             "reports/report_source_traceability.md",
+            "reports/data_schema_manifest.md",
             "reports/failure_label_review_audit.md",
             "reports/statistical_analysis_plan.md",
             "reports/figure_manifest.md",
@@ -396,6 +416,7 @@ SECTION_SPECS = [
             "evidence_appendix.md",
             "concise_metr_report.md",
             "requirement_coverage.md",
+            "data_schema_manifest.md",
             "failure_label_review_audit.md",
             "statistical_analysis_plan.md",
             "figure_manifest.md",

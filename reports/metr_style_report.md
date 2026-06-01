@@ -24,6 +24,28 @@ The unit of analysis is a `(task, model, scaffold, k)` row. A task attempt is sc
 
 `successes_out_of_k` is the number of successful attempts among the allowed attempts for that row. `pass_at_k` is binary for that task row: `1.0` if any attempt succeeds and `0.0` otherwise. Local QA rows for reference solutions and wrong submissions are validation evidence, not model performance.
 
+## Data Schema Manifest
+
+`reports/data_schema_manifest.md` and `data/data_schema_manifest.csv` validate schema-backed datasets and document where generated CSVs are governed by producer scripts rather than standalone JSON schemas.
+
+- dataset rows: `8`
+- validation statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 2, "inventory_documented": 1, "schema_valid": 3}`
+- problem rows: `0`
+
+Data schema ledger:
+
+| dataset | status | rows | schema | limitation | next action |
+| --- | --- | ---: | --- | --- | --- |
+| `task_metadata_json` | schema_valid | 26 | `data/task_metadata_schema.json` | The aggregate CSV is a generated projection and intentionally omits some grader-only metadata fields. | Keep metadata.json as the source of truth and rerun validate_all.py after metadata edits. |
+| `task_metadata_csv_projection` | documented_projection | 26 | `data/task_metadata_schema.json` | This CSV is not the full schema-bearing metadata record; use metadata.json for hidden grading declarations and task-specific bans. | If report columns change, update validate_all.py and this manifest together. |
+| `run_results` | schema_valid | 69 | `data/run_results_schema.json` | Schema validation does not prove sample-size adequacy or model-result representativeness. | Run scripts/audit_run_integrity.py after edits to check transcript and arithmetic semantics. |
+| `failure_annotations` | empty_ready | 0 | `data/failure_label_schema.json` | Empty adjudication data cannot support failure-distribution claims. | Populate after broad provider sweeps and independent transcript review. |
+| `failure_label_reviews` | schema_valid | 3 | `data/failure_label_review_schema.json` | These are single-review smoke rows, not independent distributional adjudication. | Use the transcript review packet and adjudication fields for future broad sweeps. |
+| `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
+| `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
+| `derived_reporting_csv_inventory` | inventory_documented | 50 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+
+
 ## Task Selection Protocol
 
 Task status is assigned by metadata, not by directory alone:
@@ -75,7 +97,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 55}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 56}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -278,6 +300,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
+- `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.

@@ -411,6 +411,41 @@ Wilson precision ledger for assumed `p=0.5`:
 """
 
 
+def data_schema_manifest_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/data_schema_manifest.md` has not been generated yet. Run "
+            "`python scripts/audit_data_schema_manifest.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("validation_status", "unknown") for row in rows)
+    problem_rows = [
+        row for row in rows
+        if row.get("validation_status") in {"schema_error", "projection_mismatch", "codebook_gap"}
+        or row.get("error_count") not in {"", "0"}
+    ]
+    lines = [
+        "| dataset | status | rows | schema | limitation | next action |",
+        "| --- | --- | ---: | --- | --- | --- |",
+    ]
+    for row in rows:
+        limitation = row.get("limitation", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('dataset_id', '')}` | {row.get('validation_status', '')} | "
+            f"{row.get('row_count', '')} | `{row.get('schema_path', '')}` | {limitation} | {action} |"
+        )
+    return f"""`reports/data_schema_manifest.md` and `data/data_schema_manifest.csv` validate schema-backed datasets and document where generated CSVs are governed by producer scripts rather than standalone JSON schemas.
+
+- dataset rows: `{len(rows)}`
+- validation statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- problem rows: `{len(problem_rows)}`
+
+Data schema ledger:
+
+{chr(10).join(lines)}
+"""
+
+
 def figure_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1486,6 +1521,7 @@ def main() -> int:
     research_claim_gap_rows = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     report_claim_conformance_rows = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     report_shape_rows = read_csv(ROOT / "data" / "report_shape_audit.csv")
+    data_schema_manifest_rows = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1590,6 +1626,10 @@ The unit of analysis is a `(task, model, scaffold, k)` row. A task attempt is sc
 - passes axiom audit on the metadata-listed declarations.
 
 `successes_out_of_k` is the number of successful attempts among the allowed attempts for that row. `pass_at_k` is binary for that task row: `1.0` if any attempt succeeds and `0.0` otherwise. Local QA rows for reference solutions and wrong submissions are validation evidence, not model performance.
+
+## Data Schema Manifest
+
+{data_schema_manifest_section(data_schema_manifest_rows)}
 
 ## Task Selection Protocol
 
@@ -1849,6 +1889,7 @@ python scripts/audit_model_evidence_provenance.py
 python scripts/generate_report.py
 python scripts/audit_statistical_reporting.py
 python scripts/audit_figure_manifest.py
+python scripts/audit_data_schema_manifest.py
 python scripts/audit_provider_readiness.py
 python scripts/generate_report.py
 python scripts/audit_report_source_traceability.py
@@ -1994,6 +2035,10 @@ The unit of analysis is a `(task, model, scaffold, k)` row. A task attempt is sc
 
 `successes_out_of_k` is the number of successful attempts among the allowed attempts for that row. `pass_at_k` is binary for that task row: `1.0` if any attempt succeeds and `0.0` otherwise. Local QA rows for reference solutions and wrong submissions are validation evidence, not model performance.
 
+## Data Schema Manifest
+
+{data_schema_manifest_section(data_schema_manifest_rows)}
+
 ## Task Selection Protocol
 
 Task status is assigned by metadata, not by directory alone:
@@ -2108,6 +2153,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
+- `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.

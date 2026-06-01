@@ -138,6 +138,7 @@ def main() -> int:
     run_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
+    data_schema_manifest = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     grader = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
@@ -155,6 +156,12 @@ def main() -> int:
     release_counts = Counter(row.get("status", "unknown") for row in release_decisions)
     freeze_counts = Counter(row.get("roadmap_status", "unknown") for row in freeze)
     integrity_failures = sum(1 for row in run_integrity if row.get("integrity_status") == "fail")
+    schema_status_counts = Counter(row.get("validation_status", "unknown") for row in data_schema_manifest)
+    schema_problem_rows = sum(
+        1 for row in data_schema_manifest
+        if row.get("validation_status") in {"schema_error", "projection_mismatch", "codebook_gap"}
+        or row.get("error_count") not in {"", "0"}
+    )
     grader_failures = sum(1 for row in grader if row.get("status") == "fail")
     failure_review_failures = sum(1 for row in failure_label_review_audit if row.get("status") == "fail")
     accepted_without_timing = sum(
@@ -256,6 +263,8 @@ def main() -> int:
         "The grader is Lean-first: submissions must pass forbidden-construct scanning, public compilation, hidden `PinCheck.lean`, and axiom auditing. Local QA rows validate reference solutions and wrong submissions; they are not model performance.",
         "",
         f"- run-integrity failures: `{integrity_failures}`",
+        f"- data-schema manifest statuses: `{compact_json(dict(sorted(schema_status_counts.items())))}`",
+        f"- data-schema problem rows: `{schema_problem_rows}`",
         f"- grader-hardening failures: `{grader_failures}`",
         "- public export validator checks hidden/wrong files are absent from `public_tasks`.",
         "- hidden pins are meaningful finite probes, not proof of full semantic equivalence.",
@@ -285,6 +294,7 @@ def main() -> int:
         "",
         "- `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.",
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
+        "- `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.",
         "- `reports/research_claim_gap_matrix.md` records the evidence packages needed before stronger claims are allowed.",
         "- `reports/statistical_analysis_plan.md` records minimum evidence thresholds, blocked overclaim wording, and Wilson precision limits before broader model sweeps.",
         "- `reports/figure_manifest.md` maps generated figures to source data and records blocked performance plots.",
@@ -320,7 +330,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

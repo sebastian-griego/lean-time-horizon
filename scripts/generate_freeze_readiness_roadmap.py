@@ -175,6 +175,7 @@ def build_rows() -> list[dict[str, str]]:
         "Local validation, public export, run-integrity, grader-hardening, and claim-evidence artifacts are present.",
         "; ".join([
             requirement(requirements, "public_export_no_hidden_leak"),
+            requirement(requirements, "data_schema_manifest"),
             requirement(requirements, "run_integrity_audit"),
             requirement(requirements, "grader_hardening_audit"),
         ]),
