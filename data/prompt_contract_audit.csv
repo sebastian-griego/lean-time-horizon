@@ -1,0 +1,15 @@
+task_id,split,acceptance_status,family,status,prompt_checks_passed,prompt_checks_total,runner_supplied_fields,missing_or_caution_fields,leak_patterns_found,notes
+lt-001,dev,calibration_only,algorithm_correctness,caution,11,11,"[""attempt_limit"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-002,dev,calibration_only,algorithm_correctness,caution,11,11,"[""attempt_limit"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-003,dev,calibration_only,proof_repair_codebase,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-004,dev,calibration_only,informal_spec_to_formal,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-201,dev,accepted_v0,proof_repair_codebase,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-203,dev,accepted_v0,informal_spec_to_formal,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-101,test,calibration_only,algorithm_correctness,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-105,test,calibration_only,proof_repair_codebase,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-107,test,calibration_only,informal_spec_to_formal,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-108,test,calibration_only,informal_spec_to_formal,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-202,test,accepted_v0,direct_theorem_proving,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-204,test,accepted_v0,invariant_verification_ml_optimization,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-205,test,accepted_v0,small_formal_library_construction,caution,11,11,"[""attempt_limit"", ""submission_format"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.
+lt-206,test,accepted_v0,algorithm_correctness,caution,11,11,"[""attempt_limit"", ""tool_affordance""]",[],[],Prompt contract is evaluated against Prompt.md plus runner scaffold wrapper.

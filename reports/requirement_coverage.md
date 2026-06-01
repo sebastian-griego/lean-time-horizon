@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 30
+- `supported`: 31
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 13
+- `required_for_research_report` / `supported`: 14
 
 ## Coverage Table
 
@@ -25,6 +25,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `mixed_realistic_portfolio` | portfolio | required_for_locked_benchmark | supported | Task families should be mixed and not mostly direct theorem proving. | Accepted family counts: {"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}. | No gap. |
 | `time_horizon_spread` | portfolio | required_for_locked_benchmark | partial | Accepted tasks should span increasing human-time horizons, not only T0/T1/T2 calibration. | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
 | `public_prompts_scaffolds` | assets | required_for_release_artifact | supported | Each release task should include public prompt and public Lean scaffold files. | Release assets: 14/14 prompts; 14/14 public-file sets. | No gap. |
+| `prompt_contract_audit` | reporting | required_for_research_report | supported | Prompt contract audit should check release prompts for edit scope theorem/import policy helper-lemma policy forbidden constructs submission format tool affordance and hidden-material leaks. | prompt contract rows: 14; release rows: 14; failures: 0; leak rows: 0; report exists: True. | No gap. |
 | `hidden_references_pins` | grading | required_for_release_artifact | supported | Each release task should have hidden reference proof and hidden semantic PinCheck. | Release hidden assets: 14/14 references; 14/14 PinCheck files. | No gap. |
 | `wrong_submission_controls` | grading | required_for_release_artifact | supported | Accepted tasks should include plausible wrong submissions that fail for meaningful reasons. | Accepted tasks with at least two wrong submissions: 6/6. | No gap. |
 | `automatic_lean_scoring` | grading | required_for_release_artifact | supported | Scoring should use Lean wherever possible and provide validation commands. | validate_task.py exists: True; validation command rows: 66. | No gap. |

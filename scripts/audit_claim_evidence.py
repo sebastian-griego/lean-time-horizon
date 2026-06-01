@@ -133,6 +133,7 @@ def build_rows() -> list[dict[str, str]]:
         "run_integrity_audit",
         "release_decision_log",
         "scaffold_support_audit",
+        "prompt_contract_audit",
         "task_asset_manifest",
         "reproducibility_manifest",
     ]
@@ -160,7 +161,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, task-asset hashes, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, task-asset hashes, prompt-contract checks, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",

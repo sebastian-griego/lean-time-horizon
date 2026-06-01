@@ -515,6 +515,47 @@ Accepted task asset coverage:
 """
 
 
+def prompt_contract_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/prompt_contract_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_prompt_contracts.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    runner_counts: Counter[str] = Counter()
+    missing_counts: Counter[str] = Counter()
+    leak_rows = [row for row in rows if row.get("leak_patterns_found") != "[]"]
+    failures = [row for row in rows if row.get("status") == "fail"]
+    for row in rows:
+        runner_counts.update(parse_list(row.get("runner_supplied_fields", "")))
+        missing_counts.update(parse_list(row.get("missing_or_caution_fields", "")))
+    table_lines = [
+        "| task | status | checks | runner-supplied fields | missing/caution fields | leaks |",
+        "| --- | --- | ---: | --- | --- | --- |",
+    ]
+    for row in rows:
+        table_lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('status', '')} | "
+            f"{row.get('prompt_checks_passed', '')}/{row.get('prompt_checks_total', '')} | "
+            f"`{row.get('runner_supplied_fields', '')}` | "
+            f"`{row.get('missing_or_caution_fields', '')}` | "
+            f"`{row.get('leak_patterns_found', '')}` |"
+        )
+    return f"""`reports/prompt_contract_audit.md` and `data/prompt_contract_audit.csv` audit release prompts against public prompt standards. The audit evaluates `Prompt.md` plus the runner wrapper because the wrapper supplies scaffold-specific lookup, attempt-limit, and submission-format instructions.
+
+- prompt rows: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- failing rows: `{len(failures)}`
+- hidden-material leak rows: `{len(leak_rows)}`
+- runner-supplied field counts: `{compact_json(dict(sorted(runner_counts.items())))}`
+- missing/caution field counts: `{compact_json(dict(sorted(missing_counts.items())))}`
+
+Prompt contract rows:
+
+{chr(10).join(table_lines)}
+"""
+
+
 def pin_coverage_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -637,6 +678,7 @@ def main() -> int:
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
+    prompt_contract_rows = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
@@ -782,6 +824,10 @@ The axiom policy allows only the standard Lean axioms documented in `docs/axiom_
 
 `scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. It copies every file listed in metadata `public_files` plus `Prompt.md` and `metadata.json`. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
+## Prompt Contract Audit
+
+{prompt_contract_section(prompt_contract_rows)}
+
 ## Scaffold And Model-Run Support
 
 The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches metadata-listed public Lean task files and installed Std/Mathlib files when available. External model runners receive `PROMPT_PATH`, `MODEL`, `TASK_ID`, `ATTEMPT_INDEX`, `SCAFFOLD`, `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES`.
@@ -876,6 +922,7 @@ python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
 python scripts/generate_task_asset_manifest.py --public-export public_tasks
+python scripts/audit_prompt_contracts.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py

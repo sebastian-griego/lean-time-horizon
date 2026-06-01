@@ -140,6 +140,37 @@ The axiom policy allows only the standard Lean axioms documented in `docs/axiom_
 
 `scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. It copies every file listed in metadata `public_files` plus `Prompt.md` and `metadata.json`. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
+## Prompt Contract Audit
+
+`reports/prompt_contract_audit.md` and `data/prompt_contract_audit.csv` audit release prompts against public prompt standards. The audit evaluates `Prompt.md` plus the runner wrapper because the wrapper supplies scaffold-specific lookup, attempt-limit, and submission-format instructions.
+
+- prompt rows: `14`
+- statuses: `{"caution": 14}`
+- failing rows: `0`
+- hidden-material leak rows: `0`
+- runner-supplied field counts: `{"attempt_limit": 14, "submission_format": 11, "tool_affordance": 14}`
+- missing/caution field counts: `{}`
+
+Prompt contract rows:
+
+| task | status | checks | runner-supplied fields | missing/caution fields | leaks |
+| --- | --- | ---: | --- | --- | --- |
+| `lt-001` | caution | 11/11 | `["attempt_limit", "tool_affordance"]` | `[]` | `[]` |
+| `lt-002` | caution | 11/11 | `["attempt_limit", "tool_affordance"]` | `[]` | `[]` |
+| `lt-003` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-004` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-201` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-203` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-101` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-105` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-107` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-108` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-202` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-204` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-205` | caution | 11/11 | `["attempt_limit", "submission_format", "tool_affordance"]` | `[]` | `[]` |
+| `lt-206` | caution | 11/11 | `["attempt_limit", "tool_affordance"]` | `[]` | `[]` |
+
+
 ## Scaffold And Model-Run Support
 
 The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches metadata-listed public Lean task files and installed Std/Mathlib files when available. External model runners receive `PROMPT_PATH`, `MODEL`, `TASK_ID`, `ATTEMPT_INDEX`, `SCAFFOLD`, `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES`.
@@ -257,7 +288,7 @@ Claim support table:
 | claim | type | support | strength | claim text | limit | stronger claim requires |
 | --- | --- | --- | --- | --- | --- | --- |
 | `local_release_artifact` | artifact_validity | supported | high | The repository is a locally validated v0.1 release artifact with public scaffolds, hidden checks, Lean scoring, integrity controls, and complete metadata. | This is a local artifact claim, not a hosted/frozen benchmark claim. | Hosted QA, independent review, and broader accepted task count are still required for a locked benchmark. |
-| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, task-asset hashes, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
+| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, task-asset hashes, prompt-contract checks, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
 | `accepted_core_reviewed` | task_validity | supported | medium | The six accepted-core tasks are internally reviewed and higher quality than the original candidate pool. | This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size. | Independent Lean-human review and more accepted high-quality T2/T3/T4 rows. |
 | `hidden_pin_strength` | grading_validity | partial | medium | Hidden semantic checks provide meaningful anti-gaming evidence for accepted tasks. | Some accepted fixed-statement/proof-repair rows have wrong submissions that fail before hidden pins run; hidden pins are finite probes. | Add stronger same-signature semantic wrongs where possible and expand negative hidden examples for retained caveat rows. |
 | `run_data_integrity` | data_validity | supported | high | Committed run-result rows are internally consistent with transcripts, failure labels, score vectors, and pass@k semantics. | This validates data hygiene only; it does not make the smoke rows representative. | Maintain this audit for future provider sweeps and require zero failing rows before reporting results. |
@@ -371,7 +402,7 @@ Accepted-core hidden-pin coverage:
 
 Status counts:
 
-- `supported`: 30
+- `supported`: 31
 - `partial`: 4
 - `not_met`: 2
 
@@ -379,7 +410,7 @@ Freeze relevance counts:
 
 - `required_for_locked_benchmark`: supported 2, partial 4, not_met 2
 - `required_for_release_artifact`: supported 15
-- `required_for_research_report`: supported 13
+- `required_for_research_report`: supported 14
 
 Partial or unmet requirements:
 
@@ -411,6 +442,7 @@ python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
 python scripts/generate_task_asset_manifest.py --public-export public_tasks
+python scripts/audit_prompt_contracts.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
@@ -433,9 +465,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T02:58:30.075470+00:00`
+Generated at UTC: `2026-06-01T03:24:55.581083+00:00`
 
-Git branch/head at generation: `main` / `2c92e720625c`. Worktree status at generation: `16 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `99cddb501d8a`. Worktree status at generation: `21 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -466,20 +498,21 @@ Regeneration commands:
 11. `python scripts/export_public_tasks.py --out public_tasks`
 12. `python scripts/validate_public_export.py --out public_tasks`
 13. `python scripts/generate_task_asset_manifest.py --public-export public_tasks`
-14. `python scripts/audit_scaffold_support.py`
-15. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-16. `python scripts/audit_claim_evidence.py`
-17. `python scripts/generate_release_decision_log.py`
-18. `python scripts/audit_scaffold_support.py`
-19. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-20. `python scripts/audit_claim_evidence.py`
-21. `python scripts/generate_release_decision_log.py`
-22. `python scripts/audit_scaffold_support.py`
-23. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-24. `python scripts/audit_claim_evidence.py`
-25. `python scripts/generate_release_decision_log.py`
-26. `python scripts/write_validation_manifest.py --public-export public_tasks`
-27. `python scripts/generate_report.py`
+14. `python scripts/audit_prompt_contracts.py`
+15. `python scripts/audit_scaffold_support.py`
+16. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+17. `python scripts/audit_claim_evidence.py`
+18. `python scripts/generate_release_decision_log.py`
+19. `python scripts/audit_scaffold_support.py`
+20. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+21. `python scripts/audit_claim_evidence.py`
+22. `python scripts/generate_release_decision_log.py`
+23. `python scripts/audit_scaffold_support.py`
+24. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+25. `python scripts/audit_claim_evidence.py`
+26. `python scripts/generate_release_decision_log.py`
+27. `python scripts/write_validation_manifest.py --public-export public_tasks`
+28. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -488,9 +521,9 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `f613e296e311` |  | 8431 |
+| `README.md` | `b495268d2362` |  | 8762 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
-| `data/benchmark_requirements.csv` | `27f828fcaeeb` | 36 | 7298 |
+| `data/benchmark_requirements.csv` | `668fd7549bda` | 37 | 7613 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
@@ -502,25 +535,27 @@ Key artifact hashes:
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
 | `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
 | `data/task_quality_matrix.csv` | `5c6891423804` | 26 | 16869 |
-| `data/task_asset_manifest.csv` | `59c9ec26ab2f` | 171 | 37297 |
+| `data/task_asset_manifest.csv` | `d3a97763beae` | 171 | 37297 |
+| `data/prompt_contract_audit.csv` | `8ac0cc6ea492` | 14 | 3106 |
 | `data/pin_coverage_audit.csv` | `c9d78f916dae` | 26 | 6514 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
-| `data/claim_evidence_audit.csv` | `4e52242a99c7` | 9 | 9946 |
-| `data/release_decision_log.csv` | `ad5a661e7b47` | 8 | 4845 |
+| `data/claim_evidence_audit.csv` | `788ef7d35033` | 9 | 10099 |
+| `data/release_decision_log.csv` | `50df39c07686` | 8 | 4845 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `364676cdf517` | 36 | 11563 |
+| `data/requirement_coverage.csv` | `be84a5ceaca1` | 37 | 11989 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/task_asset_manifest.md` | `95480e1da7cf` |  | 1377 |
+| `reports/prompt_contract_audit.md` | `9d7e7dd7a857` |  | 2659 |
 | `reports/pin_coverage_audit.md` | `26b6cb10ed91` |  | 2544 |
 | `reports/run_integrity_audit.md` | `75abcf6d7652` |  | 2213 |
-| `reports/claim_evidence_audit.md` | `a5eefdcb7e85` |  | 4640 |
-| `reports/release_decision_log.md` | `b78b5e5bfcfb` |  | 5562 |
+| `reports/claim_evidence_audit.md` | `88a1735b577c` |  | 4664 |
+| `reports/release_decision_log.md` | `787e4a583d69` |  | 5562 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
 | `reports/model_run_analysis.md` | `7ea88a7de75f` |  | 1965 |
-| `reports/requirement_coverage.md` | `56f024ad73ab` |  | 11027 |
+| `reports/requirement_coverage.md` | `2b491eab39d6` |  | 11407 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -531,21 +566,22 @@ Key artifact hashes:
 | `scripts/audit_difficulty.py` | `0bebfeb74ec4` |  | 10134 |
 | `scripts/generate_task_quality_matrix.py` | `129d2715090b` |  | 13165 |
 | `scripts/generate_task_asset_manifest.py` | `39b723c68b45` |  | 8843 |
+| `scripts/audit_prompt_contracts.py` | `327ee834ce2d` |  | 9251 |
 | `scripts/audit_pin_coverage.py` | `91d9de6011db` |  | 11828 |
 | `scripts/audit_run_integrity.py` | `0d57a7faa416` |  | 13598 |
-| `scripts/audit_claim_evidence.py` | `5185a706ec4f` |  | 13455 |
+| `scripts/audit_claim_evidence.py` | `ed34bce68b69` |  | 13512 |
 | `scripts/generate_release_decision_log.py` | `9129cbccde23` |  | 12027 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `89593e226a35` |  | 44304 |
+| `scripts/audit_requirement_coverage.py` | `33c9a9a597af` |  | 46041 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `8dd27830eca2` |  | 49581 |
+| `scripts/generate_report.py` | `02a131c01cc5` |  | 51840 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `5941c1285ef9` |  | 2425 |
-| `scripts/write_validation_manifest.py` | `d0aa7124e9b2` |  | 10170 |
+| `scripts/write_validation_manifest.py` | `5466bdc0dbc0` |  | 10337 |
 
 
 ## Threats To Validity

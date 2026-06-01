@@ -214,6 +214,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
+    prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -293,6 +294,35 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(public_ok),
         f"Release assets: {asset_counts.get('prompt_present', 0)}/{asset_counts['total']} prompts; {asset_counts.get('public_files_present', 0)}/{asset_counts['total']} public-file sets.",
         "No gap." if public_ok else "Fix missing prompts or metadata-listed public files.",
+    ))
+
+    prompt_contract_fields = set(prompt_contract[0].keys()) if prompt_contract else set()
+    required_prompt_contract_fields = {
+        "task_id",
+        "status",
+        "prompt_checks_passed",
+        "prompt_checks_total",
+        "runner_supplied_fields",
+        "missing_or_caution_fields",
+        "leak_patterns_found",
+    }
+    prompt_contract_failures = [row_data for row_data in prompt_contract if row_data.get("status") == "fail"]
+    prompt_contract_leaks = [row_data for row_data in prompt_contract if row_data.get("leak_patterns_found") != "[]"]
+    prompt_contract_ok = (
+        bool(prompt_contract)
+        and len(prompt_contract) == len(release)
+        and required_prompt_contract_fields.issubset(prompt_contract_fields)
+        and not prompt_contract_failures
+        and not prompt_contract_leaks
+        and (ROOT / "reports" / "prompt_contract_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "prompt_contract_audit",
+        "reporting",
+        "Prompt contract audit should check release prompts for edit scope theorem/import policy helper-lemma policy forbidden constructs submission format tool affordance and hidden-material leaks.",
+        status_from_bool(prompt_contract_ok, partial=bool(prompt_contract)),
+        f"prompt contract rows: {len(prompt_contract)}; release rows: {len(release)}; failures: {len(prompt_contract_failures)}; leak rows: {len(prompt_contract_leaks)}; report exists: {(ROOT / 'reports' / 'prompt_contract_audit.md').exists()}.",
+        "No gap." if prompt_contract_ok else "Regenerate scripts/audit_prompt_contracts.py and fix failed prompt-contract or leak rows.",
     ))
 
     hidden_ok = asset_counts.get("reference_present", 0) == asset_counts["total"] and asset_counts.get("pincheck_present", 0) == asset_counts["total"]
