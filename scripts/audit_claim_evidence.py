@@ -155,6 +155,7 @@ def build_rows() -> list[dict[str, str]]:
         "provider_readiness_audit",
         "hosted_qa_readiness_audit",
         "release_decision_log",
+        "freeze_readiness_roadmap",
         "scaffold_support_audit",
         "prompt_contract_audit",
         "task_asset_manifest",
@@ -184,7 +185,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
@@ -270,7 +271,7 @@ def build_rows() -> list[dict[str, str]]:
         "benchmark_status",
         "unsupported",
         "none",
-        "; ".join(evidence(reqs, requirement_id) for requirement_id in locked_ids + ["hosted_qa_readiness_audit"]),
+        "; ".join(evidence(reqs, requirement_id) for requirement_id in locked_ids + ["hosted_qa_readiness_audit", "freeze_readiness_roadmap"]),
         "The artifact has 6 accepted tasks, no hosted QA, no independent timing, no T4 accepted task, and limited provider data.",
         "Reach the 20-50 accepted-task target, run hosted QA, collect independent timing, complete scaffold sweeps, and freeze exact public task versions.",
     ))

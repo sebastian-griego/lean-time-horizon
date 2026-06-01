@@ -447,7 +447,7 @@ Claim support table:
 | claim | type | support | strength | claim text | limit | stronger claim requires |
 | --- | --- | --- | --- | --- | --- | --- |
 | `local_release_artifact` | artifact_validity | supported | high | The repository is a locally validated v0.1 release artifact with public scaffolds, hidden checks, Lean scoring, integrity controls, and complete metadata. | This is a local artifact claim, not a hosted/frozen benchmark claim. | Hosted QA, independent review, and broader accepted task count are still required for a locked benchmark. |
-| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
+| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
 | `accepted_core_reviewed` | task_validity | supported | medium | The six accepted-core tasks are internally reviewed and higher quality than the original candidate pool. | This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size. | Independent Lean-human review and more accepted high-quality T2/T3/T4 rows. |
 | `hidden_pin_strength` | grading_validity | supported | medium | Hidden checks provide meaningful anti-gaming evidence for accepted tasks, with semantic hidden-pin failures on mutable-definition tasks and signature/downstream guards on proof-only fixed-statement tasks. | Proof-only fixed-statement rows do not have semantic hidden wrongs because Lean compilation already certifies exact same-signature theorem proofs; hidden pins remain finite probes. | Add independent reviewer assessment of hidden pins and strengthen any future mutable accepted task until it has at least one public-compiling wrong that fails hidden pins. |
 | `run_data_integrity` | data_validity | supported | high | Committed run-result rows are internally consistent with transcripts, failure labels, score vectors, and pass@k semantics. | This validates data hygiene only; it does not make the smoke rows representative. | Maintain this audit for future provider sweeps and require zero failing rows before reporting results. |
@@ -478,6 +478,31 @@ Decision table:
 | `scaffold_effect_claim` | performance | block | Do not report scaffold-effect conclusions from committed data. | Run the planned accepted_v0 x scaffold sweep with fixed k before comparing scaffold effects. |
 | `frontier_performance_claim` | performance | block | Do not use committed provider rows to characterize frontier-model capability. | Run documented provider sweeps after local and hosted QA are stable. |
 | `locked_benchmark_freeze` | benchmark_status | block | Do not call v0.1 a locked benchmark. | Reach the 20-50 accepted-task target, complete hosted QA, independent timing, and scaffold sweeps, then freeze exact task versions. |
+
+
+## Freeze Readiness Roadmap
+
+`reports/freeze_readiness_roadmap.md` and `data/freeze_readiness_roadmap.csv` synthesize the requirement, claim, release-decision, hosted-QA, statistical, model-run, and metadata audits into concrete gates for turning the local v0.1 artifact into a locked benchmark. It is a planning ledger, not evidence that blocked gates are complete.
+
+- gates: `10`
+- roadmap statuses: `{"block": 8, "caution": 1, "ready": 1}`
+- categories: `{"analysis": 1, "calibration": 1, "hosted_qa": 1, "local_release": 1, "model_sweeps": 2, "release_management": 1, "task_portfolio": 3}`
+- blocking gates before locked benchmark: `8`
+
+Freeze-readiness gates:
+
+| gate | category | status | exit criteria | next action | blocks claims |
+| --- | --- | --- | --- | --- | --- |
+| `local_artifact_validation` | local_release | ready | Keep zero failing local validation, public-export, run-integrity, and grader-hardening rows immediately before any release tag. | Rerun the README validation gate after every task, grader, or report change. | `local_release_artifact` |
+| `accepted_portfolio_scale` | task_portfolio | block | Reach 20-50 accepted_v0 tasks after hard review, with candidate/rejected rows retained for pruning evidence. | Author a small batch of high-quality T2/T3/T4 candidates, then apply the existing hard review before accepting any row. | `locked_benchmark, frontier_performance` |
+| `time_horizon_depth` | task_portfolio | block | Accepted core should include a meaningful T2/T3/T4 spread, including at least one independently reviewed T4 stretch task. | Design one T4 candidate and several T3 candidates only after the current v0.1 core remains stable under review. | `time_horizon_measurement, locked_benchmark` |
+| `family_balance_and_diagnostics` | task_portfolio | caution | Maintain family coverage while expanding; do not let direct theorem proving or simple list tasks dominate accepted rows. | For each new accepted task, record the intended diagnostic failure mode and reject rows that are automation-dominated. | `accepted_core_reviewed, locked_benchmark` |
+| `independent_human_timing` | calibration | block | Every accepted task should have at least one independent Lean-human solve or second-review timing note; T3/T4 rows should get extra scrutiny. | Run timed solves with non-authors and append rows to data/human_time_observations.csv before freeze. | `time_horizon_measurement, locked_benchmark` |
+| `scaffold_sweep_coverage` | model_sweeps | block | Accepted_v0 x {one-shot, lookup, lookup_unlimited} cells should have non-infra pass@k rows for each reported model. | Run the planned sweep commands from reports/evaluation_protocol.md with fixed k and committed transcripts. | `scaffold_effects, frontier_performance, locked_benchmark` |
+| `frontier_and_open_model_evidence` | model_sweeps | block | Commit documented provider/model-version rows across the accepted scaffold plan before any frontier or open-model capability claim. | After hosted/local QA are stable, run provider adapters for the selected frontier/open models and retain transcripts plus infra notes. | `frontier_performance, scaffold_effects, locked_benchmark` |
+| `hosted_qa_and_env_linter` | hosted_qa | block | Taiga/hosted package, problem metadata, Full Env QA, Env Linter, and finding dispositions must be committed for exact problem versions. | Create hosted packaging artifacts, upload exact public versions, run hosted QA, and commit finding dispositions. | `locked_benchmark` |
+| `statistical_reporting_readiness` | analysis | block | Recommended performance plots should have adequate task/scaffold coverage and report raw n plus Wilson intervals. | Keep performance plots blocked until the planned accepted-core sweep and larger accepted set exist. | `scaffold_effects, frontier_performance, locked_benchmark` |
+| `freeze_versioning` | release_management | block | Freeze only after local validation, hosted QA, independent timing, accepted-count, scaffold-sweep, and provider-evidence gates are satisfied. | Tag the exact commit/export hash and hosted problem-version mapping only after all block gates are cleared. | `locked_benchmark` |
 
 
 ## Difficulty Audit Summary
@@ -563,7 +588,7 @@ Accepted-core hidden-pin coverage:
 
 Status counts:
 
-- `supported`: 37
+- `supported`: 38
 - `partial`: 4
 - `not_met`: 2
 
@@ -571,7 +596,7 @@ Freeze relevance counts:
 
 - `required_for_locked_benchmark`: supported 2, partial 4, not_met 2
 - `required_for_release_artifact`: supported 15
-- `required_for_research_report`: supported 20
+- `required_for_research_report`: supported 21
 
 Partial or unmet requirements:
 
@@ -615,14 +640,17 @@ python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
+python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
+python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
+python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
 ```
@@ -633,9 +661,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T06:18:13.540015+00:00`
+Generated at UTC: `2026-06-01T06:34:12.991215+00:00`
 
-Git branch/head at generation: `main` / `235a8e129430`. Worktree status at generation: `20 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `5fd99ab03422`. Worktree status at generation: `18 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -678,16 +706,19 @@ Regeneration commands:
 23. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
 24. `python scripts/audit_claim_evidence.py`
 25. `python scripts/generate_release_decision_log.py`
-26. `python scripts/audit_scaffold_support.py`
-27. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-28. `python scripts/audit_claim_evidence.py`
-29. `python scripts/generate_release_decision_log.py`
-30. `python scripts/audit_scaffold_support.py`
-31. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-32. `python scripts/audit_claim_evidence.py`
-33. `python scripts/generate_release_decision_log.py`
-34. `python scripts/write_validation_manifest.py --public-export public_tasks`
-35. `python scripts/generate_report.py`
+26. `python scripts/generate_freeze_readiness_roadmap.py`
+27. `python scripts/audit_scaffold_support.py`
+28. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+29. `python scripts/audit_claim_evidence.py`
+30. `python scripts/generate_release_decision_log.py`
+31. `python scripts/generate_freeze_readiness_roadmap.py`
+32. `python scripts/audit_scaffold_support.py`
+33. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+34. `python scripts/audit_claim_evidence.py`
+35. `python scripts/generate_release_decision_log.py`
+36. `python scripts/generate_freeze_readiness_roadmap.py`
+37. `python scripts/write_validation_manifest.py --public-export public_tasks`
+38. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -696,9 +727,9 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `100621b3d188` |  | 10836 |
+| `README.md` | `a33c20351055` |  | 11197 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
-| `data/benchmark_requirements.csv` | `3185250460ea` | 43 | 9309 |
+| `data/benchmark_requirements.csv` | `94763d09fb44` | 44 | 9607 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
@@ -722,10 +753,11 @@ Key artifact hashes:
 | `data/pin_coverage_audit.csv` | `8ab31ee39037` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
 | `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `f0fd7aad939a` | 9 | 13418 |
-| `data/release_decision_log.csv` | `6e622091823d` | 8 | 5867 |
+| `data/claim_evidence_audit.csv` | `1fef8e3166bb` | 9 | 13792 |
+| `data/release_decision_log.csv` | `7073301fcf4f` | 8 | 6211 |
+| `data/freeze_readiness_roadmap.csv` | `c8a571fd27b8` | 10 | 6715 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `a1f4a98c522f` | 43 | 14721 |
+| `data/requirement_coverage.csv` | `b60b397d7565` | 44 | 15173 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/diagnostic_coverage_audit.md` | `e9f7fe4e65a1` |  | 7206 |
@@ -735,8 +767,9 @@ Key artifact hashes:
 | `reports/pin_coverage_audit.md` | `64fea7fef8db` |  | 4145 |
 | `reports/run_integrity_audit.md` | `75abcf6d7652` |  | 2213 |
 | `reports/grader_hardening_audit.md` | `b543474dd490` |  | 4073 |
-| `reports/claim_evidence_audit.md` | `98a6e8e9b782` |  | 5053 |
-| `reports/release_decision_log.md` | `d03c7ce5b72b` |  | 6584 |
+| `reports/claim_evidence_audit.md` | `99e8c6d17e1f` |  | 5081 |
+| `reports/release_decision_log.md` | `d5b6107c0405` |  | 6916 |
+| `reports/freeze_readiness_roadmap.md` | `a8c71c3dcb0f` |  | 5384 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
@@ -744,7 +777,7 @@ Key artifact hashes:
 | `reports/statistical_reporting_audit.md` | `76bc109a408c` |  | 3415 |
 | `reports/provider_readiness_audit.md` | `20047ec923ac` |  | 5876 |
 | `reports/hosted_qa_readiness_audit.md` | `7c9d07aad947` |  | 3483 |
-| `reports/requirement_coverage.md` | `e79e0f60e102` |  | 13848 |
+| `reports/requirement_coverage.md` | `e82ea92f9931` |  | 14243 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -761,22 +794,23 @@ Key artifact hashes:
 | `scripts/audit_pin_coverage.py` | `aaa6a5abbf28` |  | 15593 |
 | `scripts/audit_run_integrity.py` | `0d57a7faa416` |  | 13598 |
 | `scripts/audit_grader_hardening.py` | `7bcba063dd41` |  | 14898 |
-| `scripts/audit_claim_evidence.py` | `8f7c698cec75` |  | 15796 |
-| `scripts/generate_release_decision_log.py` | `50a80c69c816` |  | 12384 |
+| `scripts/audit_claim_evidence.py` | `a09e2b0d01e9` |  | 15888 |
+| `scripts/generate_release_decision_log.py` | `07ee691aa097` |  | 12476 |
+| `scripts/generate_freeze_readiness_roadmap.py` | `fa5ee602d546` |  | 14626 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `f4bc24b3e134` |  | 61513 |
+| `scripts/audit_requirement_coverage.py` | `b7785672c11f` |  | 63691 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/audit_statistical_reporting.py` | `f9616d16268c` |  | 12921 |
 | `scripts/audit_provider_readiness.py` | `ad8b36f25ea7` |  | 18802 |
 | `scripts/audit_hosted_qa_readiness.py` | `b9a4b5dc34d4` |  | 13338 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `bc7512d9f187` |  | 64748 |
+| `scripts/generate_report.py` | `704b3cd6778d` |  | 66888 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `5941c1285ef9` |  | 2425 |
-| `scripts/write_validation_manifest.py` | `dea5d45e5c8c` |  | 11556 |
+| `scripts/write_validation_manifest.py` | `61158a378b5a` |  | 11869 |
 
 
 ## Threats To Validity

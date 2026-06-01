@@ -219,6 +219,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
+    freeze_roadmap = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
@@ -1014,6 +1015,49 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(release_decision_ok, partial=bool(release_decision)),
         f"release_decision rows: {len(release_decision)}; required gates covered: {len(required_gate_ids & gate_ids)}/{len(required_gate_ids)}; block gates: {len(block_gates)}; pass gates: {len(pass_gates)}; report exists: {(ROOT / 'reports' / 'release_decision_log.md').exists()}.",
         "No gap." if release_decision_ok else "Regenerate scripts/generate_release_decision_log.py after claim and requirement audits, then inspect missing gates.",
+    ))
+
+    required_freeze_gate_ids = {
+        "local_artifact_validation",
+        "accepted_portfolio_scale",
+        "time_horizon_depth",
+        "family_balance_and_diagnostics",
+        "independent_human_timing",
+        "scaffold_sweep_coverage",
+        "frontier_and_open_model_evidence",
+        "hosted_qa_and_env_linter",
+        "statistical_reporting_readiness",
+        "freeze_versioning",
+    }
+    freeze_gate_ids = {row_data.get("gate_id", "") for row_data in freeze_roadmap}
+    freeze_fields = set(freeze_roadmap[0].keys()) if freeze_roadmap else set()
+    required_freeze_fields = {
+        "gate_id",
+        "category",
+        "roadmap_status",
+        "current_state",
+        "evidence",
+        "exit_criteria",
+        "concrete_next_action",
+        "blocks_claims",
+        "source_artifacts",
+    }
+    freeze_statuses = Counter(row_data.get("roadmap_status", "unknown") for row_data in freeze_roadmap)
+    freeze_roadmap_ok = (
+        bool(freeze_roadmap)
+        and required_freeze_gate_ids.issubset(freeze_gate_ids)
+        and required_freeze_fields.issubset(freeze_fields)
+        and freeze_statuses.get("ready", 0) >= 1
+        and freeze_statuses.get("block", 0) >= 1
+        and (ROOT / "reports" / "freeze_readiness_roadmap.md").exists()
+    )
+    requirement_rows.append(row(
+        "freeze_readiness_roadmap",
+        "reporting",
+        "Freeze-readiness roadmap should synthesize requirement claim hosted QA statistical model-run and metadata audits into measurable gates for locked-benchmark readiness.",
+        status_from_bool(freeze_roadmap_ok, partial=bool(freeze_roadmap)),
+        f"freeze roadmap rows: {len(freeze_roadmap)}; required gates covered: {len(required_freeze_gate_ids & freeze_gate_ids)}/{len(required_freeze_gate_ids)}; statuses: {compact_json(dict(sorted(freeze_statuses.items())))}; report exists: {(ROOT / 'reports' / 'freeze_readiness_roadmap.md').exists()}.",
+        "No gap." if freeze_roadmap_ok else "Regenerate scripts/generate_freeze_readiness_roadmap.py after requirement, claim, release, and readiness audits.",
     ))
 
     required_scaffold_checks = {

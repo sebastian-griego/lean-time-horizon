@@ -538,6 +538,41 @@ Decision table:
 """
 
 
+def freeze_readiness_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/freeze_readiness_roadmap.md` has not been generated yet. Run "
+            "`python scripts/generate_freeze_readiness_roadmap.py` after requirement, claim, "
+            "release, hosted-QA, and statistical audits, then regenerate this report."
+        )
+    status_counts = Counter(row.get("roadmap_status", "unknown") for row in rows)
+    category_counts = Counter(row.get("category", "unknown") for row in rows)
+    blockers = [row for row in rows if row.get("roadmap_status") == "block"]
+    lines = [
+        "| gate | category | status | exit criteria | next action | blocks claims |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        criteria = row.get("exit_criteria", "").replace("|", "/")
+        action = row.get("concrete_next_action", "").replace("|", "/")
+        blocks = row.get("blocks_claims", "").replace(";", ", ")
+        lines.append(
+            f"| `{row.get('gate_id', '')}` | {row.get('category', '')} | {row.get('roadmap_status', '')} | "
+            f"{criteria} | {action} | `{blocks}` |"
+        )
+    return f"""`reports/freeze_readiness_roadmap.md` and `data/freeze_readiness_roadmap.csv` synthesize the requirement, claim, release-decision, hosted-QA, statistical, model-run, and metadata audits into concrete gates for turning the local v0.1 artifact into a locked benchmark. It is a planning ledger, not evidence that blocked gates are complete.
+
+- gates: `{len(rows)}`
+- roadmap statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- categories: `{compact_json(dict(sorted(category_counts.items())))}`
+- blocking gates before locked benchmark: `{len(blockers)}`
+
+Freeze-readiness gates:
+
+{chr(10).join(lines)}
+"""
+
+
 def scaffold_support_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -916,6 +951,7 @@ def main() -> int:
     grader_hardening_rows = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
+    freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
@@ -1140,6 +1176,10 @@ Observed model-sweep failure labels:
 
 {release_decision_section(release_decision_rows)}
 
+## Freeze Readiness Roadmap
+
+{freeze_readiness_section(freeze_readiness_rows)}
+
 ## Difficulty Audit Summary
 
 The regenerated difficulty audit separates mechanical signals from manual judgments. Mechanical signals include reference proof lines, declaration count, public file count, public lemma count, tactic profile, automation dominance, Mathlib use, multi-file context, hidden pin strength, and wrong-submission count. Manual fields include frontier one-shot solvability estimates, p50/p90 human time, scaffold sensitivity, diagnostic value, and final accept/reject rationale.
@@ -1194,14 +1234,17 @@ python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
+python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
+python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
+python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
 ```

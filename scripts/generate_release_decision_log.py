@@ -139,7 +139,7 @@ def build_rows() -> list[dict[str, str]]:
         (
             f"research-report gaps={len(research_gaps)}; claim statuses={compact_json(dict(sorted(claim_status_counts.items())))}; "
             f"unsupported claims={compact_json([row_data.get('claim_id') for row_data in unsupported_claims])}; "
-            f"{evidence(reqs, 'hosted_qa_readiness_audit')}"
+            f"{evidence(reqs, 'hosted_qa_readiness_audit')}; {evidence(reqs, 'freeze_readiness_roadmap')}"
         ),
         "The report is evidence-rich but not backed by broad model sweeps or independent timing.",
         "Update the decision log whenever a requirement, claim audit, or provider sweep changes.",
@@ -208,7 +208,7 @@ def build_rows() -> list[dict[str, str]]:
         (
             f"locked-benchmark gaps={len(locked_gaps)}: {compact_json([row_data.get('requirement_id') for row_data in locked_gaps])}; "
             f"claim={claims_by_id.get('locked_benchmark', {}).get('support_status', 'missing')}; "
-            f"{evidence(reqs, 'hosted_qa_readiness_audit')}"
+            f"{evidence(reqs, 'hosted_qa_readiness_audit')}; {evidence(reqs, 'freeze_readiness_roadmap')}"
         ),
         "The accepted count, time-horizon spread, scaffold data, frontier data, independent timing, and hosted QA are not complete.",
         "Reach the 20-50 accepted-task target, complete hosted QA, independent timing, and scaffold sweeps, then freeze exact task versions.",

@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 37
+- `supported`: 38
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 20
+- `required_for_research_report` / `supported`: 21
 
 ## Coverage Table
 
@@ -57,6 +57,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `hosted_qa_readiness_audit` | reporting | required_for_research_report | supported | Hosted QA readiness audit should distinguish local readiness from missing Taiga packaging problem-version QA and finding-resolution evidence. | hosted QA readiness rows: 11; required checks covered: 11/11; failures: 0; blocked hosted-QA steps: 9; report exists: True. | No gap. |
 | `claim_evidence_audit` | reporting | required_for_research_report | supported | Claim-evidence audit should map artifact, report, performance, and benchmark-status claims to evidence strength and limits. | claim_evidence rows: 9; required claims covered: 9/9; unsupported overclaim rows: 3; report exists: True. | No gap. |
 | `release_decision_log` | reporting | required_for_research_report | supported | Release decision log should translate evidence audits into explicit pass/caution/block gates and next actions. | release_decision rows: 8; required gates covered: 8/8; block gates: 4; pass gates: 2; report exists: True. | No gap. |
+| `freeze_readiness_roadmap` | reporting | required_for_research_report | supported | Freeze-readiness roadmap should synthesize requirement claim hosted QA statistical model-run and metadata audits into measurable gates for locked-benchmark readiness. | freeze roadmap rows: 10; required gates covered: 10/10; statuses: {"block": 8, "caution": 1, "ready": 1}; report exists: True. | No gap. |
 | `scaffold_support_audit` | reporting | required_for_research_report | supported | Scaffold support audit should verify prompt contracts runner semantics lookup safety planned coverage and observed coverage limits. | scaffold audit rows: 11; required checks covered: 11/11; failures: 0; cautions: 1; report exists: True. | No gap. |
 | `independent_human_time_review` | calibration | required_for_locked_benchmark | partial | Human-time estimates should be separately reviewed or measured, not inferred from model pass rates. | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted Taiga/Env Linter QA should be run before delivery/freeze. | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 9. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |

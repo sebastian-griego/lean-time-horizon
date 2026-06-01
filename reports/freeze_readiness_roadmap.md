@@ -1,0 +1,30 @@
+# Freeze Readiness Roadmap
+
+This generated roadmap converts the requirement, claim, release-decision, hosted-QA, statistical, model-run, and metadata audits into concrete gates for turning the local v0.1 artifact into a locked benchmark. It is a planning artifact, not evidence that the blocked gates have been completed.
+
+## Summary
+
+- gates: `10`
+- roadmap statuses: `{"block": 8, "caution": 1, "ready": 1}`
+- categories: `{"analysis": 1, "calibration": 1, "hosted_qa": 1, "local_release": 1, "model_sweeps": 2, "release_management": 1, "task_portfolio": 3}`
+- blocking gates before locked benchmark: `8`
+- caution gates: `1`
+
+## Gate Table
+
+| gate | category | status | current state | exit criteria | next action | blocks claims |
+| --- | --- | --- | --- | --- | --- | --- |
+| `local_artifact_validation` | local_release | ready | Local validation, public export, run-integrity, grader-hardening, and claim-evidence artifacts are present. | Keep zero failing local validation, public-export, run-integrity, and grader-hardening rows immediately before any release tag. | Rerun the README validation gate after every task, grader, or report change. | `local_release_artifact` |
+| `accepted_portfolio_scale` | task_portfolio | block | 6 accepted_v0 tasks, 8 calibration-only tasks, 12 rejected archive tasks. | Reach 20-50 accepted_v0 tasks after hard review, with candidate/rejected rows retained for pruning evidence. | Author a small batch of high-quality T2/T3/T4 candidates, then apply the existing hard review before accepting any row. | `locked_benchmark;frontier_performance` |
+| `time_horizon_depth` | task_portfolio | block | accepted buckets={"T2": 5, "T3": 1}; release buckets={"T1": 8, "T2": 5, "T3": 1}. | Accepted core should include a meaningful T2/T3/T4 spread, including at least one independently reviewed T4 stretch task. | Design one T4 candidate and several T3 candidates only after the current v0.1 core remains stable under review. | `time_horizon_measurement;locked_benchmark` |
+| `family_balance_and_diagnostics` | task_portfolio | caution | accepted families={"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}. | Maintain family coverage while expanding; do not let direct theorem proving or simple list tasks dominate accepted rows. | For each new accepted task, record the intended diagnostic failure mode and reject rows that are automation-dominated. | `accepted_core_reviewed;locked_benchmark` |
+| `independent_human_timing` | calibration | block | human observation rows=0; accepted tasks=6. | Every accepted task should have at least one independent Lean-human solve or second-review timing note; T3/T4 rows should get extra scrutiny. | Run timed solves with non-authors and append rows to data/human_time_observations.csv before freeze. | `time_horizon_measurement;locked_benchmark` |
+| `scaffold_sweep_coverage` | model_sweeps | block | planned cells=18; covered_noninfra=1; observed non-infra provider rows=2. | Accepted_v0 x {one-shot, lookup, lookup_unlimited} cells should have non-infra pass@k rows for each reported model. | Run the planned sweep commands from reports/evaluation_protocol.md with fixed k and committed transcripts. | `scaffold_effects;frontier_performance;locked_benchmark` |
+| `frontier_and_open_model_evidence` | model_sweeps | block | provider rows=3; non-infra provider rows=2; unsupported claims=["scaffold_effects", "frontier_performance", "locked_benchmark"]. | Commit documented provider/model-version rows across the accepted scaffold plan before any frontier or open-model capability claim. | After hosted/local QA are stable, run provider adapters for the selected frontier/open models and retain transcripts plus infra notes. | `frontier_performance;scaffold_effects;locked_benchmark` |
+| `hosted_qa_and_env_linter` | hosted_qa | block | hosted readiness blocks=9. | Taiga/hosted package, problem metadata, Full Env QA, Env Linter, and finding dispositions must be committed for exact problem versions. | Create hosted packaging artifacts, upload exact public versions, run hosted QA, and commit finding dispositions. | `locked_benchmark` |
+| `statistical_reporting_readiness` | analysis | block | statistical audit blocks=5. | Recommended performance plots should have adequate task/scaffold coverage and report raw n plus Wilson intervals. | Keep performance plots blocked until the planned accepted-core sweep and larger accepted set exist. | `scaffold_effects;frontier_performance;locked_benchmark` |
+| `freeze_versioning` | release_management | block | release-decision block gates=4. | Freeze only after local validation, hosted QA, independent timing, accepted-count, scaffold-sweep, and provider-evidence gates are satisfied. | Tag the exact commit/export hash and hosted problem-version mapping only after all block gates are cleared. | `locked_benchmark` |
+
+## Interpretation
+
+`ready` means the current local artifact supports the gate if it is regenerated immediately before release. `caution` means the gate is acceptable for v0.1 review but should be monitored during expansion. `block` means the stronger claim listed in `blocks_claims` must not be made until the exit criteria are satisfied with committed evidence.
