@@ -259,12 +259,13 @@ def build_rows() -> list[dict[str, str]]:
         f"release-decision block gates={len(release_blocks)}.",
         "; ".join([
             requirement(requirements, "hosted_qa_env_linter"),
+            requirement(requirements, "threats_to_validity_register"),
             claim(claims, "locked_benchmark"),
         ]),
         "Freeze only after local validation, hosted QA, independent timing, accepted-count, scaffold-sweep, and provider-evidence gates are satisfied.",
         "Tag the exact commit/export hash and hosted problem-version mapping only after all block gates are cleared.",
         ["locked_benchmark"],
-        ["reports/release_decision_log.md", "reports/validation_manifest.json"],
+        ["reports/release_decision_log.md", "reports/threats_to_validity.md", "reports/validation_manifest.json"],
     ))
     return rows
 

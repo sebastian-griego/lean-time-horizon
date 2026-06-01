@@ -219,6 +219,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     statistical_audit = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
+    threats_to_validity = read_csv(ROOT / "data" / "threats_to_validity.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_roadmap = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
@@ -1049,6 +1050,66 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(hosted_qa_readiness_ok, partial=bool(hosted_qa_readiness)),
         f"hosted QA readiness rows: {len(hosted_qa_readiness)}; required checks covered: {len(required_hosted_qa_checks & hosted_qa_check_ids)}/{len(required_hosted_qa_checks)}; failures: {len(hosted_qa_failures)}; blocked hosted-QA steps: {len(hosted_qa_blocks)}; report exists: {(ROOT / 'reports' / 'hosted_qa_readiness_audit.md').exists()}.",
         "No gap." if hosted_qa_readiness_ok else "Regenerate scripts/audit_hosted_qa_readiness.py and fix failing local readiness checks.",
+    ))
+
+    required_threat_ids = {
+        "construct_time_horizon_depth",
+        "portfolio_scale_and_balance",
+        "author_estimated_human_time",
+        "automation_dominated_retained_tasks",
+        "semantic_pin_finiteness",
+        "scaffold_sweep_undercoverage",
+        "frontier_performance_undercoverage",
+        "statistical_power_and_plots",
+        "failure_taxonomy_forecast",
+        "hosted_environment_gap",
+        "secret_and_runner_boundary",
+        "public_export_hidden_leakage",
+    }
+    required_threat_categories = {
+        "construct_validity",
+        "internal_validity",
+        "external_validity",
+        "statistical_validity",
+        "operational_validity",
+        "operational_security",
+    }
+    threat_ids = {row_data.get("threat_id", "") for row_data in threats_to_validity}
+    threat_categories = {row_data.get("category", "") for row_data in threats_to_validity}
+    threat_statuses = Counter(row_data.get("current_status", "unknown") for row_data in threats_to_validity)
+    threat_fields = set(threats_to_validity[0].keys()) if threats_to_validity else set()
+    required_threat_fields = {
+        "threat_id",
+        "category",
+        "severity",
+        "current_status",
+        "evidence",
+        "mitigation_in_repo",
+        "stronger_evidence_needed",
+        "claims_limited",
+        "source_artifacts",
+    }
+    invalid_threat_statuses = [
+        row_data for row_data in threats_to_validity
+        if row_data.get("current_status") not in {"controlled", "caution", "block"}
+    ]
+    threats_ok = (
+        bool(threats_to_validity)
+        and required_threat_ids.issubset(threat_ids)
+        and required_threat_categories.issubset(threat_categories)
+        and required_threat_fields.issubset(threat_fields)
+        and not invalid_threat_statuses
+        and threat_statuses.get("block", 0) >= 1
+        and threat_statuses.get("caution", 0) >= 1
+        and (ROOT / "reports" / "threats_to_validity.md").exists()
+    )
+    requirement_rows.append(row(
+        "threats_to_validity_register",
+        "reporting",
+        "Threats-to-validity register should turn construct internal external statistical operational and security limitations into generated evidence rows with mitigations and stronger-evidence requirements.",
+        status_from_bool(threats_ok, partial=bool(threats_to_validity)),
+        f"threat rows: {len(threats_to_validity)}; required threats covered: {len(required_threat_ids & threat_ids)}/{len(required_threat_ids)}; categories: {compact_json(sorted(threat_categories))}; statuses: {compact_json(dict(sorted(threat_statuses.items())))}; invalid statuses: {len(invalid_threat_statuses)}; report exists: {(ROOT / 'reports' / 'threats_to_validity.md').exists()}.",
+        "No gap." if threats_ok else "Regenerate scripts/generate_threats_to_validity.py and inspect missing threat categories or statuses.",
     ))
 
     required_claim_ids = {

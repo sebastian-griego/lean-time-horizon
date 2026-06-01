@@ -156,6 +156,7 @@ def build_rows() -> list[dict[str, str]]:
         "provider_readiness_audit",
         "model_sweep_execution_packet",
         "hosted_qa_readiness_audit",
+        "threats_to_validity_register",
         "release_decision_log",
         "freeze_readiness_roadmap",
         "scaffold_support_audit",
@@ -187,7 +188,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, a human-timing collection packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, a human-timing collection packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",

@@ -437,6 +437,46 @@ Hosted QA readiness checks:
 """
 
 
+def threats_to_validity_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/threats_to_validity.md` has not been generated yet. Run "
+            "`python scripts/generate_threats_to_validity.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("current_status", "unknown") for row in rows)
+    category_counts = Counter(row.get("category", "unknown") for row in rows)
+    severity_counts = Counter(row.get("severity", "unknown") for row in rows)
+    block_rows = [row for row in rows if row.get("current_status") == "block"]
+    caution_rows = [row for row in rows if row.get("current_status") == "caution"]
+    controlled_rows = [row for row in rows if row.get("current_status") == "controlled"]
+    lines = [
+        "| threat | category | severity | status | evidence | stronger evidence needed | claims limited |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        stronger = row.get("stronger_evidence_needed", "").replace("|", "/")
+        claims = row.get("claims_limited", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('threat_id', '')}` | {row.get('category', '')} | {row.get('severity', '')} | "
+            f"{row.get('current_status', '')} | {evidence} | {stronger} | {claims} |"
+        )
+    return f"""`reports/threats_to_validity.md` and `data/threats_to_validity.csv` convert the limitations section into a generated evidence register. `block` and `caution` rows are limitations on claims, not validation failures.
+
+- threats: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- categories: `{compact_json(dict(sorted(category_counts.items())))}`
+- severities: `{compact_json(dict(sorted(severity_counts.items())))}`
+- blocked validity threats: `{len(block_rows)}`
+- caution validity threats: `{len(caution_rows)}`
+- locally controlled threats: `{len(controlled_rows)}`
+
+Threat register:
+
+{chr(10).join(lines)}
+"""
+
+
 def run_integrity_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1037,6 +1077,7 @@ def main() -> int:
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
+    threats_to_validity_rows = read_csv(ROOT / "data" / "threats_to_validity.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     metadata_by_id = {row["task_id"]: row for row in metadata}
@@ -1226,6 +1267,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {hosted_qa_readiness_section(hosted_qa_readiness_rows)}
 
+## Threats To Validity Register
+
+{threats_to_validity_section(threats_to_validity_rows)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -1319,6 +1364,7 @@ python scripts/audit_hosted_qa_readiness.py
 python scripts/generate_task_asset_manifest.py --public-export public_tasks
 python scripts/audit_prompt_contracts.py
 python scripts/audit_scaffold_support.py
+python scripts/generate_threats_to_validity.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
@@ -1343,28 +1389,7 @@ The public export validator checks that hidden references and wrong submissions 
 
 ## Threats To Validity
 
-Construct validity:
-
-- Lean success is a strong signal for formal correctness of fixed theorems, but it does not by itself prove that a task measures the intended cognitive capability.
-- Hidden semantic pins are finite probes. They reject known vacuous or weakened formalizations but cannot exhaustively characterize semantic equivalence.
-- Fixed-statement proof tasks cannot always have a same-signature wrong answer that compiles publicly and then fails hidden semantic pins; if the theorem statement and definitions are fixed, a compiled proof is already semantically decisive.
-
-Internal validity:
-
-- Difficulty labels rely on author/reviewer estimates and mechanical proof profiles, not independent human solves.
-- Automation-dominated references can understate model difficulty if models fail earlier on decomposition or API search, but they can also overstate benchmark quality if retained without caveats.
-- The tiny committed provider smoke sweep is insufficient for performance claims and includes an infra-failure row.
-
-External validity:
-
-- v0.1 has only {len(accepted)} accepted core tasks and limited T3/T4 coverage.
-- Most tasks are small Lean packages rather than large real-world formalization projects.
-- Mathlib coverage is narrow.
-
-Reliability and security:
-
-- Validation is reproducible locally through committed scripts and CSVs, but hosted Taiga/Env Linter QA has not been run.
-- API credentials are expected only through environment variables and are not part of the repo.
+The generated register in `reports/threats_to_validity.md` is the authoritative limitations table for this report. It currently keeps the strongest benchmark claims blocked where evidence is missing, including task-count scale, T3/T4 time-horizon depth, independent human timing, scaffold-sweep coverage, frontier/open-model coverage, statistical power, and hosted QA.
 
 ## Claim Ledger
 

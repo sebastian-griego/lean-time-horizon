@@ -431,6 +431,36 @@ Hosted QA readiness checks:
 | `exact_version_freeze_mapping` | hosted_evidence | block | No hosted freeze mapping is committed. | After hosted QA, commit the exact version/snapshot mapping and tag policy. |
 
 
+## Threats To Validity Register
+
+`reports/threats_to_validity.md` and `data/threats_to_validity.csv` convert the limitations section into a generated evidence register. `block` and `caution` rows are limitations on claims, not validation failures.
+
+- threats: `12`
+- statuses: `{"block": 7, "caution": 3, "controlled": 2}`
+- categories: `{"construct_validity": 2, "external_validity": 2, "internal_validity": 3, "operational_security": 2, "operational_validity": 1, "statistical_validity": 2}`
+- severities: `{"high": 8, "medium": 4}`
+- blocked validity threats: `7`
+- caution validity threats: `3`
+- locally controlled threats: `2`
+
+Threat register:
+
+| threat | category | severity | status | evidence | stronger evidence needed | claims limited |
+| --- | --- | --- | --- | --- | --- | --- |
+| `construct_time_horizon_depth` | construct_validity | high | block | accepted=6; accepted buckets={"T2": 5, "T3": 1}; diagnostic blocks=1; diagnostic cautions=3 | Add independently reviewed and timed T3/T4 tasks, including at least one T4 stretch row. | time_horizon_measurement;locked_benchmark |
+| `portfolio_scale_and_balance` | external_validity | high | block | accepted=6; calibration_only=8; rejected=12; accepted families={"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1} | Reach the 20-50 accepted-task target while preserving family and capability diversity. | frontier_performance;locked_benchmark;family_level_performance |
+| `author_estimated_human_time` | internal_validity | high | block | accepted timed solves=0/6; human_time_observation_rows=0 | Collect independent Lean-human timed solves or second-review timing notes for every accepted task. | time_horizon_measurement;locked_benchmark |
+| `automation_dominated_retained_tasks` | construct_validity | medium | caution | automation-dominated accepted tasks=2: ["lt-201", "lt-206"] | Replace or independently validate retained caveat rows before locked benchmark status. | accepted_core_reviewed;time_horizon_measurement |
+| `semantic_pin_finiteness` | internal_validity | medium | caution | accepted tasks with hidden-pin wrong failures=4/6; proof-only fixed-statement rows=2 | Have an independent reviewer inspect hidden pins and add richer same-signature hidden wrongs for future mutable tasks. | hidden_pin_strength;grading_validity |
+| `scaffold_sweep_undercoverage` | statistical_validity | high | block | planned accepted-core cells=18; covered non-infra cells=1 | Run accepted_v0 x one-shot/lookup/lookup_unlimited rows with fixed k and committed transcripts. | scaffold_effects;frontier_performance |
+| `frontier_performance_undercoverage` | external_validity | high | block | accepted-core non-infra provider rows=1; accepted tasks=6 | Run documented frontier/open-model sweeps across the accepted scaffold plan with model versions and transcripts. | frontier_performance;locked_benchmark |
+| `statistical_power_and_plots` | statistical_validity | high | block | statistical audit rows=8; blocked outputs=5 | Populate the planned sweep and accepted task count before generating scaffold, family, and bucket performance plots. | scaffold_effects;frontier_performance;family_level_performance |
+| `failure_taxonomy_forecast` | internal_validity | medium | caution | accepted-core non-infra provider rows=1; expected failure modes are still mostly metadata forecasts | Label real model transcripts after the scaffold sweep and compare observed failures to intended diagnostic modes. | diagnostic_failure_distribution;scaffold_effects |
+| `hosted_environment_gap` | operational_validity | high | block | hosted readiness rows=11; blocked hosted-QA steps=9 | Create hosted packaging, run Full Env QA/Env Linter on exact problem versions, and commit findings/dispositions. | locked_benchmark;deployment_reliability |
+| `secret_and_runner_boundary` | operational_security | medium | controlled | provider readiness failures=0; model-sweep command key-assignment leaks=0 | Repeat secret scans before every commit that touches runner or transcript files. | artifact_security;provider_run_reproducibility |
+| `public_export_hidden_leakage` | operational_security | high | controlled | public_tasks exists=True; hidden/wrong paths in export=0 | Validate the public export after every task-asset or export-script change. | public_release_safety;locked_benchmark |
+
+
 ## Committed Run Results
 
 66 local QA rows are committed for reference solutions and plausible wrong submissions. These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -491,7 +521,7 @@ Claim support table:
 | claim | type | support | strength | claim text | limit | stronger claim requires |
 | --- | --- | --- | --- | --- | --- | --- |
 | `local_release_artifact` | artifact_validity | supported | high | The repository is a locally validated v0.1 release artifact with public scaffolds, hidden checks, Lean scoring, integrity controls, and complete metadata. | This is a local artifact claim, not a hosted/frozen benchmark claim. | Hosted QA, independent review, and broader accepted task count are still required for a locked benchmark. |
-| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, a human-timing collection packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
+| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, a human-timing collection packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
 | `accepted_core_reviewed` | task_validity | supported | medium | The six accepted-core tasks are internally reviewed and higher quality than the original candidate pool. | This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size. | Independent Lean-human review and more accepted high-quality T2/T3/T4 rows. |
 | `hidden_pin_strength` | grading_validity | supported | medium | Hidden checks provide meaningful anti-gaming evidence for accepted tasks, with semantic hidden-pin failures on mutable-definition tasks and signature/downstream guards on proof-only fixed-statement tasks. | Proof-only fixed-statement rows do not have semantic hidden wrongs because Lean compilation already certifies exact same-signature theorem proofs; hidden pins remain finite probes. | Add independent reviewer assessment of hidden pins and strengthen any future mutable accepted task until it has at least one public-compiling wrong that fails hidden pins. |
 | `run_data_integrity` | data_validity | supported | high | Committed run-result rows are internally consistent with transcripts, failure labels, score vectors, and pass@k semantics. | This validates data hygiene only; it does not make the smoke rows representative. | Maintain this audit for future provider sweeps and require zero failing rows before reporting results. |
@@ -632,7 +662,7 @@ Accepted-core hidden-pin coverage:
 
 Status counts:
 
-- `supported`: 40
+- `supported`: 41
 - `partial`: 4
 - `not_met`: 2
 
@@ -640,7 +670,7 @@ Freeze relevance counts:
 
 - `required_for_locked_benchmark`: supported 2, partial 4, not_met 2
 - `required_for_release_artifact`: supported 15
-- `required_for_research_report`: supported 23
+- `required_for_research_report`: supported 24
 
 Partial or unmet requirements:
 
@@ -683,6 +713,7 @@ python scripts/audit_hosted_qa_readiness.py
 python scripts/generate_task_asset_manifest.py --public-export public_tasks
 python scripts/audit_prompt_contracts.py
 python scripts/audit_scaffold_support.py
+python scripts/generate_threats_to_validity.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
@@ -707,9 +738,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T07:18:50.151007+00:00`
+Generated at UTC: `2026-06-01T07:48:42.575343+00:00`
 
-Git branch/head at generation: `main` / `23f594dc8bc8`. Worktree status at generation: `21 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `b012d6658013`. Worktree status at generation: `20 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -751,22 +782,23 @@ Regeneration commands:
 22. `python scripts/generate_task_asset_manifest.py --public-export public_tasks`
 23. `python scripts/audit_prompt_contracts.py`
 24. `python scripts/audit_scaffold_support.py`
-25. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-26. `python scripts/audit_claim_evidence.py`
-27. `python scripts/generate_release_decision_log.py`
-28. `python scripts/generate_freeze_readiness_roadmap.py`
-29. `python scripts/audit_scaffold_support.py`
-30. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-31. `python scripts/audit_claim_evidence.py`
-32. `python scripts/generate_release_decision_log.py`
-33. `python scripts/generate_freeze_readiness_roadmap.py`
-34. `python scripts/audit_scaffold_support.py`
-35. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-36. `python scripts/audit_claim_evidence.py`
-37. `python scripts/generate_release_decision_log.py`
-38. `python scripts/generate_freeze_readiness_roadmap.py`
-39. `python scripts/write_validation_manifest.py --public-export public_tasks`
-40. `python scripts/generate_report.py`
+25. `python scripts/generate_threats_to_validity.py`
+26. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+27. `python scripts/audit_claim_evidence.py`
+28. `python scripts/generate_release_decision_log.py`
+29. `python scripts/generate_freeze_readiness_roadmap.py`
+30. `python scripts/audit_scaffold_support.py`
+31. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+32. `python scripts/audit_claim_evidence.py`
+33. `python scripts/generate_release_decision_log.py`
+34. `python scripts/generate_freeze_readiness_roadmap.py`
+35. `python scripts/audit_scaffold_support.py`
+36. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+37. `python scripts/audit_claim_evidence.py`
+38. `python scripts/generate_release_decision_log.py`
+39. `python scripts/generate_freeze_readiness_roadmap.py`
+40. `python scripts/write_validation_manifest.py --public-export public_tasks`
+41. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -775,9 +807,9 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `38e04839ea71` |  | 11883 |
+| `README.md` | `5de4b0f7b75c` |  | 12201 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
-| `data/benchmark_requirements.csv` | `58915bb3270e` | 46 | 10305 |
+| `data/benchmark_requirements.csv` | `8928170dbe6c` | 47 | 10644 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
@@ -791,6 +823,7 @@ Key artifact hashes:
 | `data/statistical_reporting_audit.csv` | `0bedcd3ab24b` | 8 | 4201 |
 | `data/provider_readiness_audit.csv` | `c9ff1910a432` | 11 | 4912 |
 | `data/hosted_qa_readiness_audit.csv` | `aeba27f89c26` | 11 | 3290 |
+| `data/threats_to_validity.csv` | `3b166c498932` | 12 | 5786 |
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
 | `data/difficulty_audit.csv` | `46f1487950e4` | 26 | 13428 |
 | `data/task_quality_matrix.csv` | `65b778c0ae0c` | 26 | 16869 |
@@ -805,11 +838,11 @@ Key artifact hashes:
 | `data/pin_coverage_audit.csv` | `8ab31ee39037` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
 | `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `d128799e4604` | 9 | 14793 |
-| `data/release_decision_log.csv` | `e0cc662a482d` | 8 | 7221 |
-| `data/freeze_readiness_roadmap.csv` | `9688e5a4054e` | 10 | 7634 |
+| `data/claim_evidence_audit.csv` | `29580fc30288` | 9 | 15194 |
+| `data/release_decision_log.csv` | `68eb4df8ba4b` | 8 | 7579 |
+| `data/freeze_readiness_roadmap.csv` | `94afff66df09` | 10 | 8023 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `d462a9d93253` | 46 | 16248 |
+| `data/requirement_coverage.csv` | `0735d58e2989` | 47 | 16923 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/diagnostic_coverage_audit.md` | `e9f7fe4e65a1` |  | 7206 |
@@ -820,8 +853,8 @@ Key artifact hashes:
 | `reports/pin_coverage_audit.md` | `64fea7fef8db` |  | 4145 |
 | `reports/run_integrity_audit.md` | `75abcf6d7652` |  | 2213 |
 | `reports/grader_hardening_audit.md` | `b543474dd490` |  | 4073 |
-| `reports/claim_evidence_audit.md` | `182ff580cc0c` |  | 5147 |
-| `reports/release_decision_log.md` | `4dabfd6527a8` |  | 7868 |
+| `reports/claim_evidence_audit.md` | `a668c39b4536` |  | 5189 |
+| `reports/release_decision_log.md` | `fbfb003fad83` |  | 8208 |
 | `reports/freeze_readiness_roadmap.md` | `a8c71c3dcb0f` |  | 5384 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
@@ -831,7 +864,8 @@ Key artifact hashes:
 | `reports/statistical_reporting_audit.md` | `76bc109a408c` |  | 3415 |
 | `reports/provider_readiness_audit.md` | `20047ec923ac` |  | 5876 |
 | `reports/hosted_qa_readiness_audit.md` | `7c9d07aad947` |  | 3483 |
-| `reports/requirement_coverage.md` | `79cbb00d5e78` |  | 15155 |
+| `reports/threats_to_validity.md` | `d7176f4afb50` |  | 6000 |
+| `reports/requirement_coverage.md` | `70c8359a63ab` |  | 15757 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -849,50 +883,30 @@ Key artifact hashes:
 | `scripts/audit_pin_coverage.py` | `aaa6a5abbf28` |  | 15593 |
 | `scripts/audit_run_integrity.py` | `0d57a7faa416` |  | 13598 |
 | `scripts/audit_grader_hardening.py` | `7bcba063dd41` |  | 14898 |
-| `scripts/audit_claim_evidence.py` | `c3dcd1d6c80a` |  | 16136 |
-| `scripts/generate_release_decision_log.py` | `83a7d4d80152` |  | 12764 |
-| `scripts/generate_freeze_readiness_roadmap.py` | `6833c622f293` |  | 15285 |
+| `scripts/audit_claim_evidence.py` | `a4f8fbd1e663` |  | 16218 |
+| `scripts/generate_release_decision_log.py` | `9b7526e71120` |  | 12814 |
+| `scripts/generate_freeze_readiness_roadmap.py` | `05a23b7f5ff1` |  | 15390 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `65298251619c` |  | 69766 |
+| `scripts/audit_requirement_coverage.py` | `d77c2a7aa3ed` |  | 72753 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/generate_model_sweep_packet.py` | `ee695156d2e4` |  | 13728 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/audit_statistical_reporting.py` | `f9616d16268c` |  | 12921 |
 | `scripts/audit_provider_readiness.py` | `ad8b36f25ea7` |  | 18802 |
 | `scripts/audit_hosted_qa_readiness.py` | `b9a4b5dc34d4` |  | 13338 |
+| `scripts/generate_threats_to_validity.py` | `8fe4dda9d7e5` |  | 17567 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `3fe53910f614` |  | 71193 |
+| `scripts/generate_report.py` | `552db27292c3` |  | 72352 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `5941c1285ef9` |  | 2425 |
-| `scripts/write_validation_manifest.py` | `6ac4f4de9c7b` |  | 12354 |
+| `scripts/write_validation_manifest.py` | `833b6f01e4d4` |  | 12529 |
 
 
 ## Threats To Validity
 
-Construct validity:
-
-- Lean success is a strong signal for formal correctness of fixed theorems, but it does not by itself prove that a task measures the intended cognitive capability.
-- Hidden semantic pins are finite probes. They reject known vacuous or weakened formalizations but cannot exhaustively characterize semantic equivalence.
-- Fixed-statement proof tasks cannot always have a same-signature wrong answer that compiles publicly and then fails hidden semantic pins; if the theorem statement and definitions are fixed, a compiled proof is already semantically decisive.
-
-Internal validity:
-
-- Difficulty labels rely on author/reviewer estimates and mechanical proof profiles, not independent human solves.
-- Automation-dominated references can understate model difficulty if models fail earlier on decomposition or API search, but they can also overstate benchmark quality if retained without caveats.
-- The tiny committed provider smoke sweep is insufficient for performance claims and includes an infra-failure row.
-
-External validity:
-
-- v0.1 has only 6 accepted core tasks and limited T3/T4 coverage.
-- Most tasks are small Lean packages rather than large real-world formalization projects.
-- Mathlib coverage is narrow.
-
-Reliability and security:
-
-- Validation is reproducible locally through committed scripts and CSVs, but hosted Taiga/Env Linter QA has not been run.
-- API credentials are expected only through environment variables and are not part of the repo.
+The generated register in `reports/threats_to_validity.md` is the authoritative limitations table for this report. It currently keeps the strongest benchmark claims blocked where evidence is missing, including task-count scale, T3/T4 time-horizon depth, independent human timing, scaffold-sweep coverage, frontier/open-model coverage, statistical power, and hosted QA.
 
 ## Claim Ledger
 
