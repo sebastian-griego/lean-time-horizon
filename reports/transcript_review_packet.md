@@ -1,10 +1,12 @@
 # Transcript Review Packet
 
-This generated packet turns committed non-local transcripts into a review queue for failure-label adjudication. It does not create new model results and does not change `data/run_results.csv`; reviewers should fill `data/failure_label_review_template.csv` after inspecting transcripts.
+This generated packet turns committed non-local transcripts into a review queue for failure-label adjudication. It does not create new model results and does not change `data/run_results.csv`; reviewers should fill `data/failure_label_review_template.csv` after inspecting transcripts. A separate `data/failure_label_reviews.csv` file may record completed single-review adjudications, but the current smoke queue does not support distributional failure-mode claims.
 
 ## Summary
 
 - queued non-local rows: `3`
+- queue rows with committed single-review adjudication: `3/3`
+- review rows needing adjudication: `0`
 - review priorities: `{"high": 1, "low": 1, "medium": 1}`
 - current failure labels: `{"infra_failure": 1, "none": 1, "proof_debugging": 1}`
 - QA finding statuses: `{"unreviewed": 3}`
@@ -47,3 +49,13 @@ This generated packet turns committed non-local transcripts into a review queue 
 ## Output Template
 
 `data/failure_label_review_template.csv` contains one blank review row for each queued non-local run. It is intentionally blank so that committed review labels are not fabricated from existing run metadata.
+
+## Completed Single-Review Rows
+
+`data/failure_label_reviews.csv` records any completed single-review adjudication rows. These rows can be audited for transcript-evidence consistency, but they are not independent adjudication and should not be summarized as failure-mode prevalence.
+
+| run id | primary label | confidence | adjudication needed |
+| --- | --- | --- | --- |
+| `anthropic-claude-sonnet-4-6-one-shot-1780206167:lt-201` | `proof_debugging` | high | false |
+| `anthropic-claude-sonnet-4-6-one-shot-1780206126:lt-201` | `infra_failure` | high | false |
+| `anthropic-claude-sonnet-4-6-one-shot-1780206109:lt-001` | `none` | high | false |

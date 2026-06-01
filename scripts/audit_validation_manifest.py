@@ -26,6 +26,7 @@ REQUIRED_COMMANDS = {
     "python scripts/audit_diagnostic_coverage.py",
     "python scripts/generate_construct_validity_matrix.py",
     "python scripts/record_local_qa_results.py",
+    "python scripts/audit_failure_label_reviews.py",
     "python scripts/audit_run_integrity.py",
     "python scripts/generate_report.py",
     "python scripts/audit_statistical_reporting.py",

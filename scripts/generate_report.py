@@ -1093,6 +1093,39 @@ Transcript review queue:
 """
 
 
+def failure_label_review_audit_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/failure_label_review_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_failure_label_reviews.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    table_lines = [
+        "| check | area | status | evidence | limitation |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        limitation = row.get("limitation", "").replace("|", "/")
+        table_lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | "
+            f"{row.get('status', '')} | {evidence} | {limitation} |"
+        )
+    return f"""`reports/failure_label_review_audit.md`, `data/failure_label_review_audit.csv`, and `data/failure_label_reviews.csv` check that committed single-review smoke adjudications cite transcript evidence and preserve the no-distributional-claims boundary.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failures: `{len(failures)}`
+
+Failure-label review audit rows:
+
+{chr(10).join(table_lines)}
+"""
+
+
 def task_asset_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1347,6 +1380,7 @@ def main() -> int:
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_timing_plan_rows = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
     transcript_review_queue_rows = read_csv(ROOT / "data" / "transcript_review_queue.csv")
+    failure_label_review_audit_rows = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract_rows = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
@@ -1538,6 +1572,10 @@ The p50/p90 estimates in metadata are reviewer estimates, not measured independe
 
 {transcript_review_packet_section(transcript_review_queue_rows)}
 
+## Failure Label Review Audit
+
+{failure_label_review_audit_section(failure_label_review_audit_rows)}
+
 ## Grader And Integrity Controls
 
 The grader is Lean-first. For each submission it copies the public files listed in `metadata.json`, replaces the submission file, scans forbidden constructs, compiles public Lean files, compiles hidden semantic pins, and audits axioms on declared targets. Accepted and calibration tasks must have at least two wrong submissions.
@@ -1693,6 +1731,7 @@ python scripts/audit_human_time_calibration.py
 python scripts/generate_human_timing_packet.py
 python scripts/record_local_qa_results.py
 python scripts/generate_transcript_review_packet.py
+python scripts/audit_failure_label_reviews.py
 python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py
 python scripts/audit_grader_hardening.py
@@ -1957,6 +1996,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
+- `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 
 ## Reproducibility Checklist
 

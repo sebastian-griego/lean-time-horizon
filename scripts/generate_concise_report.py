@@ -140,6 +140,8 @@ def main() -> int:
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     grader = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
+    failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
+    failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
 
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
     calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
@@ -151,6 +153,7 @@ def main() -> int:
     freeze_counts = Counter(row.get("roadmap_status", "unknown") for row in freeze)
     integrity_failures = sum(1 for row in run_integrity if row.get("integrity_status") == "fail")
     grader_failures = sum(1 for row in grader if row.get("status") == "fail")
+    failure_review_failures = sum(1 for row in failure_label_review_audit if row.get("status") == "fail")
     accepted_without_timing = sum(
         1 for row in human_time
         if row.get("acceptance_status") == "accepted_v0"
@@ -238,6 +241,8 @@ def main() -> int:
         "Expected failure modes are author/reviewer forecasts until broader model transcripts are independently labeled. Common expected modes include:",
         "",
         bullets(Counter(dict(failure_mode_counts.most_common(8)))),
+        "",
+        f"Committed single-review smoke adjudications: `{len(failure_label_reviews)}` rows; failure-label review-audit failures: `{failure_review_failures}`. These rows are transcript provenance evidence, not failure-distribution evidence.",
         "",
         "## Grading And Integrity",
         "",

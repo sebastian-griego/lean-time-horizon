@@ -84,6 +84,7 @@ def grouped_plan() -> dict[str, list[dict[str, str]]]:
 def post_run_commands() -> str:
     commands = [
         "python scripts/audit_run_integrity.py",
+        "python scripts/generate_transcript_review_packet.py",
         "python scripts/analyze_model_results.py",
         "python scripts/audit_model_evidence_provenance.py",
         "python scripts/audit_statistical_reporting.py",
@@ -139,7 +140,7 @@ def build_command_rows() -> list[dict[str, str]]:
                 "full_sweep_command": full_command(provider, scaffold, k),
                 "smoke_command": smoke_command(provider, scaffold),
                 "post_run_commands": post_run_commands(),
-                "required_evidence": "new run_results rows; transcripts/<job_id>/*.jsonl; zero run_integrity failures; updated model_result_summary; updated statistical/provider/scaffold audits",
+                "required_evidence": "new run_results rows; transcripts/<job_id>/*.jsonl; zero run_integrity failures; updated transcript review queue; completed failure_label_reviews plus zero failure_label_review_audit failures before failure analysis; updated model_result_summary; updated statistical/provider/scaffold audits",
             })
     return rows
 
@@ -217,7 +218,7 @@ def build_checklist_rows(command_rows: list[dict[str, str]]) -> list[dict[str, s
             "required_before_claim": "true",
             "current_status": "blocked" if scaffold_result_status != "supported" else "ready",
             "evidence": scaffold_result_evidence,
-            "next_action": "Commit run_results rows and transcript JSONL files, then rerun integrity and model-result analysis.",
+            "next_action": "Commit run_results rows and transcript JSONL files, regenerate the transcript queue, complete failure-label review rows, then rerun integrity and model-result analysis.",
         },
         {
             "check_id": "frontier_claim_boundary",

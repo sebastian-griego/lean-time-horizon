@@ -168,17 +168,27 @@ def write_markdown(path: Path, queue_rows: list[dict[str, str]]) -> None:
     labels = read_csv(ROOT / "data" / "failure_labels.csv")
     if not any(row.get("label") == "none" for row in labels):
         labels = [{"label": "none", "description": "attempt succeeded; no failure label applies"}] + labels
+    review_rows = read_csv(ROOT / "data" / "failure_label_reviews.csv")
+    review_run_ids = {row.get("run_id", "") for row in review_rows}
+    queue_run_ids = {row.get("run_id", "") for row in queue_rows}
+    reviewed_queue_rows = queue_run_ids & review_run_ids
+    reviews_needing_adjudication = [
+        row for row in review_rows
+        if row.get("adjudication_needed") == "true"
+    ]
     priority_counts = Counter(row["review_priority"] for row in queue_rows)
     label_counts = Counter(row["failure_label_current"] for row in queue_rows)
     status_counts = Counter(row["qa_findings_status"] for row in queue_rows)
     lines = [
         "# Transcript Review Packet",
         "",
-        "This generated packet turns committed non-local transcripts into a review queue for failure-label adjudication. It does not create new model results and does not change `data/run_results.csv`; reviewers should fill `data/failure_label_review_template.csv` after inspecting transcripts.",
+        "This generated packet turns committed non-local transcripts into a review queue for failure-label adjudication. It does not create new model results and does not change `data/run_results.csv`; reviewers should fill `data/failure_label_review_template.csv` after inspecting transcripts. A separate `data/failure_label_reviews.csv` file may record completed single-review adjudications, but the current smoke queue does not support distributional failure-mode claims.",
         "",
         "## Summary",
         "",
         f"- queued non-local rows: `{len(queue_rows)}`",
+        f"- queue rows with committed single-review adjudication: `{len(reviewed_queue_rows)}/{len(queue_rows)}`",
+        f"- review rows needing adjudication: `{len(reviews_needing_adjudication)}`",
         f"- review priorities: `{compact_json(dict(sorted(priority_counts.items())))}`",
         f"- current failure labels: `{compact_json(dict(sorted(label_counts.items())))}`",
         f"- QA finding statuses: `{compact_json(dict(sorted(status_counts.items())))}`",
@@ -217,7 +227,19 @@ def write_markdown(path: Path, queue_rows: list[dict[str, str]]) -> None:
         "",
         "`data/failure_label_review_template.csv` contains one blank review row for each queued non-local run. It is intentionally blank so that committed review labels are not fabricated from existing run metadata.",
         "",
+        "## Completed Single-Review Rows",
+        "",
+        "`data/failure_label_reviews.csv` records any completed single-review adjudication rows. These rows can be audited for transcript-evidence consistency, but they are not independent adjudication and should not be summarized as failure-mode prevalence.",
+        "",
+        "| run id | primary label | confidence | adjudication needed |",
+        "| --- | --- | --- | --- |",
     ])
+    for row in review_rows:
+        lines.append(
+            f"| `{escaped(row.get('run_id', ''))}` | `{row.get('primary_label', '')}` | "
+            f"{row.get('confidence', '')} | {row.get('adjudication_needed', '')} |"
+        )
+    lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 
 

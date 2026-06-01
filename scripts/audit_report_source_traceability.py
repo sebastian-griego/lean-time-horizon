@@ -351,11 +351,13 @@ SECTION_SPECS = [
             "reports/concise_metr_report.md",
             "reports/requirement_coverage.md",
             "reports/report_source_traceability.md",
+            "reports/failure_label_review_audit.md",
         ],
         "required_phrases": [
             "evidence_appendix.md",
             "concise_metr_report.md",
             "requirement_coverage.md",
+            "failure_label_review_audit.md",
         ],
         "limitation": "The source map improves traceability but does not create new model evidence.",
         "next_action": "Keep new report artifacts listed in README, manifest, and source traceability.",

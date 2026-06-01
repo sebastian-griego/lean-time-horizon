@@ -10,7 +10,7 @@ automatic_lean_scoring,grading,Scoring should use Lean wherever possible and pro
 forbidden_construct_scan,integrity,Submissions should be scanned for forbidden constructs before Lean grading.,required_for_release_artifact,Playbook integrity and reward-hack hardening.
 axiom_audit_policy,integrity,Axiom usage should be audited or governed by a documented policy.,required_for_release_artifact,Playbook axiom audit guidance.
 metadata_completeness,data,"Task metadata should include family, domain, human-time, skills, scaffold sensitivity, and failure modes.",required_for_release_artifact,Playbook task metadata schema.
-schemas_present,data,"Task metadata, run results, and failure labels should have schemas.",required_for_release_artifact,User data-schema requirement.
+schemas_present,data,"Task metadata, run results, failure labels, and failure-label reviews should have schemas.",required_for_release_artifact,User data-schema requirement.
 run_result_semantics,data,run_results should represent successes_out_of_k and pass@k consistently.,required_for_release_artifact,User pass@k semantics requirement.
 scaffold_support,scaffolds,"The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants.",required_for_release_artifact,Playbook scaffold ladder.
 lookup_scaffold_no_hidden_leak,integrity,Lookup scaffold must not expose hidden references or wrong submissions.,required_for_release_artifact,Playbook hidden-material non-leak and scaffold lookup requirements.
@@ -20,6 +20,7 @@ model_evidence_provenance_audit,reporting,Model evidence provenance audit should
 scaffold_result_comparison,scaffolds,"The report should compare real model performance across scaffolds, ideally pass@10.",required_for_locked_benchmark,Playbook scaffold interpretation and calibration outputs.
 transcript_failure_workflow,runs,Run rows should link transcripts and carry failure labels for review.,required_for_release_artifact,Playbook failure taxonomy.
 transcript_review_packet,runs,Transcript review packet should provide a non-local run review queue failure-label codebook blank adjudication template and label-claim boundary without fabricating review labels.,required_for_research_report,Research-report quality requirement for transcript-based failure classification.
+failure_label_review_audit,runs,Failure-label review audit should verify committed non-local transcript reviews against transcripts and keep smoke-label claims caveated.,required_for_research_report,Research-report quality requirement for evidence-backed transcript failure classification.
 frontier_model_evidence,runs,Frontier/open-model runs should provide evidence beyond local QA.,required_for_locked_benchmark,Playbook project target.
 public_export_no_hidden_leak,integrity,Public export should include public assets and exclude hidden references and wrong submissions.,required_for_release_artifact,User hidden-material non-leak requirement.
 task_asset_manifest,reproducibility,Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping.,required_for_research_report,Research-report reproducibility requirement for exact task assets.

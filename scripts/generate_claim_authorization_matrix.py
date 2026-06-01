@@ -135,12 +135,23 @@ def build_rows() -> list[dict[str, str]]:
     threats = read_csv(ROOT / "data" / "threats_to_validity.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     transcript_review = read_csv(ROOT / "data" / "transcript_review_queue.csv")
+    failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
+    failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
 
     threat_status_counts = Counter(row.get("current_status", "unknown") for row in threats)
     statistical_block_count = sum(1 for row in statistical if row.get("status") == "block")
     transcript_unreviewed_count = sum(
         1 for row in transcript_review
         if row.get("qa_findings_status") in {"", "unreviewed"}
+    )
+    transcript_reviewed_count = len({
+        row.get("run_id", "")
+        for row in failure_label_reviews
+        if row.get("run_id", "")
+    })
+    failure_label_review_failures = sum(
+        1 for row in failure_label_review_audit
+        if row.get("status") == "fail"
     )
 
     local_release_ids = [
@@ -299,14 +310,16 @@ def build_rows() -> list[dict[str, str]]:
         "failure_taxonomy_results",
         "failure_analysis",
         "allowed_with_caveat",
-        "The repo has a failure-label schema, transcript links, and a transcript review queue for non-local rows.",
-        f"Failure labels are not independently adjudicated yet; queued rows still needing review: {transcript_unreviewed_count}.",
+        "The repo has a failure-label schema, transcript links, a transcript review queue, and a single-review audit for the committed smoke rows.",
+        f"Current adjudication is single-review smoke evidence only: reviewed rows {transcript_reviewed_count}/{len(transcript_review)}, raw queue rows still marked unreviewed in run_results {transcript_unreviewed_count}, audit failures {failure_label_review_failures}.",
         "Do not claim dominant failure modes, distributional failure analysis, or adjudicated taxonomy results.",
-        f"{req_evidence(reqs, 'transcript_failure_workflow')}; {req_evidence(reqs, 'transcript_review_packet')}",
-        "Review non-local transcripts with the blank adjudication template and rerun after broad provider sweeps.",
+        f"{req_evidence(reqs, 'transcript_failure_workflow')}; {req_evidence(reqs, 'transcript_review_packet')}; {req_evidence(reqs, 'failure_label_review_audit')}",
+        "Collect independently adjudicated non-local transcripts after broad provider sweeps.",
         [],
         [
             "reports/transcript_review_packet.md",
+            "reports/failure_label_review_audit.md",
+            "data/failure_label_reviews.csv",
             "data/failure_label_review_template.csv",
             "data/failure_label_schema.json",
         ],

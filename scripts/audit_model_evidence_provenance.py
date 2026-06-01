@@ -211,9 +211,9 @@ def build_rows() -> list[dict[str, str]]:
         "run_data",
         "pass" if not missing_transcripts else "fail",
         f"provider_transcripts={len(provider_rows)}; missing_transcripts={compact_json(missing_transcripts[:8])}",
-        "Transcript existence does not imply transcript labels have been independently adjudicated.",
-        "Keep transcript files committed or explicitly mark infra rows with enough diagnostic detail.",
-        ["data/run_results.csv", "transcripts"],
+        "Transcript existence plus single-review labels does not imply independent adjudication or representative failure-mode coverage.",
+        "Keep transcript files committed, audit review rows against transcript evidence, and require independent adjudication before failure-distribution claims.",
+        ["data/run_results.csv", "data/failure_label_reviews.csv", "reports/failure_label_review_audit.md", "transcripts"],
     ))
     rows.append(row(
         "summary_count_consistency",

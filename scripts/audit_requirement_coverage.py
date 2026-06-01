@@ -236,6 +236,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_review_template = read_csv(ROOT / "data" / "failure_label_review_template.csv")
+    failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
+    failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
@@ -407,13 +409,18 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if metadata_ok else "Fill missing metadata fields before using affected rows.",
     ))
 
-    schema_ok = all((ROOT / "data" / name).exists() for name in ["run_results_schema.json", "failure_label_schema.json", "task_metadata_schema.json"])
+    schema_ok = all((ROOT / "data" / name).exists() for name in [
+        "run_results_schema.json",
+        "failure_label_schema.json",
+        "failure_label_review_schema.json",
+        "task_metadata_schema.json",
+    ])
     requirement_rows.append(row(
         "schemas_present",
         "data",
         "Task metadata, run results, and failure labels should have schemas.",
         status_from_bool(schema_ok),
-        f"Schema files present: run={((ROOT / 'data' / 'run_results_schema.json').exists())}, failure={((ROOT / 'data' / 'failure_label_schema.json').exists())}, metadata={((ROOT / 'data' / 'task_metadata_schema.json').exists())}.",
+        f"Schema files present: run={((ROOT / 'data' / 'run_results_schema.json').exists())}, failure={((ROOT / 'data' / 'failure_label_schema.json').exists())}, failure_review={((ROOT / 'data' / 'failure_label_review_schema.json').exists())}, metadata={((ROOT / 'data' / 'task_metadata_schema.json').exists())}.",
         "No gap." if schema_ok else "Add or restore missing JSON schema files.",
     ))
 
@@ -599,6 +606,47 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(transcript_review_ok, partial=bool(transcript_review_queue)),
         f"queue rows: {len(transcript_review_queue)}; non-local run ids covered: {len(nonlocal_run_ids & queued_run_ids)}/{len(nonlocal_run_ids)}; template rows: {len(failure_label_review_template)}; missing transcripts in queue: {len(missing_transcript_queue)}; prefilled template labels: {len(fabricated_template_labels)}; report exists: {(ROOT / 'reports' / 'transcript_review_packet.md').exists()}.",
         "No gap." if transcript_review_ok else "Regenerate scripts/generate_transcript_review_packet.py and inspect queue/template coverage.",
+    ))
+
+    required_failure_review_checks = {
+        "review_schema",
+        "queue_coverage",
+        "label_validity",
+        "transcript_evidence",
+        "review_metadata",
+        "claim_boundary",
+    }
+    failure_review_check_ids = {row_data.get("check_id", "") for row_data in failure_label_review_audit}
+    failure_review_fields = set(failure_label_review_audit[0].keys()) if failure_label_review_audit else set()
+    required_failure_review_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "limitation",
+        "next_action",
+    }
+    failure_review_failures = [
+        row_data for row_data in failure_label_review_audit
+        if row_data.get("status") == "fail"
+    ]
+    failure_review_run_ids = {row_data.get("run_id", "") for row_data in failure_label_reviews}
+    failure_review_ok = (
+        bool(failure_label_reviews)
+        and bool(failure_label_review_audit)
+        and required_failure_review_checks.issubset(failure_review_check_ids)
+        and required_failure_review_fields.issubset(failure_review_fields)
+        and queued_run_ids.issubset(failure_review_run_ids)
+        and not failure_review_failures
+        and (ROOT / "reports" / "failure_label_review_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "failure_label_review_audit",
+        "runs",
+        "Failure-label review audit should verify committed non-local transcript reviews against transcripts and keep smoke-label claims caveated.",
+        status_from_bool(failure_review_ok, partial=bool(failure_label_reviews)),
+        f"review rows: {len(failure_label_reviews)}; queue rows covered: {len(queued_run_ids & failure_review_run_ids)}/{len(queued_run_ids)}; audit checks: {len(failure_label_review_audit)}; required checks covered: {len(required_failure_review_checks & failure_review_check_ids)}/{len(required_failure_review_checks)}; failures: {len(failure_review_failures)}; report exists: {(ROOT / 'reports' / 'failure_label_review_audit.md').exists()}.",
+        "No gap." if failure_review_ok else "Run scripts/audit_failure_label_reviews.py after transcript packet generation and inspect failed review rows.",
     ))
 
     model_ok = len(non_infra_model_rows) >= len(accepted)

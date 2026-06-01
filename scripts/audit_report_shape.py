@@ -161,10 +161,12 @@ def main() -> int:
         "blocked_by_evidence" if ok else "needs_attention",
         f"concision_mentions_failure_limits={ok}; missing_phrases={compact_json(missing)}",
         "Expected failure modes are documented, but broad model transcripts are not independently adjudicated.",
-        "Use the transcript review packet after broader provider sweeps before claiming dominant failure modes.",
+        "Use the transcript review packet and failure-label review audit after broader provider sweeps before claiming dominant failure modes.",
         [
             "reports/concise_metr_report.md",
             "reports/transcript_review_packet.md",
+            "reports/failure_label_review_audit.md",
+            "data/failure_label_reviews.csv",
             "data/failure_label_review_template.csv",
         ],
     ))

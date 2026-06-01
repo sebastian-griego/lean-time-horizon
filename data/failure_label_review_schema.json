@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lean Time-Horizon failure label review",
+  "type": "object",
+  "required": [
+    "run_id",
+    "task_id",
+    "reviewer_id",
+    "review_timestamp_utc",
+    "primary_label",
+    "secondary_labels",
+    "confidence",
+    "rationale",
+    "evidence_excerpt",
+    "adjudication_needed",
+    "adjudication_notes"
+  ],
+  "properties": {
+    "run_id": {"type": "string"},
+    "task_id": {"type": "string"},
+    "reviewer_id": {"type": "string"},
+    "review_timestamp_utc": {"type": "string"},
+    "primary_label": {"type": "string"},
+    "secondary_labels": {"type": "string"},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "rationale": {"type": "string"},
+    "evidence_excerpt": {"type": "string"},
+    "adjudication_needed": {"enum": ["true", "false"]},
+    "adjudication_notes": {"type": "string"}
+  }
+}

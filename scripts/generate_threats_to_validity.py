@@ -90,6 +90,8 @@ def build_rows() -> list[dict[str, str]]:
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
+    failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
+    failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
@@ -143,6 +145,10 @@ def build_rows() -> list[dict[str, str]]:
     transcript_high_priority = [
         row_data for row_data in transcript_review_queue
         if row_data.get("review_priority") in {"critical", "high"}
+    ]
+    failure_review_failures = [
+        row_data for row_data in failure_label_review_audit
+        if row_data.get("status") == "fail"
     ]
     statistical_blocks = [row_data for row_data in statistical if row_data.get("status") == "block"]
     hosted_blocks = [row_data for row_data in hosted if row_data.get("status") == "block"]
@@ -266,12 +272,21 @@ def build_rows() -> list[dict[str, str]]:
             (
                 f"accepted-core non-infra provider rows={accepted_provider_rows}; "
                 f"transcript review queue rows={len(transcript_review_queue)}; "
-                f"high/critical review rows={len(transcript_high_priority)}"
+                f"single-review rows={len(failure_label_reviews)}; "
+                f"review-audit failures={len(failure_review_failures)}; "
+                f"high/critical queue rows={len(transcript_high_priority)}"
             ),
-            "Failure labels, transcript workflow, and a blank transcript-review packet exist, but distributions are not interpreted until broad provider rows are reviewed.",
-            "Label real model transcripts after the scaffold sweep, adjudicate disagreements, and compare observed failures to intended diagnostic modes.",
+            "Failure labels, transcript workflow, a blank review template, and single-review smoke adjudications exist, but distributions are not interpreted until broad provider rows are independently reviewed.",
+            "Label real model transcripts after the scaffold sweep, use independent adjudication for disagreements, and compare observed failures to intended diagnostic modes.",
             ["diagnostic_failure_distribution", "scaffold_effects"],
-            ["data/failure_labels.csv", "data/run_results.csv", "data/transcript_review_queue.csv", "reports/transcript_review_packet.md"],
+            [
+                "data/failure_labels.csv",
+                "data/run_results.csv",
+                "data/transcript_review_queue.csv",
+                "data/failure_label_reviews.csv",
+                "reports/transcript_review_packet.md",
+                "reports/failure_label_review_audit.md",
+            ],
         ),
         row(
             "hosted_environment_gap",
