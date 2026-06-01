@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REGENERATION_COMMANDS = [
+    "lake exe cache get",
     "lake build",
     "python scripts/validate_all.py",
     "python scripts/audit_difficulty.py",
@@ -37,6 +38,7 @@ REGENERATION_COMMANDS = [
     "python scripts/audit_figure_manifest.py",
     "python scripts/audit_data_schema_manifest.py",
     "python scripts/generate_reviewer_reproduction_packet.py",
+    "python scripts/run_clean_workspace_replay.py",
     "python scripts/audit_provider_readiness.py",
     "python scripts/generate_report.py",
     "python scripts/audit_report_source_traceability.py",
@@ -138,6 +140,7 @@ HASHED_ARTIFACTS = [
     "data/figure_manifest.csv",
     "data/data_schema_manifest.csv",
     "data/reviewer_reproduction_steps.csv",
+    "data/clean_workspace_replay.csv",
     "data/release_decision_log.csv",
     "data/freeze_readiness_roadmap.csv",
     "data/scaffold_support_audit.csv",
@@ -162,6 +165,7 @@ HASHED_ARTIFACTS = [
     "reports/figure_manifest.md",
     "reports/data_schema_manifest.md",
     "reports/reviewer_reproduction_packet.md",
+    "reports/clean_workspace_replay.md",
     "reports/concise_metr_report.md",
     "reports/release_decision_log.md",
     "reports/freeze_readiness_roadmap.md",
@@ -205,6 +209,7 @@ HASHED_ARTIFACTS = [
     "scripts/audit_figure_manifest.py",
     "scripts/audit_data_schema_manifest.py",
     "scripts/generate_reviewer_reproduction_packet.py",
+    "scripts/run_clean_workspace_replay.py",
     "scripts/generate_concise_report.py",
     "scripts/audit_report_shape.py",
     "scripts/generate_release_decision_log.py",

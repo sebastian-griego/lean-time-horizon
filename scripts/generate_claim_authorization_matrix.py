@@ -193,6 +193,7 @@ def build_rows() -> list[dict[str, str]]:
             "reports/requirement_coverage.md",
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
+            "reports/clean_workspace_replay.md",
             "reports/validation_manifest.json",
         ],
     ))
@@ -210,6 +211,7 @@ def build_rows() -> list[dict[str, str]]:
             "reports/metr_style_report.md",
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
+            "reports/clean_workspace_replay.md",
             "reports/figure_manifest.md",
             "reports/threats_to_validity.md",
             "reports/release_decision_log.md",

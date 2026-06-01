@@ -4,10 +4,10 @@ This generated packet converts the local validation and report-generation surfac
 
 ## Summary
 
-- steps: `14`
-- phases: `{"external_evidence": 3, "local_replay": 11}`
-- statuses: `{"blocked_external_evidence": 3, "ready": 11}`
-- local replay steps ready: `11/11`
+- steps: `15`
+- phases: `{"external_evidence": 3, "local_replay": 12}`
+- statuses: `{"blocked_external_evidence": 3, "ready": 12}`
+- local replay steps ready: `12/12`
 - local replay problem rows: `0`
 - external evidence rows still blocked: `3`
 
@@ -19,6 +19,7 @@ Run the local replay steps in order after dependency setup. Treat any nonzero ex
 
 | step | phase | status | command | supports | limitation |
 | --- | --- | --- | --- | --- | --- |
+| `mathlib_cache_get` | local_replay | ready | `lake exe cache get` | Mathlib dependency artifacts can be materialized before tasks importing Mathlib are validated. | This is local dependency-cache evidence; hosted environments may use a different cache path. |
 | `toolchain_build` | local_replay | ready | `lake build` | Lean project and imported task libraries build in the configured toolchain. | This is local build evidence; it is not hosted QA or provider-sandbox evidence. |
 | `task_validation` | local_replay | ready | `python scripts/validate_all.py` | Reference solutions pass and plausible wrong submissions fail for every task under the local grader. | This validates local hidden checks and wrong submissions; it does not prove model performance. |
 | `difficulty_review` | local_replay | ready | `python scripts/audit_difficulty.py` | Accepted and calibration rows have mechanical proof-profile evidence and manual difficulty-review fields. | The audit combines static heuristics with human judgment; it is not independent human timing. |

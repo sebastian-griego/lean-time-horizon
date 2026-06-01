@@ -112,7 +112,9 @@ def audit_axioms(tmp: Path, import_module: str, declarations: list[str]) -> tupl
 def validate_submission(task_dir: Path, submission: Path, expect_pass: bool) -> dict:
     metadata = load_metadata(task_dir)
     metadata_path = task_dir / "metadata.json"
-    with tempfile.TemporaryDirectory(prefix=f"{metadata['task_id']}-", dir=ROOT / "tmp") as td:
+    tmp_root = ROOT / "tmp"
+    tmp_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=f"{metadata['task_id']}-", dir=tmp_root) as td:
         tmp = Path(td)
         copy_submission(task_dir, submission, tmp, metadata)
         submission_path = tmp / metadata_submission_file(metadata)

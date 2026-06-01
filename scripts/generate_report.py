@@ -484,6 +484,38 @@ Reviewer reproduction ledger:
 """
 
 
+def clean_workspace_replay_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/clean_workspace_replay.md` has not been generated yet. Run "
+            "`python scripts/run_clean_workspace_replay.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    phase_counts = Counter(row.get("phase", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") != "pass"]
+    lines = [
+        "| check | phase | status | seconds | limitation |",
+        "| --- | --- | --- | ---: | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('phase', '')} | "
+            f"{row.get('status', '')} | {row.get('duration_seconds', '')} | "
+            f"{row.get('limitation', '').replace('|', '/')} |"
+        )
+    return f"""`reports/clean_workspace_replay.md` and `data/clean_workspace_replay.csv` record a bounded temporary-workspace replay outside the dirty working directory.
+
+- replay rows: `{len(rows)}`
+- phase counts: `{compact_json(dict(sorted(phase_counts.items())))}`
+- status counts: `{compact_json(dict(sorted(status_counts.items())))}`
+- failure rows: `{len(failures)}`
+
+Clean workspace replay ledger:
+
+{chr(10).join(lines)}
+"""
+
+
 def figure_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1561,6 +1593,7 @@ def main() -> int:
     report_shape_rows = read_csv(ROOT / "data" / "report_shape_audit.csv")
     data_schema_manifest_rows = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     reviewer_reproduction_rows = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
+    clean_workspace_replay_rows = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1906,6 +1939,7 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 The intended local regeneration gate is:
 
 ```powershell
+lake exe cache get
 lake build
 python scripts/validate_all.py
 python scripts/audit_difficulty.py
@@ -1930,6 +1964,7 @@ python scripts/audit_statistical_reporting.py
 python scripts/audit_figure_manifest.py
 python scripts/audit_data_schema_manifest.py
 python scripts/generate_reviewer_reproduction_packet.py
+python scripts/run_clean_workspace_replay.py
 python scripts/audit_provider_readiness.py
 python scripts/generate_report.py
 python scripts/audit_report_source_traceability.py
@@ -1983,6 +2018,10 @@ The public export validator checks that hidden references and wrong submissions 
 ## Reviewer Reproduction Packet
 
 {reviewer_reproduction_packet_section(reviewer_reproduction_rows)}
+
+## Clean Workspace Replay
+
+{clean_workspace_replay_section(clean_workspace_replay_rows)}
 
 {validation_manifest_section(validation_manifest)}
 
@@ -2199,6 +2238,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
+- `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
@@ -2211,7 +2251,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 {reviewer_reproduction_packet_section(reviewer_reproduction_rows)}
 
-The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, and `reports/reviewer_reproduction_packet.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+{clean_workspace_replay_section(clean_workspace_replay_rows)}
+
+The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, `reports/reviewer_reproduction_packet.md`, and `reports/clean_workspace_replay.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 ## Claim Ledger
 

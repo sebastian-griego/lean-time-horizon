@@ -22,6 +22,17 @@ FIELDS = [
 
 STEPS = [
     {
+        "step_id": "mathlib_cache_get",
+        "phase": "local_replay",
+        "command": "lake exe cache get",
+        "expected_artifacts": ".lake/packages/mathlib/.lake/build/lib/lean",
+        "claim_supported": "Mathlib dependency artifacts can be materialized before tasks importing Mathlib are validated.",
+        "evidence_basis": "Process exit code plus clean-workspace replay for dependency materialization.",
+        "failure_interpretation": "A failure blocks clean-checkout validation for Mathlib-heavy public tasks until cache/build setup is repaired.",
+        "limitation": "This is local dependency-cache evidence; hosted environments may use a different cache path.",
+        "next_action": "Run before lake build in fresh workspaces or CI.",
+    },
+    {
         "step_id": "toolchain_build",
         "phase": "local_replay",
         "command": "lake build",

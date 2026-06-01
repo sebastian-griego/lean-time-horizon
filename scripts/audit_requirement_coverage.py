@@ -238,6 +238,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
     reviewer_reproduction_steps = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
+    clean_workspace_replay = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_review_template = read_csv(ROOT / "data" / "failure_label_review_template.csv")
@@ -2082,6 +2083,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
 
     required_reproduction_step_ids = {
         "toolchain_build",
+        "mathlib_cache_get",
         "task_validation",
         "difficulty_review",
         "local_qa_rows",
@@ -2133,6 +2135,50 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(reviewer_reproduction_ok, partial=bool(reviewer_reproduction_steps)),
         f"reproduction steps: {len(reviewer_reproduction_steps)}; required covered: {len(required_reproduction_step_ids & reproduction_step_ids)}/{len(required_reproduction_step_ids)}; local problem rows: {len(local_replay_problem_rows)}; external evidence rows: {len(external_evidence_rows)}; report exists: {(ROOT / 'reports' / 'reviewer_reproduction_packet.md').exists()}.",
         "No gap." if reviewer_reproduction_ok else "Run scripts/generate_reviewer_reproduction_packet.py and inspect missing local replay or external-boundary rows.",
+    ))
+
+    required_clean_replay_ids = {
+        "workspace_materialization",
+        "mathlib_cache_get",
+        "clean_lake_build",
+        "reference_validation_smoke",
+        "wrong_submission_smoke",
+        "public_export_smoke",
+        "public_export_validation_smoke",
+    }
+    clean_replay_ids = {row_data.get("check_id", "") for row_data in clean_workspace_replay}
+    clean_replay_fields = set(clean_workspace_replay[0].keys()) if clean_workspace_replay else set()
+    required_clean_replay_fields = {
+        "check_id",
+        "phase",
+        "status",
+        "command",
+        "returncode",
+        "duration_seconds",
+        "workspace_path",
+        "stdout_tail",
+        "artifacts_checked",
+        "limitation",
+        "next_action",
+    }
+    clean_replay_failures = [
+        row_data for row_data in clean_workspace_replay
+        if row_data.get("status") != "pass"
+    ]
+    clean_workspace_replay_ok = (
+        bool(clean_workspace_replay)
+        and required_clean_replay_ids.issubset(clean_replay_ids)
+        and required_clean_replay_fields.issubset(clean_replay_fields)
+        and not clean_replay_failures
+        and (ROOT / "reports" / "clean_workspace_replay.md").exists()
+    )
+    requirement_rows.append(row(
+        "clean_workspace_replay",
+        "reproducibility",
+        "Clean workspace replay should exercise dependency materialization Lean build grader pass/fail behavior and public export validation outside the dirty working directory.",
+        status_from_bool(clean_workspace_replay_ok, partial=bool(clean_workspace_replay)),
+        f"clean replay rows: {len(clean_workspace_replay)}; required covered: {len(required_clean_replay_ids & clean_replay_ids)}/{len(required_clean_replay_ids)}; failures: {len(clean_replay_failures)}; report exists: {(ROOT / 'reports' / 'clean_workspace_replay.md').exists()}.",
+        "No gap." if clean_workspace_replay_ok else "Run scripts/run_clean_workspace_replay.py and inspect dependency, grader, or public-export failures.",
     ))
 
     requirement_rows.append(row(

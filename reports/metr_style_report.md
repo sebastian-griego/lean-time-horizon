@@ -43,7 +43,7 @@ Data schema ledger:
 | `failure_label_reviews` | schema_valid | 3 | `data/failure_label_review_schema.json` | These are single-review smoke rows, not independent distributional adjudication. | Use the transcript review packet and adjudication fields for future broad sweeps. |
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 51 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 52 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -97,7 +97,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 57}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 58}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -302,6 +302,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
+- `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
@@ -314,9 +315,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 `reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
 
-- reproduction steps: `14`
-- phase counts: `{"external_evidence": 3, "local_replay": 11}`
-- status counts: `{"blocked_external_evidence": 3, "ready": 11}`
+- reproduction steps: `15`
+- phase counts: `{"external_evidence": 3, "local_replay": 12}`
+- status counts: `{"blocked_external_evidence": 3, "ready": 12}`
 - local replay problem rows: `0`
 - external-evidence rows still blocked: `3`
 
@@ -324,6 +325,7 @@ Reviewer reproduction ledger:
 
 | step | phase | status | command | limitation |
 | --- | --- | --- | --- | --- |
+| `mathlib_cache_get` | local_replay | ready | `lake exe cache get` | This is local dependency-cache evidence; hosted environments may use a different cache path. |
 | `toolchain_build` | local_replay | ready | `lake build` | This is local build evidence; it is not hosted QA or provider-sandbox evidence. |
 | `task_validation` | local_replay | ready | `python scripts/validate_all.py` | This validates local hidden checks and wrong submissions; it does not prove model performance. |
 | `difficulty_review` | local_replay | ready | `python scripts/audit_difficulty.py` | The audit combines static heuristics with human judgment; it is not independent human timing. |
@@ -340,7 +342,27 @@ Reviewer reproduction ledger:
 | `hosted_qa` | external_evidence | blocked_external_evidence | `Run hosted Full Env QA and Env Linter on exact final problem versions` | This repository currently records readiness only, not hosted QA pass evidence. |
 
 
-The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, and `reports/reviewer_reproduction_packet.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+`reports/clean_workspace_replay.md` and `data/clean_workspace_replay.csv` record a bounded temporary-workspace replay outside the dirty working directory.
+
+- replay rows: `7`
+- phase counts: `{"replay": 6, "setup": 1}`
+- status counts: `{"pass": 7}`
+- failure rows: `0`
+
+Clean workspace replay ledger:
+
+| check | phase | status | seconds | limitation |
+| --- | --- | --- | ---: | --- |
+| `workspace_materialization` | setup | pass | 78.42 | This is a local clean workspace from the current working tree, not a remote clone or hosted container. |
+| `mathlib_cache_get` | replay | pass | 767.85 | This uses the Mathlib cache for local dependency materialization; hosted runners need their own cache or build path. |
+| `clean_lake_build` | replay | pass | 5.92 | Local toolchain and dependency resolution can differ from hosted QA. |
+| `reference_validation_smoke` | replay | pass | 34.99 | This is a representative reference-validation smoke, not full validate_all coverage. |
+| `wrong_submission_smoke` | replay | pass | 6.96 | This probes expected-fail behavior for one semantic-pin wrong submission only. |
+| `public_export_smoke` | replay | pass | 0.83 | Local public export is not hosted problem packaging. |
+| `public_export_validation_smoke` | replay | pass | 144.35 | This validates local public assets but does not run Env Linter. |
+
+
+The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, `reports/reviewer_reproduction_packet.md`, and `reports/clean_workspace_replay.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 ## Claim Ledger
 

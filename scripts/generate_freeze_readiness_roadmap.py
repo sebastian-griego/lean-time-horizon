@@ -177,6 +177,7 @@ def build_rows() -> list[dict[str, str]]:
             requirement(requirements, "public_export_no_hidden_leak"),
             requirement(requirements, "data_schema_manifest"),
             requirement(requirements, "reviewer_reproduction_packet"),
+            requirement(requirements, "clean_workspace_replay"),
             requirement(requirements, "run_integrity_audit"),
             requirement(requirements, "grader_hardening_audit"),
         ]),
@@ -186,6 +187,7 @@ def build_rows() -> list[dict[str, str]]:
         [
             "reports/validation_manifest.json",
             "reports/reviewer_reproduction_packet.md",
+            "reports/clean_workspace_replay.md",
             "reports/run_integrity_audit.md",
             "reports/grader_hardening_audit.md",
         ],

@@ -19,6 +19,7 @@ FIELDS = [
 ]
 
 REQUIRED_COMMANDS = {
+    "lake exe cache get",
     "lake build",
     "python scripts/validate_all.py",
     "python scripts/audit_difficulty.py",
@@ -32,6 +33,7 @@ REQUIRED_COMMANDS = {
     "python scripts/audit_figure_manifest.py",
     "python scripts/audit_data_schema_manifest.py",
     "python scripts/generate_reviewer_reproduction_packet.py",
+    "python scripts/run_clean_workspace_replay.py",
     "python scripts/generate_statistical_analysis_plan.py",
     "python scripts/audit_statistical_reporting.py",
     "python scripts/audit_report_source_traceability.py",

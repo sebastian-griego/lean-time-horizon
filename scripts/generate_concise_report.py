@@ -140,6 +140,7 @@ def main() -> int:
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     data_schema_manifest = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     reviewer_reproduction = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
+    clean_workspace = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
     grader = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
@@ -169,6 +170,8 @@ def main() -> int:
         if row.get("phase") == "local_replay" and row.get("status") != "ready"
     )
     reproduction_external_rows = sum(1 for row in reviewer_reproduction if row.get("phase") == "external_evidence")
+    clean_workspace_status_counts = Counter(row.get("status", "unknown") for row in clean_workspace)
+    clean_workspace_failures = sum(1 for row in clean_workspace if row.get("status") != "pass")
     grader_failures = sum(1 for row in grader if row.get("status") == "fail")
     failure_review_failures = sum(1 for row in failure_label_review_audit if row.get("status") == "fail")
     accepted_without_timing = sum(
@@ -274,6 +277,8 @@ def main() -> int:
         f"- data-schema problem rows: `{schema_problem_rows}`",
         f"- reviewer reproduction statuses: `{compact_json(dict(sorted(reproduction_status_counts.items())))}`",
         f"- reviewer reproduction local problem rows: `{reproduction_local_problems}`; external-evidence rows blocked: `{reproduction_external_rows}`",
+        f"- clean-workspace replay statuses: `{compact_json(dict(sorted(clean_workspace_status_counts.items())))}`",
+        f"- clean-workspace replay failures: `{clean_workspace_failures}`",
         f"- grader-hardening failures: `{grader_failures}`",
         "- public export validator checks hidden/wrong files are absent from `public_tasks`.",
         "- hidden pins are meaningful finite probes, not proof of full semantic equivalence.",
@@ -305,6 +310,7 @@ def main() -> int:
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
         "- `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.",
         "- `reports/reviewer_reproduction_packet.md` gives an ordered local replay workflow and separates external-evidence blockers.",
+        "- `reports/clean_workspace_replay.md` records a bounded temporary-workspace replay outside the dirty working directory.",
         "- `reports/research_claim_gap_matrix.md` records the evidence packages needed before stronger claims are allowed.",
         "- `reports/statistical_analysis_plan.md` records minimum evidence thresholds, blocked overclaim wording, and Wilson precision limits before broader model sweeps.",
         "- `reports/figure_manifest.md` maps generated figures to source data and records blocked performance plots.",
@@ -340,7 +346,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 
