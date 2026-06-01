@@ -94,6 +94,23 @@ def build_rows() -> list[dict[str, str]]:
     rejected = [task for task in metadata if task.get("acceptance_status", "").startswith("rejected_")]
     accepted_pin = [row for row in pin_coverage if row.get("acceptance_status") == "accepted_v0"]
     accepted_hidden_pin_tasks = sum(1 for row in accepted_pin if int(row.get("wrongs_failing_hidden_pin_stage", "0") or "0") > 0)
+    mutable_pin_rows = [
+        row for row in accepted_pin
+        if row.get("same_signature_hidden_wrong_feasibility") == "feasible_via_definition_semantics"
+    ]
+    mutable_hidden_pin_tasks = sum(
+        1 for row in mutable_pin_rows
+        if int(row.get("wrongs_failing_hidden_pin_stage", "0") or "0") > 0
+    )
+    proof_only_pin_rows = [
+        row for row in accepted_pin
+        if row.get("same_signature_hidden_wrong_feasibility")
+        == "structurally_infeasible_for_same_signature_proof_wrongs"
+    ]
+    semantic_role_rows = [
+        row for row in accepted_pin
+        if row.get("hidden_pin_role") == "semantic_positive_negative_guard"
+    ]
     run_failures = [row for row in run_integrity if row.get("integrity_status") == "fail"]
     primary_coverage = next(
         (
@@ -187,13 +204,25 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "hidden_pin_strength",
-        "Hidden semantic checks provide meaningful anti-gaming evidence for accepted tasks.",
+        "Hidden checks provide meaningful anti-gaming evidence for accepted tasks, with semantic hidden-pin failures on mutable-definition tasks and signature/downstream guards on proof-only fixed-statement tasks.",
         "grading_validity",
-        "partial" if accepted_hidden_pin_tasks < len(accepted) else "supported",
+        (
+            "supported"
+            if mutable_pin_rows
+            and mutable_hidden_pin_tasks == len(mutable_pin_rows)
+            and len(proof_only_pin_rows) + len(mutable_pin_rows) == len(accepted_pin)
+            else "partial"
+        ),
         "medium",
-        f"{accepted_hidden_pin_tasks}/{len(accepted)} accepted tasks have at least one wrong submission reaching hidden pins; {evidence(reqs, 'pin_coverage_audit')}; {evidence(reqs, 'semantic_formalization_pins')}",
-        "Some accepted fixed-statement/proof-repair rows have wrong submissions that fail before hidden pins run; hidden pins are finite probes.",
-        "Add stronger same-signature semantic wrongs where possible and expand negative hidden examples for retained caveat rows.",
+        (
+            f"{accepted_hidden_pin_tasks}/{len(accepted)} accepted tasks have at least one wrong submission reaching hidden pins; "
+            f"{mutable_hidden_pin_tasks}/{len(mutable_pin_rows)} mutable-definition accepted tasks have hidden-pin wrong failures; "
+            f"{len(proof_only_pin_rows)} proof-only accepted tasks are structurally infeasible for same-signature wrong proofs; "
+            f"{len(semantic_role_rows)}/{len(accepted_pin)} accepted tasks have semantic positive/negative guards; "
+            f"{evidence(reqs, 'pin_coverage_audit')}; {evidence(reqs, 'semantic_formalization_pins')}"
+        ),
+        "Proof-only fixed-statement rows do not have semantic hidden wrongs because Lean compilation already certifies exact same-signature theorem proofs; hidden pins remain finite probes.",
+        "Add independent reviewer assessment of hidden pins and strengthen any future mutable accepted task until it has at least one public-compiling wrong that fails hidden pins.",
     ))
     rows.append(row(
         "run_data_integrity",

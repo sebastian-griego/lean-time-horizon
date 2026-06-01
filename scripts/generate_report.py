@@ -794,24 +794,28 @@ def pin_coverage_section(rows: list[dict[str, str]]) -> str:
     accepted_with_hidden = sum(1 for row in accepted if int(row.get("wrongs_failing_hidden_pin_stage", "0") or 0) > 0)
     accepted_hidden = sum(int(row.get("wrongs_failing_hidden_pin_stage", "0") or 0) for row in accepted)
     accepted_public = sum(int(row.get("wrongs_failing_public_stage", "0") or 0) for row in accepted)
+    feasibility_counts = Counter(row.get("same_signature_hidden_wrong_feasibility", "unknown") for row in accepted)
+    role_counts = Counter(row.get("hidden_pin_role", "unknown") for row in accepted)
     table_lines = [
-        "| task | grade | shape checks | positive examples | negative examples | public-stage wrongs | hidden-pin wrongs | note |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        "| task | grade | surface | hidden-pin role | same-signature hidden-wrong feasibility | public-stage wrongs | hidden-pin wrongs | note |",
+        "| --- | --- | --- | --- | --- | ---: | ---: | --- |",
     ]
     for row in accepted:
         note = row.get("review_note", "").replace("|", "/")
         table_lines.append(
             f"| `{row.get('task_id', '')}` | {row.get('pin_coverage_grade', '')} | "
-            f"{row.get('theorem_shape_checks', '')} | {row.get('positive_examples', '')} | "
-            f"{row.get('negative_examples', '')} | {row.get('wrongs_failing_public_stage', '')} | "
+            f"{row.get('submission_surface', '')} | {row.get('hidden_pin_role', '')} | "
+            f"{row.get('same_signature_hidden_wrong_feasibility', '')} | {row.get('wrongs_failing_public_stage', '')} | "
             f"{row.get('wrongs_failing_hidden_pin_stage', '')} | {note} |"
         )
-    return f"""`reports/pin_coverage_audit.md` and `data/pin_coverage_audit.csv` make hidden-check evidence inspectable by separating public-stage wrong failures from wrong submissions that actually reach `PinCheck.lean`.
+    return f"""`reports/pin_coverage_audit.md` and `data/pin_coverage_audit.csv` make hidden-check evidence inspectable by separating public-stage wrong failures from wrong submissions that actually reach `PinCheck.lean`. It also classifies whether same-signature hidden wrongs are meaningful for the task surface: proof-only fixed-statement rows are already semantically certified by Lean if the fixed theorem compiles, while mutable-definition rows can have public-compiling semantic wrongs that hidden pins should catch.
 
 - pin coverage grades: `{compact_json(dict(sorted(grade_counts.items())))}`
 - accepted-core tasks with at least one hidden-pin wrong failure: `{accepted_with_hidden}/{len(accepted)}`
 - accepted-core wrong failures at public stage: `{accepted_public}`
 - accepted-core wrong failures at hidden-pin stage: `{accepted_hidden}`
+- accepted-core same-signature hidden-wrong feasibility: `{compact_json(dict(sorted(feasibility_counts.items())))}`
+- accepted-core hidden-pin roles: `{compact_json(dict(sorted(role_counts.items())))}`
 
 Accepted-core hidden-pin coverage:
 

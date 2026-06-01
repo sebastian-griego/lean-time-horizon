@@ -439,7 +439,7 @@ _None._
 `reports/claim_evidence_audit.md` and `data/claim_evidence_audit.csv` map report claims to evidence strength and limits. This keeps local artifact-validity claims separate from performance and locked-benchmark claims.
 
 - claims audited: `9`
-- support statuses: `{"partial": 2, "supported": 4, "unsupported": 3}`
+- support statuses: `{"partial": 1, "supported": 5, "unsupported": 3}`
 - claim types: `{"artifact_validity": 1, "benchmark_status": 1, "construct_validity": 1, "data_validity": 1, "grading_validity": 1, "performance_claim": 2, "report_validity": 1, "task_validity": 1}`
 
 Claim support table:
@@ -449,7 +449,7 @@ Claim support table:
 | `local_release_artifact` | artifact_validity | supported | high | The repository is a locally validated v0.1 release artifact with public scaffolds, hidden checks, Lean scoring, integrity controls, and complete metadata. | This is a local artifact claim, not a hosted/frozen benchmark claim. | Hosted QA, independent review, and broader accepted task count are still required for a locked benchmark. |
 | `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
 | `accepted_core_reviewed` | task_validity | supported | medium | The six accepted-core tasks are internally reviewed and higher quality than the original candidate pool. | This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size. | Independent Lean-human review and more accepted high-quality T2/T3/T4 rows. |
-| `hidden_pin_strength` | grading_validity | partial | medium | Hidden semantic checks provide meaningful anti-gaming evidence for accepted tasks. | Some accepted fixed-statement/proof-repair rows have wrong submissions that fail before hidden pins run; hidden pins are finite probes. | Add stronger same-signature semantic wrongs where possible and expand negative hidden examples for retained caveat rows. |
+| `hidden_pin_strength` | grading_validity | supported | medium | Hidden checks provide meaningful anti-gaming evidence for accepted tasks, with semantic hidden-pin failures on mutable-definition tasks and signature/downstream guards on proof-only fixed-statement tasks. | Proof-only fixed-statement rows do not have semantic hidden wrongs because Lean compilation already certifies exact same-signature theorem proofs; hidden pins remain finite probes. | Add independent reviewer assessment of hidden pins and strengthen any future mutable accepted task until it has at least one public-compiling wrong that fails hidden pins. |
 | `run_data_integrity` | data_validity | supported | high | Committed run-result rows are internally consistent with transcripts, failure labels, score vectors, and pass@k semantics. | This validates data hygiene only; it does not make the smoke rows representative. | Maintain this audit for future provider sweeps and require zero failing rows before reporting results. |
 | `time_horizon_measurement` | construct_validity | partial | low | The current artifact measures model behavior across increasing time horizons. | Accepted core has only T2/T3 coverage and no T4; human times are author/reviewer estimates rather than independent solves. | Add independently timed T3/T4 tasks before claiming strong time-horizon measurement. |
 | `scaffold_effects` | performance_claim | unsupported | none | The report supports conclusions about how lookup and iterative compile/debug scaffolds change model performance. | The scaffold ladder is implemented and planned, but real accepted-core provider data cover only one one-shot cell. | Run accepted-core pass@10 or equivalent rows across one-shot, lookup, and lookup_unlimited. |
@@ -536,23 +536,25 @@ Accepted task asset coverage:
 
 ## Hidden Pin Coverage Audit
 
-`reports/pin_coverage_audit.md` and `data/pin_coverage_audit.csv` make hidden-check evidence inspectable by separating public-stage wrong failures from wrong submissions that actually reach `PinCheck.lean`.
+`reports/pin_coverage_audit.md` and `data/pin_coverage_audit.csv` make hidden-check evidence inspectable by separating public-stage wrong failures from wrong submissions that actually reach `PinCheck.lean`. It also classifies whether same-signature hidden wrongs are meaningful for the task surface: proof-only fixed-statement rows are already semantically certified by Lean if the fixed theorem compiles, while mutable-definition rows can have public-compiling semantic wrongs that hidden pins should catch.
 
-- pin coverage grades: `{"pins_not_exercised_by_wrongs": 5, "semantic_examples_exercised": 3, "semantic_pins_exercised": 3, "signature_plus_hidden_failure": 15}`
+- pin coverage grades: `{"pins_not_exercised_by_wrongs": 5, "semantic_examples_exercised": 3, "semantic_pins_exercised": 4, "signature_plus_hidden_failure": 14}`
 - accepted-core tasks with at least one hidden-pin wrong failure: `4/6`
 - accepted-core wrong failures at public stage: `6`
 - accepted-core wrong failures at hidden-pin stage: `5`
+- accepted-core same-signature hidden-wrong feasibility: `{"feasible_via_definition_semantics": 4, "structurally_infeasible_for_same_signature_proof_wrongs": 2}`
+- accepted-core hidden-pin roles: `{"semantic_positive_negative_guard": 4, "signature_and_downstream_use_guard": 2}`
 
 Accepted-core hidden-pin coverage:
 
-| task | grade | shape checks | positive examples | negative examples | public-stage wrongs | hidden-pin wrongs | note |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `lt-201` | pins_not_exercised_by_wrongs | 4 | 6 | 0 | 2 | 0 | Accepted row needs a caveat: current wrong submissions fail before hidden pins run. |
-| `lt-203` | semantic_pins_exercised | 4 | 3 | 2 | 0 | 2 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
-| `lt-202` | pins_not_exercised_by_wrongs | 5 | 2 | 0 | 2 | 0 | Accepted row needs a caveat: current wrong submissions fail before hidden pins run. |
-| `lt-204` | signature_plus_hidden_failure | 6 | 6 | 0 | 1 | 1 | Accepted row lacks negative hidden examples; review semantic pin strength before freeze. |
-| `lt-205` | semantic_pins_exercised | 8 | 4 | 1 | 1 | 1 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
-| `lt-206` | semantic_pins_exercised | 5 | 4 | 2 | 0 | 1 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
+| task | grade | surface | hidden-pin role | same-signature hidden-wrong feasibility | public-stage wrongs | hidden-pin wrongs | note |
+| --- | --- | --- | --- | --- | ---: | ---: | --- |
+| `lt-201` | pins_not_exercised_by_wrongs | proof_only_fixed_statements | signature_and_downstream_use_guard | structurally_infeasible_for_same_signature_proof_wrongs | 2 | 0 | Accepted proof-only row: same-signature semantic wrong proofs are structurally infeasible once Lean accepts the fixed theorem; hidden pins guard signatures and downstream use. |
+| `lt-203` | semantic_pins_exercised | mutable_definitions_plus_theorems | semantic_positive_negative_guard | feasible_via_definition_semantics | 0 | 2 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
+| `lt-202` | pins_not_exercised_by_wrongs | proof_only_fixed_statements | signature_and_downstream_use_guard | structurally_infeasible_for_same_signature_proof_wrongs | 2 | 0 | Accepted proof-only row: same-signature semantic wrong proofs are structurally infeasible once Lean accepts the fixed theorem; hidden pins guard signatures and downstream use. |
+| `lt-204` | semantic_pins_exercised | mutable_definitions_plus_theorems | semantic_positive_negative_guard | feasible_via_definition_semantics | 1 | 1 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
+| `lt-205` | semantic_pins_exercised | mutable_definitions_plus_theorems | semantic_positive_negative_guard | feasible_via_definition_semantics | 1 | 1 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
+| `lt-206` | semantic_pins_exercised | mutable_definitions_plus_theorems | semantic_positive_negative_guard | feasible_via_definition_semantics | 0 | 1 | Accepted row has at least one wrong submission reaching hidden pins and nontrivial examples. |
 
 
 ## Requirement Coverage Audit
@@ -631,9 +633,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T05:52:49.544383+00:00`
+Generated at UTC: `2026-06-01T06:18:13.540015+00:00`
 
-Git branch/head at generation: `main` / `1fe4daccb5c8`. Worktree status at generation: `17 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `235a8e129430`. Worktree status at generation: `20 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -694,7 +696,7 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `9435208b2d15` |  | 10753 |
+| `README.md` | `100621b3d188` |  | 10836 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
 | `data/benchmark_requirements.csv` | `3185250460ea` | 43 | 9309 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
@@ -709,32 +711,32 @@ Key artifact hashes:
 | `data/provider_readiness_audit.csv` | `c9ff1910a432` | 11 | 4912 |
 | `data/hosted_qa_readiness_audit.csv` | `aeba27f89c26` | 11 | 3290 |
 | `data/validation_commands.csv` | `747620524702` | 66 | 12164 |
-| `data/difficulty_audit.csv` | `123f2bed92f0` | 26 | 13428 |
-| `data/task_quality_matrix.csv` | `5c6891423804` | 26 | 16869 |
+| `data/difficulty_audit.csv` | `46f1487950e4` | 26 | 13428 |
+| `data/task_quality_matrix.csv` | `65b778c0ae0c` | 26 | 16869 |
 | `data/diagnostic_coverage_audit.csv` | `56194ecdf676` | 15 | 6702 |
 | `data/human_time_observations.csv` | `b742021c8ae3` | 0 | 79 |
 | `data/human_time_observations_schema.json` | `5e06e5804dbc` |  | 740 |
 | `data/human_time_calibration_audit.csv` | `d4174f9ef97b` | 26 | 7512 |
-| `data/task_asset_manifest.csv` | `d3a97763beae` | 171 | 37297 |
+| `data/task_asset_manifest.csv` | `11a7904fb684` | 171 | 37297 |
 | `data/prompt_contract_audit.csv` | `8ac0cc6ea492` | 14 | 3106 |
-| `data/pin_coverage_audit.csv` | `c9d78f916dae` | 26 | 6514 |
+| `data/pin_coverage_audit.csv` | `8ab31ee39037` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
 | `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `6f36b0953339` | 9 | 12800 |
-| `data/release_decision_log.csv` | `0e01c45453f9` | 8 | 5776 |
+| `data/claim_evidence_audit.csv` | `f0fd7aad939a` | 9 | 13418 |
+| `data/release_decision_log.csv` | `6e622091823d` | 8 | 5867 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `f29c2d0861a4` | 43 | 14632 |
+| `data/requirement_coverage.csv` | `a1f4a98c522f` | 43 | 14721 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/diagnostic_coverage_audit.md` | `e9f7fe4e65a1` |  | 7206 |
 | `reports/human_time_calibration_audit.md` | `0297a19d85fd` |  | 1578 |
 | `reports/task_asset_manifest.md` | `95480e1da7cf` |  | 1377 |
 | `reports/prompt_contract_audit.md` | `9d7e7dd7a857` |  | 2659 |
-| `reports/pin_coverage_audit.md` | `26b6cb10ed91` |  | 2544 |
+| `reports/pin_coverage_audit.md` | `64fea7fef8db` |  | 4145 |
 | `reports/run_integrity_audit.md` | `75abcf6d7652` |  | 2213 |
 | `reports/grader_hardening_audit.md` | `b543474dd490` |  | 4073 |
-| `reports/claim_evidence_audit.md` | `3474431e9588` |  | 4833 |
-| `reports/release_decision_log.md` | `8297a454d9d8` |  | 6493 |
+| `reports/claim_evidence_audit.md` | `98a6e8e9b782` |  | 5053 |
+| `reports/release_decision_log.md` | `d03c7ce5b72b` |  | 6584 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
@@ -742,7 +744,7 @@ Key artifact hashes:
 | `reports/statistical_reporting_audit.md` | `76bc109a408c` |  | 3415 |
 | `reports/provider_readiness_audit.md` | `20047ec923ac` |  | 5876 |
 | `reports/hosted_qa_readiness_audit.md` | `7c9d07aad947` |  | 3483 |
-| `reports/requirement_coverage.md` | `a5540c63defa` |  | 13759 |
+| `reports/requirement_coverage.md` | `e79e0f60e102` |  | 13848 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -756,20 +758,20 @@ Key artifact hashes:
 | `scripts/audit_human_time_calibration.py` | `9aa994547bbe` |  | 9107 |
 | `scripts/generate_task_asset_manifest.py` | `39b723c68b45` |  | 8843 |
 | `scripts/audit_prompt_contracts.py` | `327ee834ce2d` |  | 9251 |
-| `scripts/audit_pin_coverage.py` | `91d9de6011db` |  | 11828 |
+| `scripts/audit_pin_coverage.py` | `aaa6a5abbf28` |  | 15593 |
 | `scripts/audit_run_integrity.py` | `0d57a7faa416` |  | 13598 |
 | `scripts/audit_grader_hardening.py` | `7bcba063dd41` |  | 14898 |
-| `scripts/audit_claim_evidence.py` | `eeeff7e32b43` |  | 14314 |
+| `scripts/audit_claim_evidence.py` | `8f7c698cec75` |  | 15796 |
 | `scripts/generate_release_decision_log.py` | `50a80c69c816` |  | 12384 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `fb33dd09417e` |  | 60468 |
+| `scripts/audit_requirement_coverage.py` | `f4bc24b3e134` |  | 61513 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/audit_statistical_reporting.py` | `f9616d16268c` |  | 12921 |
 | `scripts/audit_provider_readiness.py` | `ad8b36f25ea7` |  | 18802 |
 | `scripts/audit_hosted_qa_readiness.py` | `b9a4b5dc34d4` |  | 13338 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `0345ddd6deb4` |  | 64013 |
+| `scripts/generate_report.py` | `bc7512d9f187` |  | 64748 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |

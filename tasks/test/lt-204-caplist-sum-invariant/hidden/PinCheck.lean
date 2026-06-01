@@ -26,8 +26,15 @@ example (cap : Nat) (xs : List Nat) :
 example : capOne 3 9 = 3 := by
   rfl
 
+example : capOne 3 9 = 9 -> False := by
+  decide
+
 example : capOne 3 2 = 2 := by
   rfl
+
+example : allLe 3 [4] -> False := by
+  intro h
+  exact Nat.not_succ_le_self 3 h.left
 
 example : sumList (capList 0 [4, 1, 0]) = 0 := by
   rfl

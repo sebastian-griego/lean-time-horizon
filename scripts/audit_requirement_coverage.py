@@ -705,7 +705,24 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "wrongs_failing_hidden_pin_stage",
         "theorem_shape_checks",
         "negative_examples",
+        "submission_surface",
+        "same_signature_hidden_wrong_feasibility",
+        "hidden_pin_role",
     }
+    mutable_pin_rows = [
+        row_data for row_data in accepted_pin_rows
+        if row_data.get("same_signature_hidden_wrong_feasibility") == "feasible_via_definition_semantics"
+    ]
+    mutable_with_hidden = sum(
+        1 for row_data in mutable_pin_rows
+        if row_data.get("wrongs_failing_hidden_pin_stage", "0").isdigit()
+        and int(row_data.get("wrongs_failing_hidden_pin_stage", "0")) > 0
+    )
+    proof_only_pin_rows = [
+        row_data for row_data in accepted_pin_rows
+        if row_data.get("same_signature_hidden_wrong_feasibility")
+        == "structurally_infeasible_for_same_signature_proof_wrongs"
+    ]
     accepted_with_hidden = sum(
         int(row_data.get("wrongs_failing_hidden_pin_stage", "0"))
         for row_data in accepted_pin_rows
@@ -716,6 +733,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         and len(pin_coverage) == len(metadata)
         and len(accepted_pin_rows) == len(accepted)
         and accepted_with_hidden > 0
+        and mutable_with_hidden == len(mutable_pin_rows)
+        and len(mutable_pin_rows) + len(proof_only_pin_rows) == len(accepted_pin_rows)
         and required_pin_fields.issubset(pin_fields)
         and (ROOT / "reports" / "pin_coverage_audit.md").exists()
     )
@@ -724,7 +743,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "reporting",
         "Hidden-pin audit should distinguish public-stage wrong failures from wrong submissions that reach semantic pins.",
         status_from_bool(pin_audit_ok, partial=bool(pin_coverage)),
-        f"pin_coverage rows: {len(pin_coverage)}; accepted rows: {len(accepted_pin_rows)}; accepted hidden-pin wrong failures: {accepted_with_hidden}; report exists: {(ROOT / 'reports' / 'pin_coverage_audit.md').exists()}.",
+        f"pin_coverage rows: {len(pin_coverage)}; accepted rows: {len(accepted_pin_rows)}; accepted hidden-pin wrong failures: {accepted_with_hidden}; mutable accepted rows with hidden-pin failures: {mutable_with_hidden}/{len(mutable_pin_rows)}; proof-only fixed-statement rows: {len(proof_only_pin_rows)}; report exists: {(ROOT / 'reports' / 'pin_coverage_audit.md').exists()}.",
         "No gap." if pin_audit_ok else "Regenerate scripts/audit_pin_coverage.py after local QA transcripts and inspect accepted rows without hidden-pin wrong failures.",
     ))
 
