@@ -227,6 +227,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
+    model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
+    model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     task_dirs = discover_task_dirs()
     accepted = [task for task in metadata if task.get("acceptance_status") == "accepted_v0"]
@@ -946,6 +948,65 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(provider_readiness_ok, partial=bool(provider_readiness)),
         f"provider readiness rows: {len(provider_readiness)}; required checks covered: {len(required_provider_checks & provider_check_ids)}/{len(required_provider_checks)}; failures: {len(provider_failures)}; cautions: {len(provider_cautions)}; blocks: {len(provider_blocks)}; report exists: {(ROOT / 'reports' / 'provider_readiness_audit.md').exists()}.",
         "No gap." if provider_readiness_ok else "Regenerate scripts/audit_provider_readiness.py and fix failing provider-readiness checks.",
+    ))
+
+    model_sweep_command_fields = set(model_sweep_execution_commands[0].keys()) if model_sweep_execution_commands else set()
+    model_sweep_checklist_fields = set(model_sweep_execution_checklist[0].keys()) if model_sweep_execution_checklist else set()
+    required_model_sweep_command_fields = {
+        "scaffold",
+        "planned_task_count",
+        "planned_k",
+        "provider_route",
+        "runner_env_var",
+        "credential_policy",
+        "full_sweep_command",
+        "smoke_command",
+        "post_run_commands",
+        "required_evidence",
+    }
+    required_model_sweep_checklist_fields = {
+        "check_id",
+        "phase",
+        "required_before_claim",
+        "current_status",
+        "evidence",
+        "next_action",
+    }
+    required_model_sweep_checks = {
+        "local_validation_before_sweep",
+        "provider_runner_contract",
+        "scaffold_ladder_contract",
+        "planned_primary_cells",
+        "transcript_and_run_result_evidence",
+        "frontier_claim_boundary",
+        "statistical_report_refresh",
+    }
+    model_sweep_check_ids = {row_data.get("check_id", "") for row_data in model_sweep_execution_checklist}
+    command_scaffolds = {row_data.get("scaffold", "") for row_data in model_sweep_execution_commands}
+    command_providers = {row_data.get("provider_route", "") for row_data in model_sweep_execution_commands}
+    command_key_leaks = [
+        row_data for row_data in model_sweep_execution_commands
+        if "API_KEY=" in row_data.get("full_sweep_command", "")
+        or "API_KEY=" in row_data.get("smoke_command", "")
+    ]
+    model_sweep_packet_ok = (
+        bool(model_sweep_execution_commands)
+        and bool(model_sweep_execution_checklist)
+        and {"one-shot", "lookup", "lookup_unlimited"}.issubset(command_scaffolds)
+        and {"command", "openai", "anthropic", "gemini"}.issubset(command_providers)
+        and required_model_sweep_command_fields.issubset(model_sweep_command_fields)
+        and required_model_sweep_checklist_fields.issubset(model_sweep_checklist_fields)
+        and required_model_sweep_checks.issubset(model_sweep_check_ids)
+        and not command_key_leaks
+        and (ROOT / "reports" / "model_sweep_execution_packet.md").exists()
+    )
+    requirement_rows.append(row(
+        "model_sweep_execution_packet",
+        "runs",
+        "Model sweep execution packet should provide concrete provider scaffold commands credential policy post-run evidence checks and claim-boundary reminders without creating fake model results.",
+        status_from_bool(model_sweep_packet_ok, partial=bool(model_sweep_execution_commands)),
+        f"command rows: {len(model_sweep_execution_commands)}; checklist rows: {len(model_sweep_execution_checklist)}; scaffolds: {compact_json(sorted(command_scaffolds))}; providers: {compact_json(sorted(command_providers))}; key assignment leaks: {len(command_key_leaks)}; report exists: {(ROOT / 'reports' / 'model_sweep_execution_packet.md').exists()}.",
+        "No gap." if model_sweep_packet_ok else "Regenerate scripts/generate_model_sweep_packet.py and inspect provider/scaffold command coverage.",
     ))
 
     required_hosted_qa_checks = {

@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 39
+- `supported`: 40
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 22
+- `required_for_research_report` / `supported`: 23
 
 ## Coverage Table
 
@@ -55,6 +55,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `grader_hardening_audit` | reporting | required_for_research_report | supported | Grader hardening audit should probe forbidden scanning false-positive controls task-specific bans grader stage ordering axiom allowlists validation-command coverage and local QA outcomes. | grader hardening rows: 9; required checks covered: 9/9; failures: 0; report exists: True. | No gap. |
 | `statistical_reporting_audit` | reporting | required_for_research_report | supported | Statistical reporting audit should determine which recommended performance plots and claims are supported by committed provider sample sizes. | statistical audit rows: 8; required checks covered: 8/8; failures: 0; blocked performance outputs: 5; report exists: True. | No gap. |
 | `provider_readiness_audit` | reporting | required_for_research_report | supported | Provider readiness audit should verify model-runner contracts adapter coverage credential policy transcript evidence planned sweep commands and smoke-only coverage limits. | provider readiness rows: 11; required checks covered: 11/11; failures: 0; cautions: 1; blocks: 1; report exists: True. | No gap. |
+| `model_sweep_execution_packet` | runs | required_for_research_report | supported | Model sweep execution packet should provide concrete provider scaffold commands credential policy post-run evidence checks and claim-boundary reminders without creating fake model results. | command rows: 12; checklist rows: 7; scaffolds: ["lookup", "lookup_unlimited", "one-shot"]; providers: ["anthropic", "command", "gemini", "openai"]; key assignment leaks: 0; report exists: True. | No gap. |
 | `hosted_qa_readiness_audit` | reporting | required_for_research_report | supported | Hosted QA readiness audit should distinguish local readiness from missing Taiga packaging problem-version QA and finding-resolution evidence. | hosted QA readiness rows: 11; required checks covered: 11/11; failures: 0; blocked hosted-QA steps: 9; report exists: True. | No gap. |
 | `claim_evidence_audit` | reporting | required_for_research_report | supported | Claim-evidence audit should map artifact, report, performance, and benchmark-status claims to evidence strength and limits. | claim_evidence rows: 9; required claims covered: 9/9; unsupported overclaim rows: 3; report exists: True. | No gap. |
 | `release_decision_log` | reporting | required_for_research_report | supported | Release decision log should translate evidence audits into explicit pass/caution/block gates and next actions. | release_decision rows: 8; required gates covered: 8/8; block gates: 4; pass gates: 2; report exists: True. | No gap. |

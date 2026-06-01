@@ -264,6 +264,43 @@ The protocol specifies that headline capability claims use accepted-core rows on
 """
 
 
+def model_sweep_execution_section(command_rows: list[dict[str, str]], checklist_rows: list[dict[str, str]]) -> str:
+    if not command_rows or not checklist_rows:
+        return (
+            "`reports/model_sweep_execution_packet.md` has not been generated yet. Run "
+            "`python scripts/generate_model_sweep_packet.py`, then regenerate this report."
+        )
+    scaffold_counts = Counter(row.get("scaffold", "unknown") for row in command_rows)
+    provider_counts = Counter(row.get("provider_route", "unknown") for row in command_rows)
+    checklist_counts = Counter(row.get("current_status", "unknown") for row in checklist_rows)
+    command_key_leaks = [
+        row for row in command_rows
+        if "API_KEY=" in row.get("full_sweep_command", "")
+        or "API_KEY=" in row.get("smoke_command", "")
+    ]
+    checklist_lines = [
+        "| check | phase | status | next action |",
+        "| --- | --- | --- | --- |",
+    ]
+    for row in checklist_rows:
+        action = row.get("next_action", "").replace("|", "/")
+        checklist_lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('phase', '')} | {row.get('current_status', '')} | {action} |"
+        )
+    return f"""`reports/model_sweep_execution_packet.md`, `data/model_sweep_execution_commands.csv`, and `data/model_sweep_execution_checklist.csv` turn the prospective scaffold sweep into concrete provider-route commands and post-run evidence checks without calling APIs or creating model results.
+
+- command rows: `{len(command_rows)}`
+- scaffold command counts: `{compact_json(dict(sorted(scaffold_counts.items())))}`
+- provider routes: `{compact_json(dict(sorted(provider_counts.items())))}`
+- checklist statuses: `{compact_json(dict(sorted(checklist_counts.items())))}`
+- command rows with direct API-key assignments: `{len(command_key_leaks)}`
+
+Model-sweep evidence checklist:
+
+{chr(10).join(checklist_lines)}
+"""
+
+
 def model_analysis_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -994,6 +1031,8 @@ def main() -> int:
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
+    model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
+    model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
@@ -1167,6 +1206,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {evaluation_protocol_section(model_sweep_plan)}
 
+## Model Sweep Execution Packet
+
+{model_sweep_execution_section(model_sweep_execution_commands, model_sweep_execution_checklist)}
+
 ## Model Result Analysis
 
 {model_analysis_section(model_result_summary)}
@@ -1264,6 +1307,7 @@ python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py
 python scripts/audit_grader_hardening.py
 python scripts/generate_evaluation_protocol.py
+python scripts/generate_model_sweep_packet.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py
 python scripts/audit_statistical_reporting.py

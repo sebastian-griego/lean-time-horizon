@@ -201,22 +201,34 @@ def build_rows() -> list[dict[str, str]]:
             f"planned cells={len(model_sweep_plan)}; covered_noninfra="
             f"{primary_coverage.get('covered_cells_noninfra', '0')}; observed non-infra provider rows={len(noninfra_provider_rows)}."
         ),
-        requirement(requirements, "scaffold_result_comparison"),
+        f"{requirement(requirements, 'scaffold_result_comparison')}; {requirement(requirements, 'model_sweep_execution_packet')}",
         "Accepted_v0 x {one-shot, lookup, lookup_unlimited} cells should have non-infra pass@k rows for each reported model.",
         "Run the planned sweep commands from reports/evaluation_protocol.md with fixed k and committed transcripts.",
         ["scaffold_effects", "frontier_performance", "locked_benchmark"],
-        ["data/model_sweep_plan.csv", "data/run_results.csv", "reports/model_run_analysis.md"],
+        [
+            "data/model_sweep_plan.csv",
+            "data/model_sweep_execution_commands.csv",
+            "data/run_results.csv",
+            "reports/model_run_analysis.md",
+            "reports/model_sweep_execution_packet.md",
+        ],
     ))
     rows.append(row(
         "frontier_and_open_model_evidence",
         "model_sweeps",
         "block",
         f"provider rows={len(provider_rows)}; non-infra provider rows={len(noninfra_provider_rows)}; unsupported claims={compact_json(unsupported_claims)}.",
-        requirement(requirements, "frontier_model_evidence"),
+        f"{requirement(requirements, 'frontier_model_evidence')}; {requirement(requirements, 'model_sweep_execution_packet')}",
         "Commit documented provider/model-version rows across the accepted scaffold plan before any frontier or open-model capability claim.",
         "After hosted/local QA are stable, run provider adapters for the selected frontier/open models and retain transcripts plus infra notes.",
         ["frontier_performance", "scaffold_effects", "locked_benchmark"],
-        ["data/run_results.csv", "reports/provider_readiness_audit.md", "reports/model_run_analysis.md"],
+        [
+            "data/run_results.csv",
+            "data/model_sweep_execution_commands.csv",
+            "reports/provider_readiness_audit.md",
+            "reports/model_run_analysis.md",
+            "reports/model_sweep_execution_packet.md",
+        ],
     ))
     rows.append(row(
         "hosted_qa_and_env_linter",
