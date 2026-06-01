@@ -222,6 +222,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     threats_to_validity = read_csv(ROOT / "data" / "threats_to_validity.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     report_claim_conformance = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_roadmap = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
@@ -1357,6 +1358,64 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(authorization_ok, partial=bool(claim_authorization)),
         f"authorization rows: {len(claim_authorization)}; required claims covered: {len(required_authorization_ids & authorization_ids)}/{len(required_authorization_ids)}; blocked rows: {len(blocked_authorizations)}; caveated rows: {len(caveated_authorizations)}; invalid statuses: {len(invalid_authorization_statuses)}; missing wording rows: {len(missing_wording)}; report exists: {(ROOT / 'reports' / 'claim_authorization_matrix.md').exists()}.",
         "No gap." if authorization_ok else "Regenerate scripts/generate_claim_authorization_matrix.py after claim evidence and inspect missing or under-specified authorization rows.",
+    ))
+
+    gap_ids = {row_data.get("claim_id", "") for row_data in research_claim_gap}
+    gap_fields = set(research_claim_gap[0].keys()) if research_claim_gap else set()
+    required_gap_fields = {
+        "claim_id",
+        "claim_area",
+        "authorization_status",
+        "claim_support_status",
+        "evidence_strength",
+        "upgrade_priority",
+        "blocking_requirements",
+        "blocking_requirement_statuses",
+        "minimum_evidence_package",
+        "exit_criteria",
+        "allowed_wording_now",
+        "forbidden_overclaim",
+        "source_artifacts",
+    }
+    non_allowed_authorization_ids = {
+        row_data.get("claim_id", "")
+        for row_data in claim_authorization
+        if row_data.get("authorization_status") != "allowed"
+    }
+    high_gap_rows = [
+        row_data for row_data in research_claim_gap
+        if row_data.get("upgrade_priority") in {"high", "highest"}
+        or row_data.get("authorization_status") == "blocked"
+    ]
+    missing_gap_packages = [
+        row_data.get("claim_id", "")
+        for row_data in research_claim_gap
+        if not row_data.get("minimum_evidence_package", "").strip()
+        or not row_data.get("exit_criteria", "").strip()
+        or not row_data.get("forbidden_overclaim", "").strip()
+    ]
+    missing_gap_support = [
+        row_data.get("claim_id", "")
+        for row_data in research_claim_gap
+        if row_data.get("claim_support_status") == "missing"
+        or row_data.get("evidence_strength") == "missing"
+    ]
+    gap_ok = (
+        bool(research_claim_gap)
+        and required_gap_fields.issubset(gap_fields)
+        and non_allowed_authorization_ids.issubset(gap_ids)
+        and not missing_gap_packages
+        and not missing_gap_support
+        and len(high_gap_rows) >= 5
+        and (ROOT / "reports" / "research_claim_gap_matrix.md").exists()
+    )
+    requirement_rows.append(row(
+        "research_claim_gap_matrix",
+        "reporting",
+        "Research claim gap matrix should map caveated and blocked claims to the minimum evidence packages and requirement gates needed before stronger wording is allowed.",
+        status_from_bool(gap_ok, partial=bool(research_claim_gap)),
+        f"gap rows: {len(research_claim_gap)}; non-allowed claims covered: {len(non_allowed_authorization_ids & gap_ids)}/{len(non_allowed_authorization_ids)}; high-or-blocked rows: {len(high_gap_rows)}; missing package rows: {len(missing_gap_packages)}; missing support rows: {len(missing_gap_support)}; report exists: {(ROOT / 'reports' / 'research_claim_gap_matrix.md').exists()}.",
+        "No gap." if gap_ok else "Regenerate scripts/generate_research_claim_gap_matrix.py after claim authorization and inspect missing evidence packages.",
     ))
 
     required_conformance_ids = {

@@ -614,6 +614,45 @@ Claim authorization table:
 """
 
 
+def research_claim_gap_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/research_claim_gap_matrix.md` has not been generated yet. Run "
+            "`python scripts/generate_research_claim_gap_matrix.py` after claim authorization, "
+            "then regenerate this report."
+        )
+    priority_counts = Counter(row.get("upgrade_priority", "unknown") for row in rows)
+    auth_counts = Counter(row.get("authorization_status", "unknown") for row in rows)
+    high_rows = [
+        row for row in rows
+        if row.get("upgrade_priority") in {"high", "highest"}
+        or row.get("authorization_status") == "blocked"
+    ]
+    lines = [
+        "| claim | authorization | priority | blocking requirements | minimum evidence package | exit criteria |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in high_rows:
+        package = row.get("minimum_evidence_package", "").replace("|", "/")
+        criteria = row.get("exit_criteria", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('claim_id', '')}` | {row.get('authorization_status', '')} | "
+            f"{row.get('upgrade_priority', '')} | `{row.get('blocking_requirements', '')}` | "
+            f"{package} | {criteria} |"
+        )
+    return f"""`reports/research_claim_gap_matrix.md` and `data/research_claim_gap_matrix.csv` map caveated and blocked claims to the evidence packages required before stronger report wording is allowed. This is an upgrade plan, not evidence that the gaps have been filled.
+
+- tracked claims: `{len(rows)}`
+- authorization statuses: `{compact_json(dict(sorted(auth_counts.items())))}`
+- upgrade priorities: `{compact_json(dict(sorted(priority_counts.items())))}`
+- high-or-blocked rows: `{len(high_rows)}`
+
+High-priority claim gaps:
+
+{chr(10).join(lines)}
+"""
+
+
 def report_claim_conformance_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1203,6 +1242,7 @@ def main() -> int:
     grader_hardening_rows = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization_rows = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    research_claim_gap_rows = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     report_claim_conformance_rows = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     report_shape_rows = read_csv(ROOT / "data" / "report_shape_audit.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
@@ -1454,6 +1494,10 @@ Observed model-sweep failure labels:
 
 {claim_authorization_section(claim_authorization_rows)}
 
+## Research Claim Gap Matrix
+
+{research_claim_gap_section(research_claim_gap_rows)}
+
 ## Report Claim Conformance Audit
 
 {report_claim_conformance_section(report_claim_conformance_rows)}
@@ -1528,6 +1572,7 @@ python scripts/generate_threats_to_validity.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/generate_research_claim_gap_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/audit_report_shape.py
@@ -1537,6 +1582,7 @@ python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/generate_research_claim_gap_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/audit_report_shape.py
@@ -1546,6 +1592,7 @@ python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/generate_research_claim_gap_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/audit_report_shape.py

@@ -72,6 +72,7 @@ def build_rows() -> list[dict[str, str]]:
     requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
     claims = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     report_claim_conformance = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
@@ -130,6 +131,11 @@ def build_rows() -> list[dict[str, str]]:
         row_data for row_data in report_shape
         if row_data.get("answer_status") == "blocked_by_evidence"
     ]
+    high_gap_rows = [
+        row_data for row_data in research_claim_gap
+        if row_data.get("upgrade_priority") in {"high", "highest"}
+        or row_data.get("authorization_status") == "blocked"
+    ]
     primary_coverage = next(
         (
             row_data for row_data in model_summary
@@ -171,11 +177,13 @@ def build_rows() -> list[dict[str, str]]:
         (
             f"research-report gaps={len(research_gaps)}; claim statuses={compact_json(dict(sorted(claim_status_counts.items())))}; "
             f"claim authorizations={compact_json(dict(sorted(authorization_status_counts.items())))}; "
+            f"claim-gap rows={len(research_claim_gap)}; high-or-blocked claim gaps={len(high_gap_rows)}; "
             f"claim-conformance failures={len(conformance_failures)}; claim-conformance cautions={len(conformance_cautions)}; "
             f"report-shape needs_attention={len(shape_needs_attention)}; report-shape blocked_by_evidence={len(shape_blocked)}; "
             f"unsupported claims={compact_json([row_data.get('claim_id') for row_data in unsupported_claims])}; "
             f"{evidence(reqs, 'concise_metr_report')}; "
             f"{evidence(reqs, 'report_shape_audit')}; "
+            f"{evidence(reqs, 'research_claim_gap_matrix')}; "
             f"{evidence(reqs, 'transcript_review_packet')}; {evidence(reqs, 'hosted_qa_readiness_audit')}; "
             f"{evidence(reqs, 'model_sweep_execution_packet')}; "
             f"{evidence(reqs, 'threats_to_validity_register')}; {evidence(reqs, 'claim_authorization_matrix')}; "

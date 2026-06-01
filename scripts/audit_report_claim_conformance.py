@@ -272,6 +272,7 @@ def build_rows() -> list[dict[str, str]]:
         [
             "not a locked benchmark",
             "Claim Boundaries",
+            "Evidence Upgrade Path",
             "Capabilities And Expected Failures",
             "Remaining Blockers",
             "Next Work",

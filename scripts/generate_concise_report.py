@@ -109,11 +109,29 @@ def capability_table(diagnostic_rows: list[dict[str, str]]) -> str:
     return table(rows)
 
 
+def gap_table(rows_in: list[dict[str, str]]) -> str:
+    rows = [["claim", "priority", "current status", "blocking requirements"]]
+    selected = [
+        row for row in rows_in
+        if row.get("upgrade_priority") in {"highest", "high"}
+        or row.get("authorization_status") == "blocked"
+    ]
+    for row in selected[:8]:
+        rows.append([
+            f"`{row.get('claim_id', '')}`",
+            row.get("upgrade_priority", ""),
+            row.get("authorization_status", ""),
+            row.get("blocking_requirements", ""),
+        ])
+    return table(rows)
+
+
 def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
     diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     run_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -126,6 +144,7 @@ def main() -> int:
     rejected = [row for row in metadata if row.get("acceptance_status", "").startswith("rejected_")]
     requirement_counts, requirement_gap_table = requirement_summary(requirements)
     auth_counts = Counter(row.get("authorization_status", "unknown") for row in claim_authorization)
+    gap_priority_counts = Counter(row.get("upgrade_priority", "unknown") for row in research_claim_gap)
     release_counts = Counter(row.get("status", "unknown") for row in release_decisions)
     freeze_counts = Counter(row.get("roadmap_status", "unknown") for row in freeze)
     integrity_failures = sum(1 for row in run_integrity if row.get("integrity_status") == "fail")
@@ -229,8 +248,15 @@ def main() -> int:
         "",
         "- `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.",
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
+        "- `reports/research_claim_gap_matrix.md` records the evidence packages needed before stronger claims are allowed.",
         "",
         claim_table(claim_authorization),
+        "",
+        "## Evidence Upgrade Path",
+        "",
+        f"Upgrade priorities: `{compact_json(dict(sorted(gap_priority_counts.items())))}`. High-priority rows are not ready; they are a checklist for evidence that must exist before stronger wording is permitted.",
+        "",
+        gap_table(research_claim_gap),
         "",
         "## Remaining Blockers",
         "",
@@ -255,7 +281,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

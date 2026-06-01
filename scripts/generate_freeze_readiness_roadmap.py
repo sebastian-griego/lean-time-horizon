@@ -88,6 +88,7 @@ def build_rows() -> list[dict[str, str]]:
         for row_data in read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     }
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     report_claim_conformance = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
@@ -144,6 +145,11 @@ def build_rows() -> list[dict[str, str]]:
     shape_blocked_by_evidence = [
         row_data for row_data in report_shape
         if row_data.get("answer_status") == "blocked_by_evidence"
+    ]
+    high_gap_rows = [
+        row_data for row_data in research_claim_gap
+        if row_data.get("upgrade_priority") in {"high", "highest"}
+        or row_data.get("authorization_status") == "blocked"
     ]
     unsupported_claims = [
         row_data.get("claim_id", "")
@@ -284,11 +290,12 @@ def build_rows() -> list[dict[str, str]]:
         "freeze_versioning",
         "release_management",
         "block",
-        f"release-decision block gates={len(release_blocks)}; report-shape needs_attention rows={len(shape_needs_attention)}.",
+        f"release-decision block gates={len(release_blocks)}; report-shape needs_attention rows={len(shape_needs_attention)}; high-or-blocked claim gaps={len(high_gap_rows)}.",
         "; ".join([
             requirement(requirements, "hosted_qa_env_linter"),
             requirement(requirements, "threats_to_validity_register"),
             requirement(requirements, "claim_authorization_matrix"),
+            requirement(requirements, "research_claim_gap_matrix"),
             requirement(requirements, "report_claim_conformance_audit"),
             requirement(requirements, "report_shape_audit"),
             claim(claims, "locked_benchmark"),
@@ -306,6 +313,7 @@ def build_rows() -> list[dict[str, str]]:
             "reports/release_decision_log.md",
             "reports/threats_to_validity.md",
             "reports/claim_authorization_matrix.md",
+            "reports/research_claim_gap_matrix.md",
             "reports/report_claim_conformance_audit.md",
             "reports/report_shape_audit.md",
             "reports/validation_manifest.json",

@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 46}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 47}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -109,6 +109,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 
 - `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.
 - `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.
+- `reports/research_claim_gap_matrix.md` records the evidence packages needed before stronger claims are allowed.
 
 | claim | authorization | allowed wording | required caveat |
 | --- | --- | --- | --- |
@@ -123,6 +124,20 @@ The report now has explicit claim authorization and a prose conformance audit. B
 | `statistical_performance_reporting` | blocked | Statistical reporting checks exist and currently block recommended performance plots. | Describe the statistical audit as a guardrail for future sweeps, not as performance evidence. |
 | `hosted_qa_status` | blocked | Hosted/Taiga QA readiness has been audited, and the hosted QA evidence is currently absent. | State only that local validation is ready for a hosted QA loop; do not imply hosted checks have run. |
 | `locked_benchmark_status` | blocked | v0.1 is not a locked benchmark; it is a local v0.1 research artifact with explicit blockers. | Every report summary should preserve this boundary until all locked-benchmark gates are satisfied. |
+
+## Evidence Upgrade Path
+
+Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. High-priority rows are not ready; they are a checklist for evidence that must exist before stronger wording is permitted.
+
+| claim | priority | current status | blocking requirements |
+| --- | --- | --- | --- |
+| `accepted_core_quality` | high | allowed_with_caveat | portfolio_accepted_count;time_horizon_spread;independent_human_time_review |
+| `time_horizon_scope` | high | allowed_with_caveat | time_horizon_spread;independent_human_time_review;portfolio_accepted_count |
+| `scaffold_effects` | high | blocked | scaffold_result_comparison;frontier_model_evidence |
+| `frontier_model_performance` | high | blocked | frontier_model_evidence;scaffold_result_comparison;hosted_qa_env_linter |
+| `statistical_performance_reporting` | high | blocked | scaffold_result_comparison;frontier_model_evidence;portfolio_accepted_count |
+| `hosted_qa_status` | high | blocked | hosted_qa_env_linter |
+| `locked_benchmark_status` | highest | blocked | portfolio_accepted_count;time_horizon_spread;scaffold_result_comparison;frontier_model_evidence;independent_human_time_review;hosted_qa_env_linter |
 
 ## Remaining Blockers
 
@@ -154,4 +169,4 @@ The report now has explicit claim authorization and a prose conformance audit. B
 
 ## Evidence Appendix
 
-Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.
+Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.

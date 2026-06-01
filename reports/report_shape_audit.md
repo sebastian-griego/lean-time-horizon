@@ -17,7 +17,7 @@ This generated audit checks the concise METR-style report against the report-sha
 | `success_changes_by_scaffold_and_bucket` | How does success change with scaffold and human-time bucket? | blocked_by_evidence | scaffold_result_comparison=partial; time_horizon_spread=partial; primary_covered_noninfra=1 | Real scaffold/time-horizon performance summaries are not supported by committed data. | Run pass@k sweeps across accepted_v0 x scaffold cells and add independently timed T3/T4 tasks. |
 | `failure_modes_dominate` | What failure modes dominate? | blocked_by_evidence | concision_mentions_failure_limits=True; missing_phrases=[] | Expected failure modes are documented, but broad model transcripts are not independently adjudicated. | Use the transcript review packet after broader provider sweeps before claiming dominant failure modes. |
 | `next_batch_needs` | What does the next batch need? | answered | missing_phrases=[] | Next work is a concrete blocker list, not a claim that the benchmark is locked. | Keep next-work items tied to requirement/freeze gates. |
-| `skimmability` | Is the main report skimmable? | answered | concise_report_lines=157; conformance_failures=0 | The detailed evidence report remains long and should be treated as an appendix. | Keep the concise report short and keep long tables in generated appendices. |
+| `skimmability` | Is the main report skimmable? | answered | concise_report_lines=172; conformance_failures=0 | The detailed evidence report remains long and should be treated as an appendix. | Keep the concise report short and keep long tables in generated appendices. |
 
 ## Interpretation
 
