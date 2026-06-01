@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 51
+- `supported`: 52
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 34
+- `required_for_research_report` / `supported`: 35
 
 ## Coverage Table
 
@@ -46,7 +46,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `public_export_no_hidden_leak` | integrity | required_for_release_artifact | supported | Public export should include public assets and exclude hidden references and wrong submissions. | Public export exists: True; exported tasks: 14; hidden/wrong paths: 0. | No gap. |
 | `task_asset_manifest` | reproducibility | required_for_research_report | supported | Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping. | task asset rows: 171; missing assets: 0; release public export misses: 0; hidden/wrong exported: 0; accepted wrong gaps: 0; accepted hidden gaps: 0; report exists: True. | No gap. |
 | `report_from_committed_data` | reporting | required_for_research_report | supported | The METR-style report and plots should regenerate from committed CSVs. | metr_style_report.md exists: True; generate_report reads CSV: True. | No gap. |
-| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 251; appendix exists: True; appendix lines: 1167; missing appendix phrases: []; main links appendix: True. | No gap. |
+| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 251; appendix exists: True; appendix lines: 1194; missing appendix phrases: []; main links appendix: True. | No gap. |
 | `report_source_traceability` | reporting | required_for_research_report | supported | Report source-traceability audit should map main-report sections to committed CSV report script and export evidence and check section-level boundary phrases. | traceability rows: 25; required sections covered: 25/25; failures: 0; report exists: True. | No gap. |
 | `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 180; missing required phrases: []; generator reads CSV: True. | No gap. |
 | `report_shape_audit` | reporting | required_for_research_report | supported | Report-shape audit should check the concise METR-style report against the playbook questions and distinguish answered limitations from unsupported performance claims. | report-shape rows: 7; required checks covered: 7/7; needs_attention rows: 0; blocked_by_evidence rows: 2; report exists: True. | No gap. |
@@ -75,5 +75,6 @@ This generated audit maps the local repository state to the committed checklist 
 | `independent_human_time_review` | calibration | required_for_locked_benchmark | partial | Human-time estimates should be separately reviewed or measured, not inferred from model pass rates. | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted Taiga/Env Linter QA should be run before delivery/freeze. | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 9. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 | `reproducibility_manifest` | reproducibility | required_for_research_report | supported | A clean regeneration trail should record toolchain, commands, counts, and artifact hashes. | validation_manifest.json exists: True. | No gap. |
+| `validation_manifest_audit` | reproducibility | required_for_research_report | supported | Validation manifest audit should verify manifest schema command coverage artifact hashes public-export summary and dirty-status policy. | manifest audit rows: 7; required checks covered: 7/7; failures: 0; report exists: True. | No gap. |
 | `candidate_pruning_audit` | portfolio | required_for_release_artifact | supported | Candidate tasks should be separated from accepted tasks and pruned aggressively. | Rejected archive tasks: 12; calibration-only tasks: 8; accepted tasks: 6. | No gap. |
 | `semantic_formalization_pins` | grading | required_for_release_artifact | supported | Formalization tasks should use semantic pins rather than brittle exact-text matching. | Accepted informal-spec rows in difficulty audit: 1; semantic pin rows: 1. | No gap. |

@@ -232,6 +232,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
+    validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_review_template = read_csv(ROOT / "data" / "failure_label_review_template.csv")
@@ -1813,6 +1814,45 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(manifest_ok),
         f"validation_manifest.json exists: {manifest_ok}.",
         "No gap." if manifest_ok else "Run write_validation_manifest.py after validation.",
+    ))
+
+    required_manifest_audit_ids = {
+        "schema_and_policy_note",
+        "regeneration_command_coverage",
+        "artifact_hash_integrity",
+        "self_reference_boundary",
+        "public_export_snapshot",
+        "git_snapshot_policy",
+        "summary_count_snapshot",
+    }
+    manifest_audit_ids = {row_data.get("check_id", "") for row_data in validation_manifest_audit}
+    manifest_audit_fields = set(validation_manifest_audit[0].keys()) if validation_manifest_audit else set()
+    required_manifest_audit_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "limitation",
+        "next_action",
+    }
+    manifest_audit_failures = [
+        row_data for row_data in validation_manifest_audit
+        if row_data.get("status") == "fail"
+    ]
+    manifest_audit_ok = (
+        bool(validation_manifest_audit)
+        and required_manifest_audit_ids.issubset(manifest_audit_ids)
+        and required_manifest_audit_fields.issubset(manifest_audit_fields)
+        and not manifest_audit_failures
+        and (ROOT / "reports" / "validation_manifest_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "validation_manifest_audit",
+        "reproducibility",
+        "Validation manifest audit should verify manifest schema command coverage artifact hashes public-export summary and dirty-status policy.",
+        status_from_bool(manifest_audit_ok, partial=bool(validation_manifest_audit)),
+        f"manifest audit rows: {len(validation_manifest_audit)}; required checks covered: {len(required_manifest_audit_ids & manifest_audit_ids)}/{len(required_manifest_audit_ids)}; failures: {len(manifest_audit_failures)}; report exists: {(ROOT / 'reports' / 'validation_manifest_audit.md').exists()}.",
+        "No gap." if manifest_audit_ok else "Run scripts/audit_validation_manifest.py after writing the validation manifest and inspect failed manifest checks.",
     ))
 
     requirement_rows.append(row(

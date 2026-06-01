@@ -366,11 +366,15 @@ SECTION_SPECS = [
         "source_artifacts": [
             "README.md",
             "reports/validation_manifest.json",
+            "reports/validation_manifest_audit.md",
+            "data/validation_manifest_audit.csv",
             "scripts/write_validation_manifest.py",
         ],
         "required_phrases": [
             "local regeneration gate",
             "validation_manifest.json",
+            "validation_manifest_audit.md",
+            "generation-time git state",
             "public export validator",
         ],
         "limitation": "The manifest records local reproducibility, not hosted QA.",

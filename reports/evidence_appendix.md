@@ -671,7 +671,7 @@ Claim-conformance checks:
 | `blocked_phrase_context_scan` | reports_and_readme | pass | blocked-claim phrase contexts scanned across reports\metr_style_report.md, reports\concise_metr_report.md, reports\evidence_appendix.md, reports\report_source_traceability.md, and README.md; unsafe_contexts=0 | Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work. |
 | `readme_scope_boundaries` | readme | pass | README checked for locked-benchmark, model-result, and credential-scope boundaries | Keep the README top-level scope aligned with the report's claim authorization matrix. |
 | `limitations_cover_blockers` | main_report | pass | limitations section checked against blocked authorization themes | Keep task-count, T4, independent-timing, provider-smoke, hosted-QA, and locked-benchmark caveats in the limitations section. |
-| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=251; markdown_table_rows=68; evidence_appendix_exists=True; evidence_appendix_line_count=1167 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
+| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=251; markdown_table_rows=68; evidence_appendix_exists=True; evidence_appendix_line_count=1194 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
 
 
 ## Report Shape Audit
@@ -825,7 +825,7 @@ Accepted-core hidden-pin coverage:
 
 Status counts:
 
-- `supported`: 51
+- `supported`: 52
 - `partial`: 4
 - `not_met`: 2
 
@@ -833,7 +833,7 @@ Freeze relevance counts:
 
 - `required_for_locked_benchmark`: supported 2, partial 4, not_met 2
 - `required_for_release_artifact`: supported 15
-- `required_for_research_report`: supported 34
+- `required_for_research_report`: supported 35
 
 Partial or unmet requirements:
 
@@ -911,9 +911,11 @@ python scripts/audit_report_shape.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/audit_validation_manifest.py
 python scripts/generate_report.py
 python scripts/audit_report_source_traceability.py
 python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/audit_validation_manifest.py
 python scripts/generate_report.py
 ```
 
@@ -923,9 +925,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T13:21:38.749498+00:00`
+Generated at UTC: `2026-06-01T13:48:17.570914+00:00`
 
-Git branch/head at generation: `main` / `9c45e595e2d5`. Worktree status at generation: `33 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `53086fccc1bc`. Worktree status at generation: `23 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -1002,10 +1004,12 @@ Regeneration commands:
 57. `python scripts/generate_release_decision_log.py`
 58. `python scripts/generate_freeze_readiness_roadmap.py`
 59. `python scripts/write_validation_manifest.py --public-export public_tasks`
-60. `python scripts/generate_report.py`
-61. `python scripts/audit_report_source_traceability.py`
-62. `python scripts/write_validation_manifest.py --public-export public_tasks`
-63. `python scripts/generate_report.py`
+60. `python scripts/audit_validation_manifest.py`
+61. `python scripts/generate_report.py`
+62. `python scripts/audit_report_source_traceability.py`
+63. `python scripts/write_validation_manifest.py --public-export public_tasks`
+64. `python scripts/audit_validation_manifest.py`
+65. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -1014,9 +1018,9 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `6ef9a054896b` |  | 15800 |
+| `README.md` | `a9c6b788e752` |  | 16136 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
-| `data/benchmark_requirements.csv` | `d84d36341979` | 57 | 13608 |
+| `data/benchmark_requirements.csv` | `6bf2c704aa84` | 58 | 13892 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
@@ -1049,16 +1053,16 @@ Key artifact hashes:
 | `data/pin_coverage_audit.csv` | `8ab31ee39037` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
 | `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `12de020f2ca7` | 9 | 17627 |
+| `data/claim_evidence_audit.csv` | `4580c77456a4` | 9 | 17756 |
 | `data/claim_authorization_matrix.csv` | `bb6023711b69` | 12 | 13475 |
 | `data/research_claim_gap_matrix.csv` | `c67a2bd71f21` | 12 | 14651 |
-| `data/report_claim_conformance_audit.csv` | `87892aaaa0a7` | 10 | 3257 |
-| `data/report_source_traceability.csv` | `ea0f3a52021d` | 25 | 9808 |
+| `data/report_claim_conformance_audit.csv` | `17575cfad8e4` | 10 | 3257 |
+| `data/report_source_traceability.csv` | `2cdd44cf637e` | 25 | 9880 |
 | `data/report_shape_audit.csv` | `be35186a0d03` | 7 | 3045 |
-| `data/release_decision_log.csv` | `aae336349ca3` | 8 | 9306 |
+| `data/release_decision_log.csv` | `8439f839ad24` | 8 | 9306 |
 | `data/freeze_readiness_roadmap.csv` | `de15cc82ae8e` | 10 | 10238 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `3681493da166` | 57 | 21319 |
+| `data/requirement_coverage.csv` | `ddc83278b953` | 58 | 21710 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/diagnostic_coverage_audit.md` | `e9f7fe4e65a1` |  | 7206 |
@@ -1073,11 +1077,11 @@ Key artifact hashes:
 | `reports/claim_evidence_audit.md` | `8f3872d2d441` |  | 5786 |
 | `reports/claim_authorization_matrix.md` | `3b5b24f76913` |  | 7637 |
 | `reports/research_claim_gap_matrix.md` | `91f64432525a` |  | 10748 |
-| `reports/report_claim_conformance_audit.md` | `b2efcc83642e` |  | 3546 |
-| `reports/report_source_traceability.md` | `2b7faa9d6c6c` |  | 10598 |
+| `reports/report_claim_conformance_audit.md` | `db2eb3af931b` |  | 3546 |
+| `reports/report_source_traceability.md` | `f2e33acdb3fc` |  | 10670 |
 | `reports/report_shape_audit.md` | `441645ca92b7` |  | 3267 |
-| `reports/concise_metr_report.md` | `2c60dee38b32` |  | 14418 |
-| `reports/release_decision_log.md` | `4789d94fb83c` |  | 9919 |
+| `reports/concise_metr_report.md` | `ec2cfa2bffed` |  | 14418 |
+| `reports/release_decision_log.md` | `cd95ac8d3997` |  | 9919 |
 | `reports/freeze_readiness_roadmap.md` | `22579b7ee040` |  | 5793 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
@@ -1090,7 +1094,7 @@ Key artifact hashes:
 | `reports/hosted_qa_readiness_audit.md` | `7c9d07aad947` |  | 3483 |
 | `reports/threats_to_validity.md` | `0177a063dfb3` |  | 6070 |
 | `reports/transcript_review_packet.md` | `bbe5c9b1901c` |  | 3334 |
-| `reports/requirement_coverage.md` | `0afd8c7575b7` |  | 19556 |
+| `reports/requirement_coverage.md` | `fe825621f539` |  | 19888 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -1109,17 +1113,17 @@ Key artifact hashes:
 | `scripts/audit_pin_coverage.py` | `aaa6a5abbf28` |  | 15593 |
 | `scripts/audit_run_integrity.py` | `0d57a7faa416` |  | 13598 |
 | `scripts/audit_grader_hardening.py` | `7bcba063dd41` |  | 14898 |
-| `scripts/audit_claim_evidence.py` | `f362e0b7ecd9` |  | 17232 |
+| `scripts/audit_claim_evidence.py` | `24650bce7490` |  | 17269 |
 | `scripts/generate_claim_authorization_matrix.py` | `599108da7990` |  | 20353 |
 | `scripts/generate_research_claim_gap_matrix.py` | `813f0fa06071` |  | 16460 |
 | `scripts/audit_report_claim_conformance.py` | `57519b084e6b` |  | 16193 |
-| `scripts/audit_report_source_traceability.py` | `4bbfa76d6536` |  | 22197 |
+| `scripts/audit_report_source_traceability.py` | `160faa24bbda` |  | 22384 |
 | `scripts/generate_concise_report.py` | `b40a1fb350b9` |  | 15081 |
 | `scripts/audit_report_shape.py` | `fab0b6742130` |  | 10610 |
 | `scripts/generate_release_decision_log.py` | `7ff039540f2e` |  | 15485 |
 | `scripts/generate_freeze_readiness_roadmap.py` | `ddbc1b288433` |  | 18439 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `ccca304fb42f` |  | 96943 |
+| `scripts/audit_requirement_coverage.py` | `32224567c63b` |  | 98965 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/generate_model_sweep_packet.py` | `757fb25bce01` |  | 14079 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
@@ -1130,12 +1134,35 @@ Key artifact hashes:
 | `scripts/generate_threats_to_validity.py` | `9b093b4ef49c` |  | 18058 |
 | `scripts/generate_transcript_review_packet.py` | `2ca67bab325b` |  | 9458 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `5973013e85a8` |  | 100818 |
+| `scripts/generate_report.py` | `f710dc6b03d1` |  | 102901 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `5941c1285ef9` |  | 2425 |
-| `scripts/write_validation_manifest.py` | `2f94f7ee34b6` |  | 15022 |
+| `scripts/audit_validation_manifest.py` | `f4d25418181d` |  | 12027 |
+| `scripts/write_validation_manifest.py` | `97ab2a2c1b91` |  | 15336 |
+
+
+## Validation Manifest Audit
+
+`reports/validation_manifest_audit.md` and `data/validation_manifest_audit.csv` check the validation manifest's schema, command coverage, artifact hashes, public-export snapshot, and dirty-status policy. This keeps the manifest from being overread as clean-checkout or hosted-QA evidence.
+
+- checks: `7`
+- statuses: `{"pass": 7}`
+- areas: `{"artifact_hashes": 2, "commands": 1, "counts": 1, "git_state": 1, "manifest_schema": 1, "public_export": 1}`
+- failures: `0`
+
+Validation manifest audit rows:
+
+| check | area | status | evidence | limitation |
+| --- | --- | --- | --- | --- |
+| `schema_and_policy_note` | manifest_schema | pass | schema_version=1; generated_at_present=True; tool_versions_present=True; policy_note_present=True | The manifest records generation-time state and intentionally omits self-referential main-report hashes. |
+| `regeneration_command_coverage` | commands | pass | commands=65; required=21; missing=[] | Command coverage proves the intended local gate is listed, not that it was run on a clean hosted environment. |
+| `artifact_hash_integrity` | artifact_hashes | pass | artifacts=126; checked_hashes=126; hash_mismatches=0; missing_recorded_paths=0; examples=[] | The manifest hashes generated local artifacts but intentionally avoids self-referential report hashes. |
+| `self_reference_boundary` | artifact_hashes | pass | main_report_omitted=True; evidence_appendix_omitted=True; policy_note_mentions_omission=True | The main report and appendix are regenerated after manifest writing and therefore cannot be hashed by the manifest without circularity. |
+| `public_export_snapshot` | public_export | pass | configured=True; exists=True; task_count=14; hidden_or_wrong_path_count=0 | This is a local public-export snapshot, not hosted QA evidence. |
+| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=23; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
+| `summary_count_snapshot` | counts | pass | task_count=26; acceptance_status_counts={"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}; run_rows=69; local_qa_rows=66; model_rows=3 | Count snapshots are local evidence and do not imply benchmark-scale sufficiency. |
 
 
 ## Threats To Validity

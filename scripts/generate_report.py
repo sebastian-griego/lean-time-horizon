@@ -1303,6 +1303,40 @@ Key artifact hashes:
 """
 
 
+def validation_manifest_audit_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/validation_manifest_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_validation_manifest.py` after writing the validation "
+            "manifest, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | evidence | limitation |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        limitation = row.get("limitation", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | "
+            f"{row.get('status', '')} | {evidence} | {limitation} |"
+        )
+    return f"""`reports/validation_manifest_audit.md` and `data/validation_manifest_audit.csv` check the validation manifest's schema, command coverage, artifact hashes, public-export snapshot, and dirty-status policy. This keeps the manifest from being overread as clean-checkout or hosted-QA evidence.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failures: `{len(failures)}`
+
+Validation manifest audit rows:
+
+{chr(10).join(lines)}
+"""
+
+
 def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
@@ -1336,6 +1370,7 @@ def main() -> int:
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     threats_to_validity_rows = read_csv(ROOT / "data" / "threats_to_validity.csv")
+    validation_manifest_audit_rows = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     metadata_by_id = {row["task_id"]: row for row in metadata}
@@ -1707,15 +1742,21 @@ python scripts/audit_report_shape.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/audit_validation_manifest.py
 python scripts/generate_report.py
 python scripts/audit_report_source_traceability.py
 python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/audit_validation_manifest.py
 python scripts/generate_report.py
 ```
 
 The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 {validation_manifest_section(validation_manifest)}
+
+## Validation Manifest Audit
+
+{validation_manifest_audit_section(validation_manifest_audit_rows)}
 
 ## Threats To Validity
 
@@ -1919,7 +1960,7 @@ The long generated evidence tables are intentionally outside this main report:
 
 ## Reproducibility Checklist
 
-The local regeneration gate is recorded in `README.md` and `reports/validation_manifest.json`. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, and `reports/validation_manifest_audit.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 ## Claim Ledger
 

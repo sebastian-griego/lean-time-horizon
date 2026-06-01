@@ -72,9 +72,11 @@ REGENERATION_COMMANDS = [
     "python scripts/generate_release_decision_log.py",
     "python scripts/generate_freeze_readiness_roadmap.py",
     "python scripts/write_validation_manifest.py --public-export public_tasks",
+    "python scripts/audit_validation_manifest.py",
     "python scripts/generate_report.py",
     "python scripts/audit_report_source_traceability.py",
     "python scripts/write_validation_manifest.py --public-export public_tasks",
+    "python scripts/audit_validation_manifest.py",
     "python scripts/generate_report.py",
 ]
 
@@ -203,6 +205,7 @@ HASHED_ARTIFACTS = [
     "scripts/validate_public_export.py",
     "scripts/run_model_sweep.py",
     "scripts/lean_lookup.py",
+    "scripts/audit_validation_manifest.py",
     "scripts/write_validation_manifest.py",
 ]
 
@@ -367,6 +370,8 @@ def main() -> int:
             "It hashes inputs and generated evidence files, but intentionally omits "
             "reports/metr_style_report.md and reports/evidence_appendix.md "
             "to avoid self-referential report hashes. "
+            "The validation-manifest audit is generated after this manifest and is "
+            "checked by requirement coverage rather than hashed by the manifest. "
             "Git status is captured before the final commit, so a dirty status can "
             "reflect the in-progress report commit rather than a validation failure."
         ),

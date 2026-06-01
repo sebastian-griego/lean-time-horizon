@@ -75,7 +75,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 51}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 52}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -224,7 +224,7 @@ The long generated evidence tables are intentionally outside this main report:
 
 ## Reproducibility Checklist
 
-The local regeneration gate is recorded in `README.md` and `reports/validation_manifest.json`. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, and `reports/validation_manifest_audit.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 ## Claim Ledger
 

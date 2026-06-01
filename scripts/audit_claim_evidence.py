@@ -173,6 +173,7 @@ def build_rows() -> list[dict[str, str]]:
         "prompt_contract_audit",
         "task_asset_manifest",
         "reproducibility_manifest",
+        "validation_manifest_audit",
     ]
     locked_ids = [
         "portfolio_accepted_count",
