@@ -1,29 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-06-01T22:19:44.577785+00:00",
+  "generated_at_utc": "2026-06-01T22:21:36.265536+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md and reports/evidence_appendix.md to avoid self-referential report hashes. The validation-manifest audit is generated after this manifest and is checked by requirement coverage rather than hashed by the manifest. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "9c90d77dc9795bcd23c2e2fe536ff94bebb2efe5",
-    "dirty": true,
-    "status_short": [
-      " M data/claim_evidence_audit.csv",
-      " M data/data_schema_manifest.csv",
-      " M data/report_claim_conformance_audit.csv",
-      " M data/requirement_coverage.csv",
-      " M data/validation_manifest_audit.csv",
-      " M reports/data_schema_manifest.md",
-      " M reports/evidence_appendix.md",
-      " M reports/metr_style_report.md",
-      " M reports/report_claim_conformance_audit.md",
-      " M reports/requirement_coverage.md",
-      " M reports/validation_manifest.json",
-      " M reports/validation_manifest_audit.md",
-      " M scripts/audit_requirement_coverage.py",
-      " M scripts/audit_validation_manifest.py",
-      " M scripts/write_validation_manifest.py"
-    ],
-    "status_summary_first_line": " M data/claim_evidence_audit.csv"
+    "head": "d62a89678e8f6fe22ca2e4412b0970d5fba9bc5f",
+    "dirty": false,
+    "status_short": [],
+    "status_summary_first_line": ""
   },
   "tool_versions": {
     "python": "3.11.9",
