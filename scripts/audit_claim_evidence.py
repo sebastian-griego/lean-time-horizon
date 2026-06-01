@@ -133,6 +133,7 @@ def build_rows() -> list[dict[str, str]]:
         "pin_coverage_audit",
         "run_integrity_audit",
         "statistical_reporting_audit",
+        "hosted_qa_readiness_audit",
         "release_decision_log",
         "scaffold_support_audit",
         "prompt_contract_audit",
@@ -163,7 +164,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, statistical reporting checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, statistical reporting checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
@@ -237,7 +238,7 @@ def build_rows() -> list[dict[str, str]]:
         "benchmark_status",
         "unsupported",
         "none",
-        "; ".join(evidence(reqs, requirement_id) for requirement_id in locked_ids),
+        "; ".join(evidence(reqs, requirement_id) for requirement_id in locked_ids + ["hosted_qa_readiness_audit"]),
         "The artifact has 6 accepted tasks, no hosted QA, no independent timing, no T4 accepted task, and limited provider data.",
         "Reach the 20-50 accepted-task target, run hosted QA, collect independent timing, complete scaffold sweeps, and freeze exact public task versions.",
     ))

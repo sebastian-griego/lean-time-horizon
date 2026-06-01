@@ -213,6 +213,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     statistical_audit = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
+    hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -742,6 +743,48 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if statistical_ok else "Regenerate scripts/audit_statistical_reporting.py and fix failing statistical hygiene checks.",
     ))
 
+    required_hosted_qa_checks = {
+        "local_validation_gate",
+        "public_export_ready",
+        "taiga_container_artifact",
+        "taiga_problem_metadata",
+        "mcp_hooks",
+        "problem_version_evidence",
+        "hosted_preflight_or_stage1",
+        "transcript_health_or_full_env_qa",
+        "env_linter",
+        "qa_findings_resolution",
+        "exact_version_freeze_mapping",
+    }
+    hosted_qa_check_ids = {row_data.get("check_id", "") for row_data in hosted_qa_readiness}
+    hosted_qa_fields = set(hosted_qa_readiness[0].keys()) if hosted_qa_readiness else set()
+    required_hosted_qa_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "required_for_hosted_qa",
+        "current_state",
+        "next_action",
+    }
+    hosted_qa_failures = [row_data for row_data in hosted_qa_readiness if row_data.get("status") == "fail"]
+    hosted_qa_blocks = [row_data for row_data in hosted_qa_readiness if row_data.get("status") == "block"]
+    hosted_qa_readiness_ok = (
+        bool(hosted_qa_readiness)
+        and required_hosted_qa_checks.issubset(hosted_qa_check_ids)
+        and required_hosted_qa_fields.issubset(hosted_qa_fields)
+        and not hosted_qa_failures
+        and (ROOT / "reports" / "hosted_qa_readiness_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "hosted_qa_readiness_audit",
+        "reporting",
+        "Hosted QA readiness audit should distinguish local readiness from missing Taiga packaging problem-version QA and finding-resolution evidence.",
+        status_from_bool(hosted_qa_readiness_ok, partial=bool(hosted_qa_readiness)),
+        f"hosted QA readiness rows: {len(hosted_qa_readiness)}; required checks covered: {len(required_hosted_qa_checks & hosted_qa_check_ids)}/{len(required_hosted_qa_checks)}; failures: {len(hosted_qa_failures)}; blocked hosted-QA steps: {len(hosted_qa_blocks)}; report exists: {(ROOT / 'reports' / 'hosted_qa_readiness_audit.md').exists()}.",
+        "No gap." if hosted_qa_readiness_ok else "Regenerate scripts/audit_hosted_qa_readiness.py and fix failing local readiness checks.",
+    ))
+
     required_claim_ids = {
         "local_release_artifact",
         "research_report_evidence",
@@ -881,12 +924,14 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
 
     hosted_artifacts = [ROOT / "reports" / "hosted_qa.md", ROOT / "data" / "hosted_qa_results.csv"]
     hosted_present, hosted_total = file_count_status(hosted_artifacts)
+    hosted_readiness_report_exists = (ROOT / "reports" / "hosted_qa_readiness_audit.md").exists()
+    hosted_readiness_blocks = sum(1 for row_data in hosted_qa_readiness if row_data.get("status") == "block")
     requirement_rows.append(row(
         "hosted_qa_env_linter",
         "qa",
         "Hosted Taiga/Env Linter QA should be run before delivery/freeze.",
         status_from_bool(hosted_present == hosted_total and hosted_total > 0, partial=hosted_present > 0),
-        f"Hosted QA artifacts present: {hosted_present}/{hosted_total}.",
+        f"Hosted QA artifacts present: {hosted_present}/{hosted_total}; hosted readiness report exists: {hosted_readiness_report_exists}; blocked hosted-readiness checks: {hosted_readiness_blocks}.",
         "Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark.",
     ))
 

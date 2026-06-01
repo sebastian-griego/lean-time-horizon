@@ -323,6 +323,44 @@ Statistical reporting checks:
 """
 
 
+def hosted_qa_readiness_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/hosted_qa_readiness_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_hosted_qa_readiness.py` after public export validation, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    blocks = [row for row in rows if row.get("status") == "block"]
+    lines = [
+        "| check | area | status | current state | next action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        current = row.get("current_state", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{current} | {action} |"
+        )
+    return f"""`reports/hosted_qa_readiness_audit.md` and `data/hosted_qa_readiness_audit.csv` distinguish local readiness from missing Taiga/hosted QA evidence.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- blocked hosted-QA steps: `{len(blocks)}`
+- failing local readiness checks: `{len(failures)}`
+
+`block` rows are expected before upload and do not count as generated-script failures. They are evidence that hosted packaging, problem-version records, Full Env QA, Env Linter rows, and finding dispositions have not happened and must not be claimed.
+
+Hosted QA readiness checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def run_integrity_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -767,6 +805,7 @@ def main() -> int:
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
+    hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     metadata_by_id = {row["task_id"]: row for row in metadata}
@@ -932,6 +971,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {statistical_reporting_section(statistical_reporting_rows)}
 
+## Hosted QA Readiness Audit
+
+{hosted_qa_readiness_section(hosted_qa_readiness_rows)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -1012,6 +1055,7 @@ python scripts/audit_statistical_reporting.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/audit_hosted_qa_readiness.py
 python scripts/generate_task_asset_manifest.py --public-export public_tasks
 python scripts/audit_prompt_contracts.py
 python scripts/audit_scaffold_support.py
