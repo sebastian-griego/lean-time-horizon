@@ -159,6 +159,7 @@ def build_rows() -> list[dict[str, str]]:
         "hosted_qa_readiness_audit",
         "threats_to_validity_register",
         "claim_authorization_matrix",
+        "report_claim_conformance_audit",
         "release_decision_log",
         "freeze_readiness_roadmap",
         "scaffold_support_audit",
@@ -190,7 +191,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, a human-timing collection packet, a transcript-review packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, a claim-authorization matrix with forbidden overclaim wording, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, a human-timing collection packet, a transcript-review packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, a claim-authorization matrix with forbidden overclaim wording, a report claim-conformance audit that checks prose against those authorizations, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",

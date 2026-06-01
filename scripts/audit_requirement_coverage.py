@@ -222,6 +222,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     threats_to_validity = read_csv(ROOT / "data" / "threats_to_validity.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    report_claim_conformance = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_roadmap = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1279,6 +1280,52 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(authorization_ok, partial=bool(claim_authorization)),
         f"authorization rows: {len(claim_authorization)}; required claims covered: {len(required_authorization_ids & authorization_ids)}/{len(required_authorization_ids)}; blocked rows: {len(blocked_authorizations)}; caveated rows: {len(caveated_authorizations)}; invalid statuses: {len(invalid_authorization_statuses)}; missing wording rows: {len(missing_wording)}; report exists: {(ROOT / 'reports' / 'claim_authorization_matrix.md').exists()}.",
         "No gap." if authorization_ok else "Regenerate scripts/generate_claim_authorization_matrix.py after claim evidence and inspect missing or under-specified authorization rows.",
+    ))
+
+    required_conformance_ids = {
+        "authorization_matrix_loaded",
+        "main_report_authorization_section",
+        "abstract_scope_boundaries",
+        "run_result_boundary_wording",
+        "claim_ledger_blocks_overclaims",
+        "blocked_phrase_context_scan",
+        "readme_scope_boundaries",
+        "limitations_cover_blockers",
+        "report_length_and_appendix_boundary",
+    }
+    conformance_ids = {row_data.get("check_id", "") for row_data in report_claim_conformance}
+    conformance_fields = set(report_claim_conformance[0].keys()) if report_claim_conformance else set()
+    required_conformance_fields = {
+        "check_id",
+        "scope",
+        "status",
+        "evidence",
+        "failure_examples",
+        "required_action",
+        "source_artifacts",
+    }
+    conformance_failures = [
+        row_data for row_data in report_claim_conformance
+        if row_data.get("status") == "fail"
+    ]
+    conformance_cautions = [
+        row_data for row_data in report_claim_conformance
+        if row_data.get("status") == "caution"
+    ]
+    conformance_ok = (
+        bool(report_claim_conformance)
+        and required_conformance_ids.issubset(conformance_ids)
+        and required_conformance_fields.issubset(conformance_fields)
+        and not conformance_failures
+        and (ROOT / "reports" / "report_claim_conformance_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "report_claim_conformance_audit",
+        "reporting",
+        "Report claim-conformance audit should check the main report and README against the claim authorization matrix so blocked claims remain caveated or explicitly unsupported.",
+        status_from_bool(conformance_ok, partial=bool(report_claim_conformance)),
+        f"conformance rows: {len(report_claim_conformance)}; required checks covered: {len(required_conformance_ids & conformance_ids)}/{len(required_conformance_ids)}; failures: {len(conformance_failures)}; cautions: {len(conformance_cautions)}; report exists: {(ROOT / 'reports' / 'report_claim_conformance_audit.md').exists()}.",
+        "No gap." if conformance_ok else "Regenerate scripts/audit_report_claim_conformance.py after report generation and inspect any failed claim-boundary rows.",
     ))
 
     required_gate_ids = {

@@ -614,6 +614,38 @@ Claim authorization table:
 """
 
 
+def report_claim_conformance_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/report_claim_conformance_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_report_claim_conformance.py` after report generation, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    scope_counts = Counter(row.get("scope", "unknown") for row in rows)
+    lines = [
+        "| check | scope | status | evidence | required action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        action = row.get("required_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('scope', '')} | {row.get('status', '')} | "
+            f"{evidence} | {action} |"
+        )
+    return f"""`reports/report_claim_conformance_audit.md` and `data/report_claim_conformance_audit.csv` check that the main report and README obey the claim-authorization matrix. The audit scans for missing caveats, blocked-claim phrase contexts, and report-shape drift.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- scopes: `{compact_json(dict(sorted(scope_counts.items())))}`
+
+Claim-conformance checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def release_decision_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1140,6 +1172,7 @@ def main() -> int:
     grader_hardening_rows = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization_rows = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    report_claim_conformance_rows = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1385,6 +1418,10 @@ Observed model-sweep failure labels:
 
 {claim_authorization_section(claim_authorization_rows)}
 
+## Report Claim Conformance Audit
+
+{report_claim_conformance_section(report_claim_conformance_rows)}
+
 ## Release Decision Log
 
 {release_decision_section(release_decision_rows)}
@@ -1451,18 +1488,21 @@ python scripts/generate_threats_to_validity.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/audit_report_claim_conformance.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/audit_report_claim_conformance.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/audit_report_claim_conformance.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks
