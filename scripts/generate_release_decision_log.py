@@ -71,6 +71,7 @@ def row(
 def build_rows() -> list[dict[str, str]]:
     requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
     claims = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
+    claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
@@ -89,6 +90,7 @@ def build_rows() -> list[dict[str, str]]:
     )
     requirement_status_counts = Counter(row_data.get("status", "unknown") for row_data in requirements)
     claim_status_counts = Counter(row_data.get("support_status", "unknown") for row_data in claims)
+    authorization_status_counts = Counter(row_data.get("authorization_status", "unknown") for row_data in claim_authorization)
     locked_gaps = [
         row_data for row_data in requirements
         if row_data.get("freeze_relevance") == "required_for_locked_benchmark"
@@ -106,6 +108,10 @@ def build_rows() -> list[dict[str, str]]:
     ]
     unsupported_claims = [row_data for row_data in claims if row_data.get("support_status") == "unsupported"]
     partial_claims = [row_data for row_data in claims if row_data.get("support_status") == "partial"]
+    blocked_authorizations = [
+        row_data for row_data in claim_authorization
+        if row_data.get("authorization_status") == "blocked"
+    ]
     primary_coverage = next(
         (
             row_data for row_data in model_summary
@@ -135,13 +141,15 @@ def build_rows() -> list[dict[str, str]]:
         "research_report_readiness",
         "reporting",
         "OK to use the report as a research review memo if caveats and unsupported claims stay visible.",
-        "pass" if not research_gaps and len(unsupported_claims) >= 2 else "caution",
+        "pass" if not research_gaps and len(unsupported_claims) >= 2 and len(blocked_authorizations) >= 4 else "caution",
         (
             f"research-report gaps={len(research_gaps)}; claim statuses={compact_json(dict(sorted(claim_status_counts.items())))}; "
+            f"claim authorizations={compact_json(dict(sorted(authorization_status_counts.items())))}; "
             f"unsupported claims={compact_json([row_data.get('claim_id') for row_data in unsupported_claims])}; "
             f"{evidence(reqs, 'transcript_review_packet')}; {evidence(reqs, 'hosted_qa_readiness_audit')}; "
             f"{evidence(reqs, 'model_sweep_execution_packet')}; "
-            f"{evidence(reqs, 'threats_to_validity_register')}; {evidence(reqs, 'freeze_readiness_roadmap')}"
+            f"{evidence(reqs, 'threats_to_validity_register')}; {evidence(reqs, 'claim_authorization_matrix')}; "
+            f"{evidence(reqs, 'freeze_readiness_roadmap')}"
         ),
         "The report is evidence-rich but not backed by broad model sweeps or independent timing.",
         "Update the decision log whenever a requirement, claim audit, or provider sweep changes.",
@@ -213,6 +221,7 @@ def build_rows() -> list[dict[str, str]]:
         "block",
         (
             f"locked-benchmark gaps={len(locked_gaps)}: {compact_json([row_data.get('requirement_id') for row_data in locked_gaps])}; "
+            f"blocked claim-authorizations={compact_json([row_data.get('claim_id') for row_data in blocked_authorizations])}; "
             f"claim={claims_by_id.get('locked_benchmark', {}).get('support_status', 'missing')}; "
             f"{evidence(reqs, 'hosted_qa_readiness_audit')}; {evidence(reqs, 'model_sweep_execution_packet')}; "
             f"{evidence(reqs, 'freeze_readiness_roadmap')}"

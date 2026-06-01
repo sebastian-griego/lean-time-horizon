@@ -581,6 +581,39 @@ Claim support table:
 """
 
 
+def claim_authorization_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/claim_authorization_matrix.md` has not been generated yet. Run "
+            "`python scripts/generate_claim_authorization_matrix.py` after claim evidence, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("authorization_status", "unknown") for row in rows)
+    area_counts = Counter(row.get("claim_area", "unknown") for row in rows)
+    lines = [
+        "| claim | area | status | allowed wording | required caveat | forbidden wording |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        allowed = row.get("allowed_wording", "").replace("|", "/")
+        caveat = row.get("required_caveat", "").replace("|", "/")
+        forbidden = row.get("forbidden_wording", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('claim_id', '')}` | {row.get('claim_area', '')} | "
+            f"{row.get('authorization_status', '')} | {allowed} | {caveat} | {forbidden} |"
+        )
+    return f"""`reports/claim_authorization_matrix.md` and `data/claim_authorization_matrix.csv` turn evidence audits into explicit report wording controls. This is stricter than the claim ledger: it records what wording is allowed, what caveat must travel with it, and what stronger wording is blocked.
+
+- authorization rows: `{len(rows)}`
+- authorization statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- claim areas: `{compact_json(dict(sorted(area_counts.items())))}`
+
+Claim authorization table:
+
+{chr(10).join(lines)}
+"""
+
+
 def release_decision_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1106,6 +1139,7 @@ def main() -> int:
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     grader_hardening_rows = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
+    claim_authorization_rows = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1347,6 +1381,10 @@ Observed model-sweep failure labels:
 
 {claim_evidence_section(claim_evidence_rows)}
 
+## Claim Authorization Matrix
+
+{claim_authorization_section(claim_authorization_rows)}
+
 ## Release Decision Log
 
 {release_decision_section(release_decision_rows)}
@@ -1412,16 +1450,19 @@ python scripts/audit_scaffold_support.py
 python scripts/generate_threats_to_validity.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
+python scripts/generate_claim_authorization_matrix.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
+python scripts/generate_claim_authorization_matrix.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
+python scripts/generate_claim_authorization_matrix.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks

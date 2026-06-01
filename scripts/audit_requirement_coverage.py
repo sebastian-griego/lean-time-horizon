@@ -221,6 +221,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     threats_to_validity = read_csv(ROOT / "data" / "threats_to_validity.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
+    claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_roadmap = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1212,6 +1213,72 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(claim_audit_ok, partial=bool(claim_evidence)),
         f"claim_evidence rows: {len(claim_evidence)}; required claims covered: {len(required_claim_ids & claim_ids)}/{len(required_claim_ids)}; unsupported overclaim rows: {len(unsupported_claims)}; report exists: {(ROOT / 'reports' / 'claim_evidence_audit.md').exists()}.",
         "No gap." if claim_audit_ok else "Regenerate scripts/audit_claim_evidence.py after requirement coverage and inspect missing claim rows.",
+    ))
+
+    required_authorization_ids = {
+        "local_artifact_validity",
+        "research_report_scope",
+        "accepted_core_quality",
+        "hidden_pin_and_grader_strength",
+        "run_data_integrity",
+        "time_horizon_scope",
+        "scaffold_effects",
+        "frontier_model_performance",
+        "failure_taxonomy_results",
+        "statistical_performance_reporting",
+        "hosted_qa_status",
+        "locked_benchmark_status",
+    }
+    authorization_ids = {row_data.get("claim_id", "") for row_data in claim_authorization}
+    authorization_fields = set(claim_authorization[0].keys()) if claim_authorization else set()
+    required_authorization_fields = {
+        "claim_id",
+        "claim_area",
+        "authorization_status",
+        "allowed_wording",
+        "required_caveat",
+        "forbidden_wording",
+        "current_evidence",
+        "evidence_to_upgrade",
+        "blocking_requirements",
+        "source_artifacts",
+    }
+    invalid_authorization_statuses = [
+        row_data for row_data in claim_authorization
+        if row_data.get("authorization_status") not in {"allowed", "allowed_with_caveat", "blocked"}
+    ]
+    blocked_authorizations = [
+        row_data for row_data in claim_authorization
+        if row_data.get("authorization_status") == "blocked"
+    ]
+    caveated_authorizations = [
+        row_data for row_data in claim_authorization
+        if row_data.get("authorization_status") == "allowed_with_caveat"
+    ]
+    missing_wording = [
+        row_data.get("claim_id", "")
+        for row_data in claim_authorization
+        if not row_data.get("allowed_wording", "").strip()
+        or not row_data.get("forbidden_wording", "").strip()
+        or not row_data.get("evidence_to_upgrade", "").strip()
+    ]
+    authorization_ok = (
+        bool(claim_authorization)
+        and required_authorization_ids.issubset(authorization_ids)
+        and required_authorization_fields.issubset(authorization_fields)
+        and not invalid_authorization_statuses
+        and len(blocked_authorizations) >= 4
+        and len(caveated_authorizations) >= 4
+        and not missing_wording
+        and (ROOT / "reports" / "claim_authorization_matrix.md").exists()
+    )
+    requirement_rows.append(row(
+        "claim_authorization_matrix",
+        "reporting",
+        "Claim authorization matrix should translate evidence audits into allowed caveated and blocked report wording, including forbidden overclaim language.",
+        status_from_bool(authorization_ok, partial=bool(claim_authorization)),
+        f"authorization rows: {len(claim_authorization)}; required claims covered: {len(required_authorization_ids & authorization_ids)}/{len(required_authorization_ids)}; blocked rows: {len(blocked_authorizations)}; caveated rows: {len(caveated_authorizations)}; invalid statuses: {len(invalid_authorization_statuses)}; missing wording rows: {len(missing_wording)}; report exists: {(ROOT / 'reports' / 'claim_authorization_matrix.md').exists()}.",
+        "No gap." if authorization_ok else "Regenerate scripts/generate_claim_authorization_matrix.py after claim evidence and inspect missing or under-specified authorization rows.",
     ))
 
     required_gate_ids = {

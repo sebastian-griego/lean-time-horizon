@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 42
+- `supported`: 43
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 25
+- `required_for_research_report` / `supported`: 26
 
 ## Coverage Table
 
@@ -60,6 +60,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `hosted_qa_readiness_audit` | reporting | required_for_research_report | supported | Hosted QA readiness audit should distinguish local readiness from missing Taiga packaging problem-version QA and finding-resolution evidence. | hosted QA readiness rows: 11; required checks covered: 11/11; failures: 0; blocked hosted-QA steps: 9; report exists: True. | No gap. |
 | `threats_to_validity_register` | reporting | required_for_research_report | supported | Threats-to-validity register should turn construct internal external statistical operational and security limitations into generated evidence rows with mitigations and stronger-evidence requirements. | threat rows: 12; required threats covered: 12/12; categories: ["construct_validity", "external_validity", "internal_validity", "operational_security", "operational_validity", "statistical_validity"]; statuses: {"block": 7, "caution": 3, "controlled": 2}; invalid statuses: 0; report exists: True. | No gap. |
 | `claim_evidence_audit` | reporting | required_for_research_report | supported | Claim-evidence audit should map artifact, report, performance, and benchmark-status claims to evidence strength and limits. | claim_evidence rows: 9; required claims covered: 9/9; unsupported overclaim rows: 3; report exists: True. | No gap. |
+| `claim_authorization_matrix` | reporting | required_for_research_report | supported | Claim authorization matrix should translate evidence audits into allowed caveated and blocked report wording, including forbidden overclaim language. | authorization rows: 12; required claims covered: 12/12; blocked rows: 5; caveated rows: 6; invalid statuses: 0; missing wording rows: 0; report exists: True. | No gap. |
 | `release_decision_log` | reporting | required_for_research_report | supported | Release decision log should translate evidence audits into explicit pass/caution/block gates and next actions. | release_decision rows: 8; required gates covered: 8/8; block gates: 4; pass gates: 2; report exists: True. | No gap. |
 | `freeze_readiness_roadmap` | reporting | required_for_research_report | supported | Freeze-readiness roadmap should synthesize requirement claim hosted QA statistical model-run and metadata audits into measurable gates for locked-benchmark readiness. | freeze roadmap rows: 10; required gates covered: 10/10; statuses: {"block": 8, "caution": 1, "ready": 1}; report exists: True. | No gap. |
 | `scaffold_support_audit` | reporting | required_for_research_report | supported | Scaffold support audit should verify prompt contracts runner semantics lookup safety planned coverage and observed coverage limits. | scaffold audit rows: 11; required checks covered: 11/11; failures: 0; cautions: 1; report exists: True. | No gap. |

@@ -87,6 +87,7 @@ def build_rows() -> list[dict[str, str]]:
         row_data["claim_id"]: row_data
         for row_data in read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     }
+    claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
@@ -118,6 +119,14 @@ def build_rows() -> list[dict[str, str]]:
     hosted_blocks = [row_data for row_data in hosted if row_data.get("status") == "block"]
     statistical_blocks = [row_data for row_data in statistical if row_data.get("status") == "block"]
     release_blocks = [row_data for row_data in release_decisions if row_data.get("status") == "block"]
+    blocked_authorizations = [
+        row_data for row_data in claim_authorization
+        if row_data.get("authorization_status") == "blocked"
+    ]
+    authorization_status_counts = Counter(
+        row_data.get("authorization_status", "unknown")
+        for row_data in claim_authorization
+    )
     unsupported_claims = [
         row_data.get("claim_id", "")
         for row_data in claims.values()
@@ -261,12 +270,22 @@ def build_rows() -> list[dict[str, str]]:
         "; ".join([
             requirement(requirements, "hosted_qa_env_linter"),
             requirement(requirements, "threats_to_validity_register"),
+            requirement(requirements, "claim_authorization_matrix"),
             claim(claims, "locked_benchmark"),
         ]),
         "Freeze only after local validation, hosted QA, independent timing, accepted-count, scaffold-sweep, and provider-evidence gates are satisfied.",
-        "Tag the exact commit/export hash and hosted problem-version mapping only after all block gates are cleared.",
+        (
+            "Tag the exact commit/export hash and hosted problem-version mapping only after all block gates are cleared. "
+            f"Current authorization statuses={compact_json(dict(sorted(authorization_status_counts.items())))}; "
+            f"blocked authorizations={compact_json([row_data.get('claim_id') for row_data in blocked_authorizations])}."
+        ),
         ["locked_benchmark"],
-        ["reports/release_decision_log.md", "reports/threats_to_validity.md", "reports/validation_manifest.json"],
+        [
+            "reports/release_decision_log.md",
+            "reports/threats_to_validity.md",
+            "reports/claim_authorization_matrix.md",
+            "reports/validation_manifest.json",
+        ],
     ))
     return rows
 
