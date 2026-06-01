@@ -323,6 +323,45 @@ Statistical reporting checks:
 """
 
 
+def provider_readiness_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/provider_readiness_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_provider_readiness.py` after model-result analysis, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    cautions = [row for row in rows if row.get("status") == "caution"]
+    blocks = [row for row in rows if row.get("status") == "block"]
+    lines = [
+        "| check | area | status | current state | limitation | next action |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        current = row.get("current_state", "").replace("|", "/")
+        limitation = row.get("limitation", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{current} | {limitation} | {action} |"
+        )
+    return f"""`reports/provider_readiness_audit.md` and `data/provider_readiness_audit.csv` check model-runner readiness without using provider credentials or creating new model results. The audit separates runner contracts, adapter coverage, credential policy, transcript evidence, planned sweep commands, and smoke-only provider coverage.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failing readiness checks: `{len(failures)}`
+- caution rows: `{len(cautions)}`
+- blocked provider-evidence rows: `{len(blocks)}`
+
+Provider readiness checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def hosted_qa_readiness_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -844,6 +883,7 @@ def main() -> int:
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
+    provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
@@ -1014,6 +1054,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {statistical_reporting_section(statistical_reporting_rows)}
 
+## Provider Readiness Audit
+
+{provider_readiness_section(provider_readiness_rows)}
+
 ## Hosted QA Readiness Audit
 
 {hosted_qa_readiness_section(hosted_qa_readiness_rows)}
@@ -1096,6 +1140,7 @@ python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py
 python scripts/audit_statistical_reporting.py
+python scripts/audit_provider_readiness.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks

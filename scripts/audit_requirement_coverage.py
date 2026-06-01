@@ -214,6 +214,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     statistical_audit = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
+    provider_readiness = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
@@ -791,6 +792,49 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(statistical_ok, partial=bool(statistical_audit)),
         f"statistical audit rows: {len(statistical_audit)}; required checks covered: {len(required_statistical_checks & statistical_check_ids)}/{len(required_statistical_checks)}; failures: {len(statistical_failures)}; blocked performance outputs: {len(statistical_blocks)}; report exists: {(ROOT / 'reports' / 'statistical_reporting_audit.md').exists()}.",
         "No gap." if statistical_ok else "Regenerate scripts/audit_statistical_reporting.py and fix failing statistical hygiene checks.",
+    ))
+
+    required_provider_checks = {
+        "provider_catalog_contract",
+        "external_runner_env_contract",
+        "bundled_provider_adapters",
+        "anthropic_adapter_static_safety",
+        "tracked_secret_scan",
+        "credential_and_no_fake_policy_text",
+        "primary_sweep_command_plan",
+        "provider_transcript_evidence",
+        "local_qa_provider_separation",
+        "provider_sweep_coverage",
+        "provider_claim_boundary",
+    }
+    provider_check_ids = {row_data.get("check_id", "") for row_data in provider_readiness}
+    provider_fields = set(provider_readiness[0].keys()) if provider_readiness else set()
+    required_provider_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "current_state",
+        "limitation",
+        "next_action",
+    }
+    provider_failures = [row_data for row_data in provider_readiness if row_data.get("status") == "fail"]
+    provider_cautions = [row_data for row_data in provider_readiness if row_data.get("status") == "caution"]
+    provider_blocks = [row_data for row_data in provider_readiness if row_data.get("status") == "block"]
+    provider_readiness_ok = (
+        bool(provider_readiness)
+        and required_provider_checks.issubset(provider_check_ids)
+        and required_provider_fields.issubset(provider_fields)
+        and not provider_failures
+        and (ROOT / "reports" / "provider_readiness_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "provider_readiness_audit",
+        "reporting",
+        "Provider readiness audit should verify model-runner contracts adapter coverage credential policy transcript evidence planned sweep commands and smoke-only coverage limits.",
+        status_from_bool(provider_readiness_ok, partial=bool(provider_readiness)),
+        f"provider readiness rows: {len(provider_readiness)}; required checks covered: {len(required_provider_checks & provider_check_ids)}/{len(required_provider_checks)}; failures: {len(provider_failures)}; cautions: {len(provider_cautions)}; blocks: {len(provider_blocks)}; report exists: {(ROOT / 'reports' / 'provider_readiness_audit.md').exists()}.",
+        "No gap." if provider_readiness_ok else "Regenerate scripts/audit_provider_readiness.py and fix failing provider-readiness checks.",
     ))
 
     required_hosted_qa_checks = {

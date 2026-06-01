@@ -184,6 +184,7 @@ def build_rows() -> list[dict[str, str]]:
         "block",
         (
             f"{evidence(reqs, 'scaffold_result_comparison')}; primary plan coverage={compact_json(primary_coverage)}; "
+            f"{evidence(reqs, 'provider_readiness_audit')}; "
             f"claim={claims_by_id.get('scaffold_effects', {}).get('support_status', 'missing')}"
         ),
         "The scaffold ladder exists, but accepted-core provider data cover only one non-infra one-shot cell.",
@@ -194,7 +195,7 @@ def build_rows() -> list[dict[str, str]]:
         "performance",
         "Do not use committed provider rows to characterize frontier-model capability.",
         "block",
-        f"{evidence(reqs, 'frontier_model_evidence')}; claim={claims_by_id.get('frontier_performance', {}).get('support_status', 'missing')}",
+        f"{evidence(reqs, 'frontier_model_evidence')}; {evidence(reqs, 'provider_readiness_audit')}; claim={claims_by_id.get('frontier_performance', {}).get('support_status', 'missing')}",
         "Provider rows are smoke evidence only and include an infra failure.",
         "Run documented provider sweeps after local and hosted QA are stable.",
     ))
