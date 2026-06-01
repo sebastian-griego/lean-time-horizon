@@ -167,7 +167,7 @@ Independent review status:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 62}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 63}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -346,6 +346,25 @@ Model-sweep infra failures: 1. Infra-failure rows are retained in `data/run_resu
 
 No provider API credentials or runner commands are committed. To run a real smoke sweep, configure one of `OPENAI_LEAN_RUNNER`, `ANTHROPIC_LEAN_RUNNER`, `GEMINI_LEAN_RUNNER`, or `LEAN_MODEL_RUNNER` and use `scripts/run_model_sweep.py`.
 
+## Threat Coverage Audit
+
+`reports/threat_coverage_audit.md` and `data/threat_coverage_audit.csv` check that open locked-benchmark blockers and non-allowed claims are represented in the threats-to-validity register. This is a limitation-coverage audit, not evidence that the limitations have been resolved.
+
+- checks: `4`
+- statuses: `{"pass": 4}`
+- areas: `{"claim_threats": 1, "freeze_alignment": 1, "locked_benchmark_threats": 1, "threat_register_integrity": 1}`
+- failures: `0`
+
+Threat-coverage checks:
+
+| check | area | status | evidence | required action |
+| --- | --- | --- | --- | --- |
+| `locked_blocker_threat_mapping` | locked_benchmark_threats | pass | open_locked_requirements=7; covered={"frontier_model_evidence": ["frontier_performance_undercoverage"], "hosted_qa_env_linter": ["hosted_environment_gap"], "independent_human_time_review": ["author_estimated_human_time"], "independent_task_quality_review": ["missing_independent_task_quality_review"], "portfolio_accepted_count": ["portfolio_scale_and_balance"], "scaffold_result_comparison": ["scaffold_sweep_undercoverage", "statistical_power_and_plots"], "time_horizon_spread": ["construct_time_horizon_depth"]}; missing=[]; weak_status=[] | Add or update threat rows whenever a locked-benchmark blocker is partial or not_met. |
+| `non_allowed_claim_threat_mapping` | claim_threats | pass | non_allowed_claims=11; expected_tokens={"accepted_core_quality": ["accepted_core_reviewed"], "failure_taxonomy_results": ["diagnostic_failure_distribution"], "frontier_model_performance": ["frontier_performance"], "hidden_pin_and_grader_strength": ["hidden_pin_strength", "grading_validity"], "hosted_qa_status": ["deployment_reliability", "locked_benchmark"], "local_artifact_validity": [], "locked_benchmark_status": ["locked_benchmark"], "research_report_scope": [], "scaffold_effects": ["scaffold_effects"], "statistical_performance_reporting": ["frontier_performance", "scaffold_effects", "family_level_performance"], "time_horizon_scope": ["time_horizon_measurement"]}; available_tokens=["accepted_core_reviewed", "artifact_security", "deployment_reliability", "diagnostic_failure_distribution", "family_level_performance", "frontier_performance", "grading_validity", "hidden_pin_strength", "locked_benchmark", "provider_run_reproducibility", "public_release_safety", "scaffold_effects", "time_horizon_measurement"] | Keep every caveated or blocked claim tied to at least one threat claims_limited token. |
+| `threat_row_completeness` | threat_register_integrity | pass | threat_rows=13; statuses={"block": 8, "caution": 3, "controlled": 2}; incomplete=0; invalid_statuses=0; missing_source_paths=0 | Every threat row should have evidence, mitigation, stronger-evidence requirements, claim limits, and existing source artifacts. |
+| `high_block_threat_freeze_alignment` | freeze_alignment | pass | high_block_threats=8; freeze_rows=10; missing_freeze_claim_tokens=[] | High-severity blocking threats should correspond to freeze-roadmap claim limits or gates. |
+
+
 ## Claim Authorization Matrix
 
 `reports/claim_authorization_matrix.md` and `data/claim_authorization_matrix.csv` turn evidence audits into explicit report wording controls. This is stricter than the claim ledger: it records what wording is allowed, what caveat must travel with it, and what stronger wording is blocked.
@@ -407,6 +426,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 - `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
+- `reports/threat_coverage_audit.md`: mapping from open blockers and non-allowed claims to threats-to-validity rows.
 
 ## Reproducibility Checklist
 

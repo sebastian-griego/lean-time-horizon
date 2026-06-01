@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-06-01T21:11:23.145463+00:00",
+  "generated_at_utc": "2026-06-01T21:54:27.547751+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md and reports/evidence_appendix.md to avoid self-referential report hashes. The validation-manifest audit is generated after this manifest and is checked by requirement coverage rather than hashed by the manifest. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "ce2262ba98414cc06a873d138fd813b3b4b5bcdc",
+    "head": "e15d3db5da672c19f0855d092c151e6befbf0111",
     "dirty": true,
     "status_short": [
       " M README.md",
@@ -13,6 +13,7 @@
       " M data/freeze_readiness_roadmap.csv",
       " M data/release_decision_log.csv",
       " M data/report_claim_conformance_audit.csv",
+      " M data/report_count_consistency_audit.csv",
       " M data/report_shape_audit.csv",
       " M data/report_source_traceability.csv",
       " M data/requirement_coverage.csv",
@@ -24,6 +25,7 @@
       " M reports/metr_style_report.md",
       " M reports/release_decision_log.md",
       " M reports/report_claim_conformance_audit.md",
+      " M reports/report_count_consistency_audit.md",
       " M reports/report_shape_audit.md",
       " M reports/report_source_traceability.md",
       " M reports/requirement_coverage.md",
@@ -36,9 +38,9 @@
       " M scripts/generate_concise_report.py",
       " M scripts/generate_report.py",
       " M scripts/write_validation_manifest.py",
-      "?? data/report_count_consistency_audit.csv",
-      "?? reports/report_count_consistency_audit.md",
-      "?? scripts/audit_report_count_consistency.py"
+      "?? data/threat_coverage_audit.csv",
+      "?? reports/threat_coverage_audit.md",
+      "?? scripts/audit_threat_coverage.py"
     ],
     "status_summary_first_line": " M README.md"
   },
@@ -117,6 +119,7 @@
     "python scripts/audit_prompt_contracts.py",
     "python scripts/audit_scaffold_support.py",
     "python scripts/generate_threats_to_validity.py",
+    "python scripts/audit_threat_coverage.py",
     "python scripts/audit_requirement_coverage.py --public-export public_tasks",
     "python scripts/audit_claim_evidence.py",
     "python scripts/generate_claim_authorization_matrix.py",
@@ -230,9 +233,9 @@
     {
       "path": "README.md",
       "exists": true,
-      "bytes": 19707,
-      "sha256": "b3d7f1fa8f01cdc6e399f7f76ee6415a6c93fdee3e693695684ae4e7a2f33406",
-      "line_count": 306
+      "bytes": 19982,
+      "sha256": "734c6f919c565352babbf7aad9285b387f809d09ee7c0ab0f1fd01a170de35d1",
+      "line_count": 309
     },
     {
       "path": "docs/axiom_policy.md",
@@ -244,10 +247,10 @@
     {
       "path": "data/benchmark_requirements.csv",
       "exists": true,
-      "bytes": 17168,
-      "sha256": "07e5e210857b10ad5e27822898e758f2a77953b2d2bd3b758e9654994da7c09f",
-      "line_count": 70,
-      "row_count": 69
+      "bytes": 17493,
+      "sha256": "821e17c0341800131cc4502fba6f102e7043690ee5704cff413db695ef44a781",
+      "line_count": 71,
+      "row_count": 70
     },
     {
       "path": "data/task_metadata.csv",
@@ -381,6 +384,14 @@
       "sha256": "649cf81bb6581c04a1deed1081b21e59ae0b4bcbbdda6a24d18366228fd52c75",
       "line_count": 14,
       "row_count": 13
+    },
+    {
+      "path": "data/threat_coverage_audit.csv",
+      "exists": true,
+      "bytes": 2834,
+      "sha256": "babdabd5070c16eef4af70f543b25e8b6a84a60bd3c4324046f6e98ffa641419",
+      "line_count": 5,
+      "row_count": 4
     },
     {
       "path": "data/transcript_review_queue.csv",
@@ -598,8 +609,8 @@
     {
       "path": "data/claim_evidence_audit.csv",
       "exists": true,
-      "bytes": 21834,
-      "sha256": "84fb97eac4ad036a491c6544889b86757b5d17111567b1079068fcabef11f6ab",
+      "bytes": 22001,
+      "sha256": "4a195089e37ab753c45a5540f1bbc404e0cd0b937f33901b19cb5179b3cde2ab",
       "line_count": 10,
       "row_count": 9
     },
@@ -623,23 +634,23 @@
       "path": "data/report_claim_conformance_audit.csv",
       "exists": true,
       "bytes": 4101,
-      "sha256": "e9f3b3606b6ac559494019277422920741f283f8e89652f2bdeec093917647b4",
+      "sha256": "4ab583cf27bd45bda5d8dd24d96b1a4d21dbd83263af8929e458ebfb1c7c495d",
       "line_count": 12,
       "row_count": 11
     },
     {
       "path": "data/report_source_traceability.csv",
       "exists": true,
-      "bytes": 14251,
-      "sha256": "32d6410d42ddaa096ba447cbb7d50b8b0f05b09a0619cd5156201a7d1476394b",
-      "line_count": 33,
-      "row_count": 32
+      "bytes": 14775,
+      "sha256": "fa9ecb952085935206c6b39e3483c99b1f15b85c5ec0b911e719aecacb3e8098",
+      "line_count": 34,
+      "row_count": 33
     },
     {
       "path": "data/report_shape_audit.csv",
       "exists": true,
       "bytes": 3350,
-      "sha256": "4dbd204c84e26175beff55a0c32a9963386e23248b237eebf2ae92a20cad5431",
+      "sha256": "73e05c2997447affeb8fdb20ff518705c9e54e3158ea27a527b49912eeacdf1e",
       "line_count": 8,
       "row_count": 7
     },
@@ -647,7 +658,7 @@
       "path": "data/report_count_consistency_audit.csv",
       "exists": true,
       "bytes": 5271,
-      "sha256": "2228a73c46f1f9f07455edbdac4ec6f8428a4f7be17571f1ac162ab798f52439",
+      "sha256": "5e537a599f4f2768449b491bf784bc90f34de1e4b5791649ec8aa05a70b82df3",
       "line_count": 9,
       "row_count": 8
     },
@@ -687,7 +698,7 @@
       "path": "data/release_decision_log.csv",
       "exists": true,
       "bytes": 11525,
-      "sha256": "f224494c2e1f7b8deb8449aa832fe3fc30980191a37b677ba7f9a3b2d69b6fb2",
+      "sha256": "d05c45774f30929d2e271e67dea9e67aa190d4ba190a003a5428fb39454f011c",
       "line_count": 9,
       "row_count": 8
     },
@@ -695,7 +706,7 @@
       "path": "data/freeze_readiness_roadmap.csv",
       "exists": true,
       "bytes": 12704,
-      "sha256": "b7914eef6298099051d61a9dc065e15394d10e3a1a3108d3a746b98ec1d7bcff",
+      "sha256": "9009f883ec824c860b8bfcccfb76562a18ae9295bcc569b45d347e9c91c98f54",
       "line_count": 11,
       "row_count": 10
     },
@@ -710,10 +721,10 @@
     {
       "path": "data/requirement_coverage.csv",
       "exists": true,
-      "bytes": 26809,
-      "sha256": "2a19c525157ab86ae20bf46ba966a78a2d3f9b5ee5f1b1a8cbb258207265b782",
-      "line_count": 70,
-      "row_count": 69
+      "bytes": 27242,
+      "sha256": "fd8c3ab77afbc998eb61687c6b8300dfc43b35b4cf67dcc5e1e97e48e00869e8",
+      "line_count": 71,
+      "row_count": 70
     },
     {
       "path": "reports/difficulty_audit.md",
@@ -823,8 +834,8 @@
     {
       "path": "reports/claim_evidence_audit.md",
       "exists": true,
-      "bytes": 6595,
-      "sha256": "b2bf19eac90369b7fd38e467d23eed8a26664900dec642854b1462abe02eed85",
+      "bytes": 6636,
+      "sha256": "1718b258b208c476dc43505c6f91d48279f5f7836f7bbc068b52d8115b5d9d08",
       "line_count": 27
     },
     {
@@ -845,28 +856,28 @@
       "path": "reports/report_claim_conformance_audit.md",
       "exists": true,
       "bytes": 4268,
-      "sha256": "6fb9338b05e60dcd923e7e3fe41a4a25f81610ff73da848c51becb4d45507991",
+      "sha256": "bebb4110fc92240d8459e4c56961806c6c6beef4bdcf5b34fba6ea4d3a45366a",
       "line_count": 29
     },
     {
       "path": "reports/report_source_traceability.md",
       "exists": true,
-      "bytes": 15012,
-      "sha256": "8536dfa4dad5297f1119dd379367c46c9f05ada80ebcf57d486f123c8bb0c200",
-      "line_count": 49
+      "bytes": 15536,
+      "sha256": "9c285308d5c8eddfcf416c52ea2d58483586080480e0b87b0fe83a7fc69b3835",
+      "line_count": 50
     },
     {
       "path": "reports/report_shape_audit.md",
       "exists": true,
       "bytes": 3373,
-      "sha256": "ac4a63849655400c756c61de9828d638f4c86dc67096ee3d73c736df31d7fe1d",
+      "sha256": "2b1d2eb8f7921c599bcc74edf243b5b6d65e1b7ce95a5097b21a6ea69ff2f057",
       "line_count": 24
     },
     {
       "path": "reports/report_count_consistency_audit.md",
       "exists": true,
       "bytes": 5190,
-      "sha256": "7074a4ce124cc2ba91bbe57a537f80ab72914e9da0c229d411e78bac8b20855b",
+      "sha256": "ab0a47ca204d062fc151615d630affec3b59ed775916e47e3baeacb8119e0313",
       "line_count": 26
     },
     {
@@ -900,22 +911,22 @@
     {
       "path": "reports/concise_metr_report.md",
       "exists": true,
-      "bytes": 18557,
-      "sha256": "fbb83bbfb099903f9b7d67464d8355cb0b0ff8f6e95d25efb6182237cf6078b0",
-      "line_count": 215
+      "bytes": 18725,
+      "sha256": "f2c0f2bc683e32c47429fa29351970a401cbd08abf70b5befdb340987b4d0708",
+      "line_count": 216
     },
     {
       "path": "reports/release_decision_log.md",
       "exists": true,
       "bytes": 12114,
-      "sha256": "d86dfe767967036275f026a27d140192334ee2e42177237482728b5801b6e24a",
+      "sha256": "16c0caeaedca67b5fdd473e5d957611e2bf9afedc33c1ba300c042e996bfd781",
       "line_count": 25
     },
     {
       "path": "reports/freeze_readiness_roadmap.md",
       "exists": true,
       "bytes": 6032,
-      "sha256": "cf5d0b671bd51d124435068cc26d9f174660cd5b52dc31709c013a2eb5e9ae40",
+      "sha256": "6b3e1cef320338628a78dc1eea58ac036b7323ade6b36660f487ca9fcd6e7b54",
       "line_count": 30
     },
     {
@@ -996,6 +1007,13 @@
       "line_count": 32
     },
     {
+      "path": "reports/threat_coverage_audit.md",
+      "exists": true,
+      "bytes": 3415,
+      "sha256": "9354eebeb0392109f51cc6fc56f14c0f37a32dec67924a3f859e155bbac5679a",
+      "line_count": 22
+    },
+    {
       "path": "reports/transcript_review_packet.md",
       "exists": true,
       "bytes": 4276,
@@ -1012,9 +1030,9 @@
     {
       "path": "reports/requirement_coverage.md",
       "exists": true,
-      "bytes": 24151,
-      "sha256": "5dc91229599dc53b2d895e6355320b955a3551c07bfa1e2151a60613555808e3",
-      "line_count": 91
+      "bytes": 24530,
+      "sha256": "b9487edb9bb1961501a17e16eeeaf583768a64d13e04f3db33690533ec036d99",
+      "line_count": 92
     },
     {
       "path": "reports/figures/task_counts_by_family.svg",
@@ -1173,9 +1191,9 @@
     {
       "path": "scripts/audit_claim_evidence.py",
       "exists": true,
-      "bytes": 18814,
-      "sha256": "4a99272f28066aa20483431c034ffeb79349baa286340f82626fcecb1974838d",
-      "line_count": 356
+      "bytes": 18888,
+      "sha256": "2a32dbece410fbd9e55606ca4b3833a0ca884901823e8fbe8aada68a6761b0a2",
+      "line_count": 357
     },
     {
       "path": "scripts/generate_claim_authorization_matrix.py",
@@ -1201,9 +1219,9 @@
     {
       "path": "scripts/audit_report_source_traceability.py",
       "exists": true,
-      "bytes": 29754,
-      "sha256": "72ea21e4c1a1c4bf4d4c6376ec7447a1f29c8ed725c78dd749b69ffb546b8415",
-      "line_count": 751
+      "bytes": 30669,
+      "sha256": "39457b5a8c076d3976ebb7740ea3b8275a3159867576c63073d2b356d898ad52",
+      "line_count": 772
     },
     {
       "path": "scripts/audit_report_count_consistency.py",
@@ -1243,9 +1261,9 @@
     {
       "path": "scripts/generate_concise_report.py",
       "exists": true,
-      "bytes": 22381,
-      "sha256": "55a635a456af345c00b5c361080b2257622646ecf599e1b05fd35942f2089b79",
-      "line_count": 387
+      "bytes": 22559,
+      "sha256": "15ee30d3f1cb9759a2828fa9966011a7a5ce51e7b5ab1990602d1017f7ed66d6",
+      "line_count": 388
     },
     {
       "path": "scripts/audit_report_shape.py",
@@ -1278,9 +1296,9 @@
     {
       "path": "scripts/audit_requirement_coverage.py",
       "exists": true,
-      "bytes": 128489,
-      "sha256": "99af6612ea503bc9df1be90c9837cf05be7052b137198b58dd5e69a8b9481fc0",
-      "line_count": 2514
+      "bytes": 130071,
+      "sha256": "a895a3cdcaa4dd724a4c9f43eb726134fccdced1028fc2412a5c66ceb068b2db",
+      "line_count": 2543
     },
     {
       "path": "scripts/generate_evaluation_protocol.py",
@@ -1346,6 +1364,13 @@
       "line_count": 399
     },
     {
+      "path": "scripts/audit_threat_coverage.py",
+      "exists": true,
+      "bytes": 11521,
+      "sha256": "e67a9460521ec78306378fe772dd893368b5ae5611eca402d088044ab6ec6a1a",
+      "line_count": 275
+    },
+    {
       "path": "scripts/generate_transcript_review_packet.py",
       "exists": true,
       "bytes": 10925,
@@ -1369,9 +1394,9 @@
     {
       "path": "scripts/generate_report.py",
       "exists": true,
-      "bytes": 127408,
-      "sha256": "a9fbf040eb90ae5e547864ad1f5d67f802228f45fd3fc5c25122f067225e7a7d",
-      "line_count": 2512
+      "bytes": 129316,
+      "sha256": "fa6276e5d96a3a05b161caa75db7a73b57a88da31a968fe9022449769cdcb33d",
+      "line_count": 2557
     },
     {
       "path": "scripts/export_public_tasks.py",
@@ -1404,16 +1429,16 @@
     {
       "path": "scripts/audit_validation_manifest.py",
       "exists": true,
-      "bytes": 12665,
-      "sha256": "2d3aab982b990c21911cef749797faef6875628a8de048300be9e48951e50245",
-      "line_count": 307
+      "bytes": 12712,
+      "sha256": "e6572c571e52882c1bbd608f612edbb63e1c4c67a4672b83f7f579ef298df9b2",
+      "line_count": 308
     },
     {
       "path": "scripts/write_validation_manifest.py",
       "exists": true,
-      "bytes": 17816,
-      "sha256": "d57a5896dc5f05c1ef5202aa23d4d03c46717169884da1ea0afdc07f8aec5f12",
-      "line_count": 447
+      "bytes": 17981,
+      "sha256": "26fd42b0d93f98ea011a39cf980b8a6384e2233fb22b28827fae1f0de8584a65",
+      "line_count": 451
     }
   ]
 }

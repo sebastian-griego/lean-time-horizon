@@ -229,6 +229,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     provider_readiness = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     threats_to_validity = read_csv(ROOT / "data" / "threats_to_validity.csv")
+    threat_coverage = read_csv(ROOT / "data" / "threat_coverage_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
@@ -1850,6 +1851,34 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(threats_ok, partial=bool(threats_to_validity)),
         f"threat rows: {len(threats_to_validity)}; required threats covered: {len(required_threat_ids & threat_ids)}/{len(required_threat_ids)}; categories: {compact_json(sorted(threat_categories))}; statuses: {compact_json(dict(sorted(threat_statuses.items())))}; invalid statuses: {len(invalid_threat_statuses)}; report exists: {(ROOT / 'reports' / 'threats_to_validity.md').exists()}.",
         "No gap." if threats_ok else "Regenerate scripts/generate_threats_to_validity.py and inspect missing threat categories or statuses.",
+    ))
+
+    required_threat_coverage_ids = {
+        "locked_blocker_threat_mapping",
+        "non_allowed_claim_threat_mapping",
+        "threat_row_completeness",
+        "high_block_threat_freeze_alignment",
+    }
+    threat_coverage_ids = {
+        row_data.get("check_id", "") for row_data in threat_coverage
+    }
+    threat_coverage_failures = [
+        row_data for row_data in threat_coverage
+        if row_data.get("status") == "fail"
+    ]
+    threat_coverage_ok = (
+        bool(threat_coverage)
+        and required_threat_coverage_ids.issubset(threat_coverage_ids)
+        and not threat_coverage_failures
+        and (ROOT / "reports" / "threat_coverage_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "threat_coverage_audit",
+        "reporting",
+        "Threat coverage audit should verify that open locked-benchmark blockers and non-allowed claims are represented in threats-to-validity rows with mitigations and stronger-evidence requirements.",
+        status_from_bool(threat_coverage_ok, partial=bool(threat_coverage)),
+        f"threat-coverage rows: {len(threat_coverage)}; required checks covered: {len(required_threat_coverage_ids & threat_coverage_ids)}/{len(required_threat_coverage_ids)}; failures: {len(threat_coverage_failures)}; report exists: {(ROOT / 'reports' / 'threat_coverage_audit.md').exists()}.",
+        "No gap." if threat_coverage_ok else "Regenerate scripts/audit_threat_coverage.py and inspect unmapped blockers, claims, or threat rows.",
     ))
 
     required_claim_ids = {

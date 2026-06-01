@@ -761,6 +761,40 @@ Threat register:
 """
 
 
+def threat_coverage_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/threat_coverage_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_threat_coverage.py` after threats and requirement coverage, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | evidence | required action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        action = row.get("required_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{evidence} | {action} |"
+        )
+    return f"""`reports/threat_coverage_audit.md` and `data/threat_coverage_audit.csv` check that open locked-benchmark blockers and non-allowed claims are represented in the threats-to-validity register. This is a limitation-coverage audit, not evidence that the limitations have been resolved.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failures: `{len(failures)}`
+
+Threat-coverage checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def run_integrity_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1785,6 +1819,7 @@ def main() -> int:
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     threats_to_validity_rows = read_csv(ROOT / "data" / "threats_to_validity.csv")
+    threat_coverage_rows = read_csv(ROOT / "data" / "threat_coverage_audit.csv")
     validation_manifest_audit_rows = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
@@ -2041,6 +2076,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {threats_to_validity_section(threats_to_validity_rows)}
 
+## Threat Coverage Audit
+
+{threat_coverage_section(threat_coverage_rows)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -2171,6 +2210,7 @@ python scripts/generate_accepted_task_cards.py
 python scripts/audit_prompt_contracts.py
 python scripts/audit_scaffold_support.py
 python scripts/generate_threats_to_validity.py
+python scripts/audit_threat_coverage.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
@@ -2435,6 +2475,10 @@ Model-sweep infra failures: {len(infra_model_rows)}. Infra-failure rows are reta
 
 No provider API credentials or runner commands are committed. To run a real smoke sweep, configure one of `OPENAI_LEAN_RUNNER`, `ANTHROPIC_LEAN_RUNNER`, `GEMINI_LEAN_RUNNER`, or `LEAN_MODEL_RUNNER` and use `scripts/run_model_sweep.py`.
 
+## Threat Coverage Audit
+
+{threat_coverage_section(threat_coverage_rows)}
+
 ## Claim Authorization Matrix
 
 {claim_authorization_section(claim_authorization_rows)}
@@ -2466,6 +2510,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 - `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
+- `reports/threat_coverage_audit.md`: mapping from open blockers and non-allowed claims to threats-to-validity rows.
 
 ## Reproducibility Checklist
 

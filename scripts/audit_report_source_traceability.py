@@ -447,6 +447,25 @@ SECTION_SPECS = [
         "next_action": "Keep infra rows retained but excluded from pass-rate summaries.",
     },
     {
+        "section_id": "threat_coverage",
+        "heading": "Threat Coverage Audit",
+        "source_artifacts": [
+            "data/threat_coverage_audit.csv",
+            "reports/threat_coverage_audit.md",
+            "data/threats_to_validity.csv",
+            "data/requirement_coverage.csv",
+            "data/claim_authorization_matrix.csv",
+        ],
+        "required_phrases": [
+            "open locked-benchmark blockers",
+            "non-allowed claims",
+            "not evidence that the limitations have been resolved",
+            "Threat-coverage checks",
+        ],
+        "limitation": "Threat coverage checks whether limitations are visible; it does not resolve those limitations.",
+        "next_action": "Regenerate threat coverage after requirement, claim, or threat-register changes.",
+    },
+    {
         "section_id": "claim_authorization",
         "heading": "Claim Authorization Matrix",
         "source_artifacts": [
@@ -497,6 +516,7 @@ SECTION_SPECS = [
             "reports/failure_label_review_audit.md",
             "reports/statistical_analysis_plan.md",
             "reports/figure_manifest.md",
+            "reports/threat_coverage_audit.md",
         ],
         "required_phrases": [
             "evidence_appendix.md",
@@ -513,6 +533,7 @@ SECTION_SPECS = [
             "failure_label_review_audit.md",
             "statistical_analysis_plan.md",
             "figure_manifest.md",
+            "threat_coverage_audit.md",
         ],
         "limitation": "The source map improves traceability but does not create new model evidence.",
         "next_action": "Keep new report artifacts listed in README, manifest, and source traceability.",
