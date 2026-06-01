@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 47}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 48}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -102,6 +102,7 @@ Committed provider rows are smoke evidence only. They show the runner and transc
 - planned accepted-core task/scaffold cells: `18`
 - covered non-infra primary cells: `1`
 - accepted-core provider rows: `2` total, `1` non-infra
+- provider/model versions in committed smoke rows: `["anthropic:claude-sonnet-4-6"]`
 
 ## Claim Boundaries
 

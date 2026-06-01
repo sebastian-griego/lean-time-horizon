@@ -85,6 +85,7 @@ def post_run_commands() -> str:
     commands = [
         "python scripts/audit_run_integrity.py",
         "python scripts/analyze_model_results.py",
+        "python scripts/audit_model_evidence_provenance.py",
         "python scripts/audit_statistical_reporting.py",
         "python scripts/audit_provider_readiness.py",
         "python scripts/audit_scaffold_support.py",

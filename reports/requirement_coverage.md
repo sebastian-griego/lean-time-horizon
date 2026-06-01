@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 47
+- `supported`: 48
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 30
+- `required_for_research_report` / `supported`: 31
 
 ## Coverage Table
 
@@ -38,6 +38,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `lookup_scaffold_no_hidden_leak` | integrity | required_for_release_artifact | supported | Lookup scaffold must not expose hidden references or wrong submissions. | lookup_roots_public_only=pass; lookup_hidden_leak_scan=pass. | No gap. |
 | `evaluation_protocol_plan` | runs | required_for_research_report | supported | A prospective evaluation protocol should define the primary accepted-task scaffold sweep before broad model runs. | evaluation_protocol.md exists: True; model_sweep_plan rows: 18; planned scaffolds: ["lookup", "lookup_unlimited", "one-shot"]. | No gap. |
 | `model_result_analysis` | runs | required_for_research_report | supported | Committed provider rows should be analyzed separately from local QA and against the planned primary sweep. | model_run_analysis.md exists: True; model_result_summary rows: 10; primary coverage rows: 1. | No gap. |
+| `model_evidence_provenance_audit` | reporting | required_for_research_report | supported | Model evidence provenance audit should verify sample sizes model versions k values transcripts infra accounting and local-QA exclusion in report text and committed data. | model evidence provenance rows: 7; required checks covered: 7/7; failures: 0; report exists: True. | No gap. |
 | `scaffold_result_comparison` | scaffolds | required_for_locked_benchmark | partial | The report should compare real model performance across scaffolds, ideally pass@10. | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `transcript_failure_workflow` | runs | required_for_release_artifact | supported | Run rows should link transcripts and carry failure labels for review. | run_results rows: 69; local QA rows: 66; model rows: 3. | No gap for workflow; broader model sweeps are still needed. |
 | `transcript_review_packet` | runs | required_for_research_report | supported | Transcript review packet should provide a non-local run review queue failure-label codebook blank adjudication template and label-claim boundary without fabricating review labels. | queue rows: 3; non-local run ids covered: 3/3; template rows: 3; missing transcripts in queue: 0; prefilled template labels: 0; report exists: True. | No gap. |
@@ -45,7 +46,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `public_export_no_hidden_leak` | integrity | required_for_release_artifact | supported | Public export should include public assets and exclude hidden references and wrong submissions. | Public export exists: True; exported tasks: 14; hidden/wrong paths: 0. | No gap. |
 | `task_asset_manifest` | reproducibility | required_for_research_report | supported | Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping. | task asset rows: 171; missing assets: 0; release public export misses: 0; hidden/wrong exported: 0; accepted wrong gaps: 0; accepted hidden gaps: 0; report exists: True. | No gap. |
 | `report_from_committed_data` | reporting | required_for_research_report | supported | The METR-style report and plots should regenerate from committed CSVs. | metr_style_report.md exists: True; generate_report reads CSV: True. | No gap. |
-| `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 172; missing required phrases: []; generator reads CSV: True. | No gap. |
+| `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 173; missing required phrases: []; generator reads CSV: True. | No gap. |
 | `report_shape_audit` | reporting | required_for_research_report | supported | Report-shape audit should check the concise METR-style report against the playbook questions and distinguish answered limitations from unsupported performance claims. | report-shape rows: 7; required checks covered: 7/7; needs_attention rows: 0; blocked_by_evidence rows: 2; report exists: True. | No gap. |
 | `difficulty_audit_report` | reporting | required_for_research_report | supported | Difficulty audit should include proof length, tactic profile, automation dominance, hidden-pin strength, and model-solvability estimates. | difficulty_audit rows: 26; report exists: True. | No gap. |
 | `manual_accepted_task_review` | reporting | required_for_research_report | supported | Accepted tasks should have hard reviewer-style notes and benchmark-grade caveats. | accepted_task_review.md exists: True. | No gap. |

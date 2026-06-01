@@ -135,6 +135,7 @@ def main() -> int:
     release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     run_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    run_rows = read_csv(ROOT / "data" / "run_results.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     grader = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
@@ -156,6 +157,13 @@ def main() -> int:
     )
     primary_coverage = row_by_id(run_summary, "analysis_set", "primary_plan_coverage")
     accepted_provider = row_by_id(run_summary, "analysis_set", "accepted_core_results")
+    provider_versions = sorted({
+        f"{row.get('model', '')}:{row.get('model_version', '')}"
+        for row in run_rows
+        if row.get("qa_stage") != "local_qa"
+        and row.get("model", "")
+        and row.get("model_version", "")
+    })
     skill_counts: Counter[str] = Counter()
     failure_mode_counts: Counter[str] = Counter()
     for task in accepted:
@@ -241,6 +249,7 @@ def main() -> int:
         f"- planned accepted-core task/scaffold cells: `{primary_coverage.get('planned_cells', '0')}`",
         f"- covered non-infra primary cells: `{primary_coverage.get('covered_cells_noninfra', '0')}`",
         f"- accepted-core provider rows: `{accepted_provider.get('rows_total', '0')}` total, `{accepted_provider.get('rows_noninfra', '0')}` non-infra",
+        f"- provider/model versions in committed smoke rows: `{compact_json(provider_versions)}`",
         "",
         "## Claim Boundaries",
         "",

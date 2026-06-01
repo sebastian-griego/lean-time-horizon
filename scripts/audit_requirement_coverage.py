@@ -237,6 +237,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_evidence_provenance = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
     task_dirs = discover_task_dirs()
     accepted = [task for task in metadata if task.get("acceptance_status") == "accepted_v0"]
     calibration = [task for task in metadata if task.get("acceptance_status") == "calibration_only"]
@@ -474,6 +475,46 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(analysis_ok),
         f"model_run_analysis.md exists: {(ROOT / 'reports' / 'model_run_analysis.md').exists()}; model_result_summary rows: {len(model_result_summary)}; primary coverage rows: {len(primary_rows)}.",
         "No gap." if analysis_ok else "Generate model result analysis before interpreting provider rows.",
+    ))
+
+    required_model_provenance_ids = {
+        "provider_row_inventory",
+        "model_version_and_k_completeness",
+        "transcript_provenance",
+        "summary_count_consistency",
+        "report_sample_size_and_version_disclosure",
+        "local_qa_exclusion_boundary",
+        "infra_policy_boundary",
+    }
+    model_provenance_ids = {row_data.get("check_id", "") for row_data in model_evidence_provenance}
+    model_provenance_fields = set(model_evidence_provenance[0].keys()) if model_evidence_provenance else set()
+    required_model_provenance_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "limitation",
+        "required_action",
+        "source_artifacts",
+    }
+    model_provenance_failures = [
+        row_data for row_data in model_evidence_provenance
+        if row_data.get("status") == "fail"
+    ]
+    model_provenance_ok = (
+        bool(model_evidence_provenance)
+        and required_model_provenance_ids.issubset(model_provenance_ids)
+        and required_model_provenance_fields.issubset(model_provenance_fields)
+        and not model_provenance_failures
+        and (ROOT / "reports" / "model_evidence_provenance_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "model_evidence_provenance_audit",
+        "reporting",
+        "Model evidence provenance audit should verify sample sizes model versions k values transcripts infra accounting and local-QA exclusion in report text and committed data.",
+        status_from_bool(model_provenance_ok, partial=bool(model_evidence_provenance)),
+        f"model evidence provenance rows: {len(model_evidence_provenance)}; required checks covered: {len(required_model_provenance_ids & model_provenance_ids)}/{len(required_model_provenance_ids)}; failures: {len(model_provenance_failures)}; report exists: {(ROOT / 'reports' / 'model_evidence_provenance_audit.md').exists()}.",
+        "No gap." if model_provenance_ok else "Regenerate scripts/audit_model_evidence_provenance.py after model-result analysis and inspect failing provenance rows.",
     ))
 
     scaffold_results_ok = len({row_data.get("scaffold") for row_data in non_infra_model_rows}) >= 3 and any(int(row_data.get("k", "1")) >= 10 for row_data in non_infra_model_rows if row_data.get("k", "1").isdigit())

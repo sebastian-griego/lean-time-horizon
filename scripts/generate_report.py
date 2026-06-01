@@ -324,6 +324,39 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 """
 
 
+def model_evidence_provenance_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/model_evidence_provenance_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_model_evidence_provenance.py` after model result analysis, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    lines = [
+        "| check | area | status | evidence | limitation | required action |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        limitation = row.get("limitation", "").replace("|", "/")
+        action = row.get("required_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{evidence} | {limitation} | {action} |"
+        )
+    return f"""`reports/model_evidence_provenance_audit.md` and `data/model_evidence_provenance_audit.csv` check that model evidence in the report is traceable to committed run rows with model versions, k values, transcripts, sample sizes, infra accounting, and local-QA exclusion.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+
+Model-evidence provenance checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def statistical_reporting_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1253,6 +1286,7 @@ def main() -> int:
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_evidence_provenance_rows = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
@@ -1442,6 +1476,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {model_analysis_section(model_result_summary)}
 
+## Model Evidence Provenance Audit
+
+{model_evidence_provenance_section(model_evidence_provenance_rows)}
+
 ## Statistical Reporting Audit
 
 {statistical_reporting_section(statistical_reporting_rows)}
@@ -1558,6 +1596,7 @@ python scripts/audit_grader_hardening.py
 python scripts/generate_evaluation_protocol.py
 python scripts/generate_model_sweep_packet.py
 python scripts/analyze_model_results.py
+python scripts/audit_model_evidence_provenance.py
 python scripts/generate_report.py
 python scripts/audit_statistical_reporting.py
 python scripts/audit_provider_readiness.py
