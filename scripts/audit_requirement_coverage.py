@@ -213,6 +213,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
+    grader_hardening = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     statistical_audit = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
@@ -751,6 +752,44 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(integrity_ok, partial=bool(run_integrity)),
         f"run_integrity rows: {len(run_integrity)}; run_results rows: {len(run_results)}; failing rows: {len(integrity_failures)}; report exists: {(ROOT / 'reports' / 'run_integrity_audit.md').exists()}.",
         "No gap." if integrity_ok else "Regenerate scripts/audit_run_integrity.py after run_results and transcripts, then fix any failing rows.",
+    ))
+
+    required_grader_checks = {
+        "default_forbidden_detection",
+        "comment_string_false_positive_control",
+        "task_specific_forbidden_control",
+        "grader_stage_order",
+        "axiom_policy_allowlist_match",
+        "release_axiom_declaration_coverage",
+        "validation_command_manifest_coverage",
+        "local_qa_reference_wrong_outcomes",
+        "structural_validation_controls",
+    }
+    grader_check_ids = {row_data.get("check_id", "") for row_data in grader_hardening}
+    grader_fields = set(grader_hardening[0].keys()) if grader_hardening else set()
+    required_grader_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "hardening_limit",
+        "next_action",
+    }
+    grader_failures = [row_data for row_data in grader_hardening if row_data.get("status") == "fail"]
+    grader_hardening_ok = (
+        bool(grader_hardening)
+        and required_grader_checks.issubset(grader_check_ids)
+        and required_grader_fields.issubset(grader_fields)
+        and not grader_failures
+        and (ROOT / "reports" / "grader_hardening_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "grader_hardening_audit",
+        "reporting",
+        "Grader hardening audit should probe forbidden scanning false-positive controls task-specific bans grader stage ordering axiom allowlists validation-command coverage and local QA outcomes.",
+        status_from_bool(grader_hardening_ok, partial=bool(grader_hardening)),
+        f"grader hardening rows: {len(grader_hardening)}; required checks covered: {len(required_grader_checks & grader_check_ids)}/{len(required_grader_checks)}; failures: {len(grader_failures)}; report exists: {(ROOT / 'reports' / 'grader_hardening_audit.md').exists()}.",
+        "No gap." if grader_hardening_ok else "Regenerate scripts/audit_grader_hardening.py and fix failing grader-hardening checks.",
     ))
 
     required_statistical_checks = {

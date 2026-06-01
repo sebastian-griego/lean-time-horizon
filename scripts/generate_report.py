@@ -439,6 +439,39 @@ Failing integrity rows:
 """
 
 
+def grader_hardening_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/grader_hardening_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_grader_hardening.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | hardening limit | next action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        limit = row.get("hardening_limit", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{limit} | {action} |"
+        )
+    return f"""`reports/grader_hardening_audit.md` and `data/grader_hardening_audit.csv` probe local anti-gaming controls: forbidden-construct scanner coverage, comment/string false-positive controls, task-specific bans, grader stage ordering, axiom allowlist consistency, validation-command coverage, and local QA reference/wrong outcomes.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failing hardening checks: `{len(failures)}`
+
+Grader hardening checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def claim_evidence_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -876,6 +909,7 @@ def main() -> int:
     prompt_contract_rows = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
+    grader_hardening_rows = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1026,6 +1060,10 @@ Hidden pins check more than type signatures where possible: semantic formalizati
 
 The axiom policy allows only the standard Lean axioms documented in `docs/axiom_policy.md`. Source-level escape hatches such as `sorry`, `admit`, `axiom`, `constant`, `unsafe`, custom elaboration, and command execution are rejected by the forbidden-construct scanner before Lean grading.
 
+## Grader Hardening Audit
+
+{grader_hardening_section(grader_hardening_rows)}
+
 ## Public Export
 
 `scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. It copies every file listed in metadata `public_files` plus `Prompt.md` and `metadata.json`. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
@@ -1136,6 +1174,7 @@ python scripts/audit_human_time_calibration.py
 python scripts/record_local_qa_results.py
 python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py
+python scripts/audit_grader_hardening.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py

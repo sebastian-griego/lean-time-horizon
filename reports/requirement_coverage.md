@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 36
+- `supported`: 37
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 19
+- `required_for_research_report` / `supported`: 20
 
 ## Coverage Table
 
@@ -51,6 +51,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `human_time_calibration_audit` | reporting | required_for_research_report | supported | Human-time calibration audit should verify bucket and p50/p90 consistency and explicitly track missing independent timing evidence. | human-time audit rows: 26; metadata rows: 26; failures: 0; accepted without independent timing: 6/6; observation rows: 0; report exists: True. | No gap. |
 | `pin_coverage_audit` | reporting | required_for_research_report | supported | Hidden-pin audit should distinguish public-stage wrong failures from wrong submissions that reach semantic pins. | pin_coverage rows: 26; accepted rows: 6; accepted hidden-pin wrong failures: 5; report exists: True. | No gap. |
 | `run_integrity_audit` | reporting | required_for_research_report | supported | Run-result integrity audit should verify transcripts, score vectors, failure labels, and pass@k arithmetic. | run_integrity rows: 69; run_results rows: 69; failing rows: 0; report exists: True. | No gap. |
+| `grader_hardening_audit` | reporting | required_for_research_report | supported | Grader hardening audit should probe forbidden scanning false-positive controls task-specific bans grader stage ordering axiom allowlists validation-command coverage and local QA outcomes. | grader hardening rows: 9; required checks covered: 9/9; failures: 0; report exists: True. | No gap. |
 | `statistical_reporting_audit` | reporting | required_for_research_report | supported | Statistical reporting audit should determine which recommended performance plots and claims are supported by committed provider sample sizes. | statistical audit rows: 8; required checks covered: 8/8; failures: 0; blocked performance outputs: 5; report exists: True. | No gap. |
 | `provider_readiness_audit` | reporting | required_for_research_report | supported | Provider readiness audit should verify model-runner contracts adapter coverage credential policy transcript evidence planned sweep commands and smoke-only coverage limits. | provider readiness rows: 11; required checks covered: 11/11; failures: 0; cautions: 1; blocks: 1; report exists: True. | No gap. |
 | `hosted_qa_readiness_audit` | reporting | required_for_research_report | supported | Hosted QA readiness audit should distinguish local readiness from missing Taiga packaging problem-version QA and finding-resolution evidence. | hosted QA readiness rows: 11; required checks covered: 11/11; failures: 0; blocked hosted-QA steps: 9; report exists: True. | No gap. |

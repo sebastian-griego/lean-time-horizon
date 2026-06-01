@@ -190,6 +190,30 @@ Hidden pins check more than type signatures where possible: semantic formalizati
 
 The axiom policy allows only the standard Lean axioms documented in `docs/axiom_policy.md`. Source-level escape hatches such as `sorry`, `admit`, `axiom`, `constant`, `unsafe`, custom elaboration, and command execution are rejected by the forbidden-construct scanner before Lean grading.
 
+## Grader Hardening Audit
+
+`reports/grader_hardening_audit.md` and `data/grader_hardening_audit.csv` probe local anti-gaming controls: forbidden-construct scanner coverage, comment/string false-positive controls, task-specific bans, grader stage ordering, axiom allowlist consistency, validation-command coverage, and local QA reference/wrong outcomes.
+
+- checks: `9`
+- statuses: `{"pass": 9}`
+- areas: `{"axiom_audit": 2, "forbidden_scanner": 3, "grader_pipeline": 1, "validation_manifest": 3}`
+- failing hardening checks: `0`
+
+Grader hardening checks:
+
+| check | area | status | hardening limit | next action |
+| --- | --- | --- | --- | --- |
+| `default_forbidden_detection` | forbidden_scanner | pass | This probes scanner token matching, not every Lean syntax context where a term can appear. | Add regression cases whenever the forbidden list changes. |
+| `comment_string_false_positive_control` | forbidden_scanner | pass | The scanner strips comments and strings but remains a lexical source scanner, not a full Lean parser. | Keep false-positive controls broad enough that prompts can mention banned constructs safely. |
+| `task_specific_forbidden_control` | forbidden_scanner | pass | Only one archived direct-theorem row currently needs task-specific bans. | Use task-specific `extra_forbidden` whenever a shortcut would trivialize a task. |
+| `grader_stage_order` | grader_pipeline | pass | This is a source-order audit; full behavior is also covered by validate_all and local QA transcripts. | Preserve the order: copy public assets, scan forbidden constructs, compile public files, compile hidden pins, then audit axioms. |
+| `axiom_policy_allowlist_match` | axiom_audit | pass | Allowlist equality does not prove each theorem is axiom-free beyond allowed Lean axioms; validate_task performs per-declaration checks. | Update docs/axiom_policy.md and validate_task.py together if the policy changes. |
+| `release_axiom_declaration_coverage` | axiom_audit | pass | The audit checks metadata coverage, while validate_task checks actual axiom output during grading. | Require nonempty `axiom_audit_declarations` for every release task. |
+| `validation_command_manifest_coverage` | validation_manifest | pass | The manifest lists validation commands; it does not prove they were run unless paired with validate_all output and run_integrity. | Regenerate validation_commands.csv with validate_all.py after task set changes. |
+| `local_qa_reference_wrong_outcomes` | validation_manifest | pass | Local QA rows are validation evidence only, not model-performance evidence. | Require reference rows to pass and plausible-wrong rows to fail before report regeneration. |
+| `structural_validation_controls` | validation_manifest | pass | These are static controls; task validity still depends on human review and hidden pins. | Keep structural checks in validate_all.py aligned with acceptance policy. |
+
+
 ## Public Export
 
 `scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. It copies every file listed in metadata `public_files` plus `Prompt.md` and `metadata.json`. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
@@ -423,7 +447,7 @@ Claim support table:
 | claim | type | support | strength | claim text | limit | stronger claim requires |
 | --- | --- | --- | --- | --- | --- | --- |
 | `local_release_artifact` | artifact_validity | supported | high | The repository is a locally validated v0.1 release artifact with public scaffolds, hidden checks, Lean scoring, integrity controls, and complete metadata. | This is a local artifact claim, not a hosted/frozen benchmark claim. | Hosted QA, independent review, and broader accepted task count are still required for a locked benchmark. |
-| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
+| `research_report_evidence` | report_validity | supported | high | The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol. | The report is still limited by missing broad model sweeps and independent human timing. | Run the planned scaffold sweep, collect independent timing, and add external QA artifacts. |
 | `accepted_core_reviewed` | task_validity | supported | medium | The six accepted-core tasks are internally reviewed and higher quality than the original candidate pool. | This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size. | Independent Lean-human review and more accepted high-quality T2/T3/T4 rows. |
 | `hidden_pin_strength` | grading_validity | partial | medium | Hidden semantic checks provide meaningful anti-gaming evidence for accepted tasks. | Some accepted fixed-statement/proof-repair rows have wrong submissions that fail before hidden pins run; hidden pins are finite probes. | Add stronger same-signature semantic wrongs where possible and expand negative hidden examples for retained caveat rows. |
 | `run_data_integrity` | data_validity | supported | high | Committed run-result rows are internally consistent with transcripts, failure labels, score vectors, and pass@k semantics. | This validates data hygiene only; it does not make the smoke rows representative. | Maintain this audit for future provider sweeps and require zero failing rows before reporting results. |
@@ -537,7 +561,7 @@ Accepted-core hidden-pin coverage:
 
 Status counts:
 
-- `supported`: 36
+- `supported`: 37
 - `partial`: 4
 - `not_met`: 2
 
@@ -545,7 +569,7 @@ Freeze relevance counts:
 
 - `required_for_locked_benchmark`: supported 2, partial 4, not_met 2
 - `required_for_release_artifact`: supported 15
-- `required_for_research_report`: supported 19
+- `required_for_research_report`: supported 20
 
 Partial or unmet requirements:
 
@@ -573,6 +597,7 @@ python scripts/audit_human_time_calibration.py
 python scripts/record_local_qa_results.py
 python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py
+python scripts/audit_grader_hardening.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py
@@ -606,9 +631,9 @@ The public export validator checks that hidden references and wrong submissions 
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T05:26:31.331602+00:00`
+Generated at UTC: `2026-06-01T05:52:49.544383+00:00`
 
-Git branch/head at generation: `main` / `925c63debff4`. Worktree status at generation: `17 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `1fe4daccb5c8`. Worktree status at generation: `17 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -635,31 +660,32 @@ Regeneration commands:
 7. `python scripts/record_local_qa_results.py`
 8. `python scripts/audit_pin_coverage.py`
 9. `python scripts/audit_run_integrity.py`
-10. `python scripts/generate_evaluation_protocol.py`
-11. `python scripts/analyze_model_results.py`
-12. `python scripts/generate_report.py`
-13. `python scripts/audit_statistical_reporting.py`
-14. `python scripts/audit_provider_readiness.py`
-15. `python scripts/generate_report.py`
-16. `python scripts/export_public_tasks.py --out public_tasks`
-17. `python scripts/validate_public_export.py --out public_tasks`
-18. `python scripts/audit_hosted_qa_readiness.py`
-19. `python scripts/generate_task_asset_manifest.py --public-export public_tasks`
-20. `python scripts/audit_prompt_contracts.py`
-21. `python scripts/audit_scaffold_support.py`
-22. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-23. `python scripts/audit_claim_evidence.py`
-24. `python scripts/generate_release_decision_log.py`
-25. `python scripts/audit_scaffold_support.py`
-26. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-27. `python scripts/audit_claim_evidence.py`
-28. `python scripts/generate_release_decision_log.py`
-29. `python scripts/audit_scaffold_support.py`
-30. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
-31. `python scripts/audit_claim_evidence.py`
-32. `python scripts/generate_release_decision_log.py`
-33. `python scripts/write_validation_manifest.py --public-export public_tasks`
-34. `python scripts/generate_report.py`
+10. `python scripts/audit_grader_hardening.py`
+11. `python scripts/generate_evaluation_protocol.py`
+12. `python scripts/analyze_model_results.py`
+13. `python scripts/generate_report.py`
+14. `python scripts/audit_statistical_reporting.py`
+15. `python scripts/audit_provider_readiness.py`
+16. `python scripts/generate_report.py`
+17. `python scripts/export_public_tasks.py --out public_tasks`
+18. `python scripts/validate_public_export.py --out public_tasks`
+19. `python scripts/audit_hosted_qa_readiness.py`
+20. `python scripts/generate_task_asset_manifest.py --public-export public_tasks`
+21. `python scripts/audit_prompt_contracts.py`
+22. `python scripts/audit_scaffold_support.py`
+23. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+24. `python scripts/audit_claim_evidence.py`
+25. `python scripts/generate_release_decision_log.py`
+26. `python scripts/audit_scaffold_support.py`
+27. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+28. `python scripts/audit_claim_evidence.py`
+29. `python scripts/generate_release_decision_log.py`
+30. `python scripts/audit_scaffold_support.py`
+31. `python scripts/audit_requirement_coverage.py --public-export public_tasks`
+32. `python scripts/audit_claim_evidence.py`
+33. `python scripts/generate_release_decision_log.py`
+34. `python scripts/write_validation_manifest.py --public-export public_tasks`
+35. `python scripts/generate_report.py`
 
 Key artifact hashes:
 
@@ -668,9 +694,9 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `c287d83c127e` |  | 10425 |
+| `README.md` | `9435208b2d15` |  | 10753 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
-| `data/benchmark_requirements.csv` | `a63512596163` | 42 | 8997 |
+| `data/benchmark_requirements.csv` | `3185250460ea` | 43 | 9309 |
 | `data/task_metadata.csv` | `2916f8cc78cc` | 26 | 19482 |
 | `data/task_metadata_schema.json` | `a662bc8fb8e8` |  | 2317 |
 | `data/run_results.csv` | `196d9de4ada4` | 69 | 15691 |
@@ -693,10 +719,11 @@ Key artifact hashes:
 | `data/prompt_contract_audit.csv` | `8ac0cc6ea492` | 14 | 3106 |
 | `data/pin_coverage_audit.csv` | `c9d78f916dae` | 26 | 6514 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
-| `data/claim_evidence_audit.csv` | `38f6ffbf7fcf` | 9 | 12519 |
-| `data/release_decision_log.csv` | `e3079fda8203` | 8 | 5649 |
+| `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
+| `data/claim_evidence_audit.csv` | `6f36b0953339` | 9 | 12800 |
+| `data/release_decision_log.csv` | `0e01c45453f9` | 8 | 5776 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `336371ec0776` | 42 | 14211 |
+| `data/requirement_coverage.csv` | `f29c2d0861a4` | 43 | 14632 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/diagnostic_coverage_audit.md` | `e9f7fe4e65a1` |  | 7206 |
@@ -705,8 +732,9 @@ Key artifact hashes:
 | `reports/prompt_contract_audit.md` | `9d7e7dd7a857` |  | 2659 |
 | `reports/pin_coverage_audit.md` | `26b6cb10ed91` |  | 2544 |
 | `reports/run_integrity_audit.md` | `75abcf6d7652` |  | 2213 |
-| `reports/claim_evidence_audit.md` | `9145e057d4d0` |  | 4808 |
-| `reports/release_decision_log.md` | `4a2a46ab1dac` |  | 6366 |
+| `reports/grader_hardening_audit.md` | `b543474dd490` |  | 4073 |
+| `reports/claim_evidence_audit.md` | `3474431e9588` |  | 4833 |
+| `reports/release_decision_log.md` | `8297a454d9d8` |  | 6493 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
@@ -714,7 +742,7 @@ Key artifact hashes:
 | `reports/statistical_reporting_audit.md` | `76bc109a408c` |  | 3415 |
 | `reports/provider_readiness_audit.md` | `20047ec923ac` |  | 5876 |
 | `reports/hosted_qa_readiness_audit.md` | `7c9d07aad947` |  | 3483 |
-| `reports/requirement_coverage.md` | `9cb306beeab8` |  | 13382 |
+| `reports/requirement_coverage.md` | `a5540c63defa` |  | 13759 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -730,22 +758,23 @@ Key artifact hashes:
 | `scripts/audit_prompt_contracts.py` | `327ee834ce2d` |  | 9251 |
 | `scripts/audit_pin_coverage.py` | `91d9de6011db` |  | 11828 |
 | `scripts/audit_run_integrity.py` | `0d57a7faa416` |  | 13598 |
-| `scripts/audit_claim_evidence.py` | `b8ec413e5500` |  | 14211 |
-| `scripts/generate_release_decision_log.py` | `18de8bc64f57` |  | 12324 |
+| `scripts/audit_grader_hardening.py` | `7bcba063dd41` |  | 14898 |
+| `scripts/audit_claim_evidence.py` | `eeeff7e32b43` |  | 14314 |
+| `scripts/generate_release_decision_log.py` | `50a80c69c816` |  | 12384 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `3ebe4dc333fa` |  | 58466 |
+| `scripts/audit_requirement_coverage.py` | `fb33dd09417e` |  | 60468 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/audit_statistical_reporting.py` | `f9616d16268c` |  | 12921 |
 | `scripts/audit_provider_readiness.py` | `ad8b36f25ea7` |  | 18802 |
 | `scripts/audit_hosted_qa_readiness.py` | `b9a4b5dc34d4` |  | 13338 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `5a220daf1693` |  | 62280 |
+| `scripts/generate_report.py` | `0345ddd6deb4` |  | 64013 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/run_model_sweep.py` | `d5f981674ad3` |  | 10138 |
 | `scripts/lean_lookup.py` | `5941c1285ef9` |  | 2425 |
-| `scripts/write_validation_manifest.py` | `3ec55a00b7bd` |  | 11387 |
+| `scripts/write_validation_manifest.py` | `dea5d45e5c8c` |  | 11556 |
 
 
 ## Threats To Validity

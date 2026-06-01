@@ -133,6 +133,7 @@ def build_rows() -> list[dict[str, str]]:
         "human_time_calibration_audit",
         "pin_coverage_audit",
         "run_integrity_audit",
+        "grader_hardening_audit",
         "statistical_reporting_audit",
         "provider_readiness_audit",
         "hosted_qa_readiness_audit",
@@ -166,7 +167,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, provider-readiness checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
@@ -200,7 +201,7 @@ def build_rows() -> list[dict[str, str]]:
         "data_validity",
         "supported" if status(reqs, "run_integrity_audit") == "supported" and not run_failures else "partial",
         "high" if status(reqs, "run_integrity_audit") == "supported" and not run_failures else "medium",
-        f"{evidence(reqs, 'run_integrity_audit')}; {evidence(reqs, 'run_result_semantics')}",
+        f"{evidence(reqs, 'run_integrity_audit')}; {evidence(reqs, 'grader_hardening_audit')}; {evidence(reqs, 'run_result_semantics')}",
         "This validates data hygiene only; it does not make the smoke rows representative.",
         "Maintain this audit for future provider sweeps and require zero failing rows before reporting results.",
     ))

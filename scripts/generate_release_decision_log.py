@@ -125,7 +125,8 @@ def build_rows() -> list[dict[str, str]]:
         (
             f"release-artifact gaps={len(release_gaps)}; integrity failures={len(integrity_failures)}; "
             f"requirement statuses={compact_json(dict(sorted(requirement_status_counts.items())))}; "
-            f"{evidence(reqs, 'public_export_no_hidden_leak')}; {evidence(reqs, 'run_integrity_audit')}"
+            f"{evidence(reqs, 'public_export_no_hidden_leak')}; {evidence(reqs, 'run_integrity_audit')}; "
+            f"{evidence(reqs, 'grader_hardening_audit')}"
         ),
         "Scope is local validation only; hosted QA and independent timing are outside this decision.",
         "Keep artifact claims scoped to local reproducibility and local grading evidence.",
