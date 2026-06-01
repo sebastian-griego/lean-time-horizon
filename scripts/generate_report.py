@@ -1601,6 +1601,7 @@ python scripts/generate_report.py
 python scripts/audit_statistical_reporting.py
 python scripts/audit_provider_readiness.py
 python scripts/generate_report.py
+python scripts/audit_report_source_traceability.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
 python scripts/audit_hosted_qa_readiness.py
@@ -1637,6 +1638,9 @@ python scripts/audit_report_claim_conformance.py
 python scripts/audit_report_shape.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
+python scripts/write_validation_manifest.py --public-export public_tasks
+python scripts/generate_report.py
+python scripts/audit_report_source_traceability.py
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
 ```
@@ -1835,6 +1839,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/evidence_appendix.md`: full generated report appendix with row-level audit tables and validation manifest details.
 - `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
+- `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.

@@ -182,6 +182,7 @@ def build_rows() -> list[dict[str, str]]:
             f"report-shape needs_attention={len(shape_needs_attention)}; report-shape blocked_by_evidence={len(shape_blocked)}; "
             f"unsupported claims={compact_json([row_data.get('claim_id') for row_data in unsupported_claims])}; "
             f"{evidence(reqs, 'concise_metr_report')}; "
+            f"{evidence(reqs, 'report_source_traceability')}; "
             f"{evidence(reqs, 'report_shape_audit')}; "
             f"{evidence(reqs, 'model_evidence_provenance_audit')}; "
             f"{evidence(reqs, 'research_claim_gap_matrix')}; "

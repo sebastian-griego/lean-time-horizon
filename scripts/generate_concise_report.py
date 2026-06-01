@@ -290,7 +290,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

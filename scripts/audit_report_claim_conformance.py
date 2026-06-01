@@ -21,6 +21,7 @@ FIELDS = [
 MAIN_REPORT = ROOT / "reports" / "metr_style_report.md"
 CONCISE_REPORT = ROOT / "reports" / "concise_metr_report.md"
 APPENDIX_REPORT = ROOT / "reports" / "evidence_appendix.md"
+SOURCE_TRACE_REPORT = ROOT / "reports" / "report_source_traceability.md"
 README = ROOT / "README.md"
 
 NEGATIVE_MARKERS = [
@@ -292,18 +293,25 @@ def build_rows() -> list[dict[str, str]]:
         ["reports/concise_metr_report.md", "scripts/generate_concise_report.py"],
     ))
 
-    unsafe_examples = unsafe_blocked_phrase_examples([MAIN_REPORT, CONCISE_REPORT, APPENDIX_REPORT, README])
+    unsafe_examples = unsafe_blocked_phrase_examples([
+        MAIN_REPORT,
+        CONCISE_REPORT,
+        APPENDIX_REPORT,
+        SOURCE_TRACE_REPORT,
+        README,
+    ])
     rows.append(row(
         "blocked_phrase_context_scan",
         "reports_and_readme",
         "pass" if not unsafe_examples else "fail",
-        f"blocked-claim phrase contexts scanned across {MAIN_REPORT.relative_to(ROOT)}, {CONCISE_REPORT.relative_to(ROOT)}, {APPENDIX_REPORT.relative_to(ROOT)}, and {README.relative_to(ROOT)}; unsafe_contexts={len(unsafe_examples)}",
+        f"blocked-claim phrase contexts scanned across {MAIN_REPORT.relative_to(ROOT)}, {CONCISE_REPORT.relative_to(ROOT)}, {APPENDIX_REPORT.relative_to(ROOT)}, {SOURCE_TRACE_REPORT.relative_to(ROOT)}, and {README.relative_to(ROOT)}; unsafe_contexts={len(unsafe_examples)}",
         unsafe_examples,
         "Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work.",
         [
             "reports/metr_style_report.md",
             "reports/concise_metr_report.md",
             "reports/evidence_appendix.md",
+            "reports/report_source_traceability.md",
             "README.md",
             "data/claim_authorization_matrix.csv",
         ],

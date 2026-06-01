@@ -230,6 +230,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
+    report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_review_template = read_csv(ROOT / "data" / "failure_label_review_template.csv")
@@ -717,6 +718,69 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
             f"main links appendix: {'reports/evidence_appendix.md' in main_report}."
         ),
         "No gap." if appendix_boundary_ok else "Regenerate scripts/generate_report.py and keep long generated tables in reports/evidence_appendix.md.",
+    ))
+
+    required_trace_ids = {
+        "main_section_inventory",
+        "abstract_scope",
+        "reader_guide",
+        "research_questions",
+        "unit_scoring",
+        "task_selection",
+        "accepted_core",
+        "accepted_evidence_matrix",
+        "calibration_tasks",
+        "portfolio_counts",
+        "capabilities",
+        "human_time",
+        "grading_integrity",
+        "public_export",
+        "scaffold_support",
+        "model_result_analysis",
+        "model_provenance",
+        "committed_runs",
+        "claim_authorization",
+        "remaining_blockers",
+        "evidence_files",
+        "reproducibility",
+        "claim_ledger",
+        "limitations",
+    }
+    trace_ids = {row_data.get("section_id", "") for row_data in report_source_traceability}
+    trace_fields = set(report_source_traceability[0].keys()) if report_source_traceability else set()
+    required_trace_fields = {
+        "section_id",
+        "heading",
+        "status",
+        "evidence",
+        "source_artifacts",
+        "missing_sources",
+        "missing_phrases",
+        "limitation",
+        "next_action",
+    }
+    trace_failures = [
+        row_data for row_data in report_source_traceability
+        if row_data.get("status") == "fail"
+    ]
+    traceability_ok = (
+        bool(report_source_traceability)
+        and required_trace_ids.issubset(trace_ids)
+        and required_trace_fields.issubset(trace_fields)
+        and not trace_failures
+        and (ROOT / "reports" / "report_source_traceability.md").exists()
+    )
+    requirement_rows.append(row(
+        "report_source_traceability",
+        "reporting",
+        "Report source-traceability audit should map main-report sections to committed CSV report script and export evidence and check section-level boundary phrases.",
+        status_from_bool(traceability_ok, partial=bool(report_source_traceability)),
+        (
+            f"traceability rows: {len(report_source_traceability)}; required sections covered: "
+            f"{len(required_trace_ids & trace_ids)}/{len(required_trace_ids)}; failures: {len(trace_failures)}; "
+            f"report exists: {(ROOT / 'reports' / 'report_source_traceability.md').exists()}."
+        ),
+        "No gap." if traceability_ok else "Run scripts/audit_report_source_traceability.py after generating the main report and inspect missing sources or boundary phrases.",
     ))
 
     concise_report_path = ROOT / "reports" / "concise_metr_report.md"
