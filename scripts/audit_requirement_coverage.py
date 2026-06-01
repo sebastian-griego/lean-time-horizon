@@ -228,6 +228,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
+    report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_review_template = read_csv(ROOT / "data" / "failure_label_review_template.csv")
@@ -646,6 +647,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "not a locked benchmark",
         "accepted core tasks",
         "calibration-only tasks",
+        "Capabilities And Expected Failures",
         "Claim Boundaries",
         "Remaining Blockers",
         "Next Work",
@@ -668,6 +670,50 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(concise_ok, partial=concise_report_path.exists()),
         f"concise report exists: {concise_report_path.exists()}; line_count: {len(concise_lines)}; missing required phrases: {compact_json(missing_concise_phrases)}; generator reads CSV: {'read_csv' in read_text(ROOT / 'scripts' / 'generate_concise_report.py')}.",
         "No gap." if concise_ok else "Regenerate scripts/generate_concise_report.py and keep the concise report under 220 lines with claim boundaries and next-work sections.",
+    ))
+
+    required_shape_ids = {
+        "tasks_built",
+        "capabilities_tested",
+        "scaffolds_compared",
+        "success_changes_by_scaffold_and_bucket",
+        "failure_modes_dominate",
+        "next_batch_needs",
+        "skimmability",
+    }
+    report_shape_ids = {row_data.get("check_id", "") for row_data in report_shape}
+    report_shape_fields = set(report_shape[0].keys()) if report_shape else set()
+    required_shape_fields = {
+        "check_id",
+        "playbook_question",
+        "answer_status",
+        "evidence",
+        "limitation",
+        "next_action",
+        "source_artifacts",
+    }
+    shape_needs_attention = [
+        row_data for row_data in report_shape
+        if row_data.get("answer_status") == "needs_attention"
+    ]
+    shape_blocked = [
+        row_data for row_data in report_shape
+        if row_data.get("answer_status") == "blocked_by_evidence"
+    ]
+    shape_ok = (
+        bool(report_shape)
+        and required_shape_ids.issubset(report_shape_ids)
+        and required_shape_fields.issubset(report_shape_fields)
+        and not shape_needs_attention
+        and (ROOT / "reports" / "report_shape_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "report_shape_audit",
+        "reporting",
+        "Report-shape audit should check the concise METR-style report against the playbook questions and distinguish answered limitations from unsupported performance claims.",
+        status_from_bool(shape_ok, partial=bool(report_shape)),
+        f"report-shape rows: {len(report_shape)}; required checks covered: {len(required_shape_ids & report_shape_ids)}/{len(required_shape_ids)}; needs_attention rows: {len(shape_needs_attention)}; blocked_by_evidence rows: {len(shape_blocked)}; report exists: {(ROOT / 'reports' / 'report_shape_audit.md').exists()}.",
+        "No gap." if shape_ok else "Regenerate scripts/audit_report_shape.py after the concise report and inspect any needs_attention rows.",
     ))
 
     requirement_rows.append(row(

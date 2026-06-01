@@ -89,6 +89,7 @@ def build_rows() -> list[dict[str, str]]:
     }
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     report_claim_conformance = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
+    report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
@@ -135,6 +136,14 @@ def build_rows() -> list[dict[str, str]]:
     conformance_cautions = [
         row_data for row_data in report_claim_conformance
         if row_data.get("status") == "caution"
+    ]
+    shape_needs_attention = [
+        row_data for row_data in report_shape
+        if row_data.get("answer_status") == "needs_attention"
+    ]
+    shape_blocked_by_evidence = [
+        row_data for row_data in report_shape
+        if row_data.get("answer_status") == "blocked_by_evidence"
     ]
     unsupported_claims = [
         row_data.get("claim_id", "")
@@ -275,12 +284,13 @@ def build_rows() -> list[dict[str, str]]:
         "freeze_versioning",
         "release_management",
         "block",
-        f"release-decision block gates={len(release_blocks)}.",
+        f"release-decision block gates={len(release_blocks)}; report-shape needs_attention rows={len(shape_needs_attention)}.",
         "; ".join([
             requirement(requirements, "hosted_qa_env_linter"),
             requirement(requirements, "threats_to_validity_register"),
             requirement(requirements, "claim_authorization_matrix"),
             requirement(requirements, "report_claim_conformance_audit"),
+            requirement(requirements, "report_shape_audit"),
             claim(claims, "locked_benchmark"),
         ]),
         "Freeze only after local validation, hosted QA, independent timing, accepted-count, scaffold-sweep, and provider-evidence gates are satisfied.",
@@ -288,6 +298,7 @@ def build_rows() -> list[dict[str, str]]:
             "Tag the exact commit/export hash and hosted problem-version mapping only after all block gates are cleared. "
             f"Current authorization statuses={compact_json(dict(sorted(authorization_status_counts.items())))}; "
             f"claim-conformance failures={len(conformance_failures)}; claim-conformance cautions={len(conformance_cautions)}; "
+            f"report-shape blocked_by_evidence={len(shape_blocked_by_evidence)}; "
             f"blocked authorizations={compact_json([row_data.get('claim_id') for row_data in blocked_authorizations])}."
         ),
         ["locked_benchmark"],
@@ -296,6 +307,7 @@ def build_rows() -> list[dict[str, str]]:
             "reports/threats_to_validity.md",
             "reports/claim_authorization_matrix.md",
             "reports/report_claim_conformance_audit.md",
+            "reports/report_shape_audit.md",
             "reports/validation_manifest.json",
         ],
     ))

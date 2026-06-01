@@ -19,6 +19,18 @@ def compact_json(value: object) -> str:
     return json.dumps(value, sort_keys=True)
 
 
+def parse_list(value: str) -> list[str]:
+    if not value:
+        return []
+    try:
+        data = json.loads(value)
+        if isinstance(data, list):
+            return [str(item) for item in data]
+    except json.JSONDecodeError:
+        pass
+    return [item.strip() for item in value.split(";") if item.strip()]
+
+
 def bullets(counter: Counter[str]) -> str:
     return "\n".join(f"- `{key}`: {value}" for key, value in sorted(counter.items())) or "- _None_"
 
@@ -82,9 +94,25 @@ def claim_table(claims: list[dict[str, str]]) -> str:
     return table(rows)
 
 
+def capability_table(diagnostic_rows: list[dict[str, str]]) -> str:
+    rows = [["capability", "status", "accepted tasks", "limit"]]
+    for row in diagnostic_rows:
+        if row.get("area") != "diagnostic_capability":
+            continue
+        capability = row.get("check_id", "").removeprefix("capability_")
+        rows.append([
+            f"`{capability}`",
+            row.get("status", ""),
+            str(row.get("accepted_task_count", "")),
+            row.get("diagnostic_limit", ""),
+        ])
+    return table(rows)
+
+
 def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
+    diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
@@ -109,6 +137,11 @@ def main() -> int:
     )
     primary_coverage = row_by_id(run_summary, "analysis_set", "primary_plan_coverage")
     accepted_provider = row_by_id(run_summary, "analysis_set", "accepted_core_results")
+    skill_counts: Counter[str] = Counter()
+    failure_mode_counts: Counter[str] = Counter()
+    for task in accepted:
+        skill_counts.update(parse_list(task.get("skills", "")))
+        failure_mode_counts.update(parse_list(task.get("expected_failure_modes", "")))
 
     lines = [
         "# Concise METR-Style Report",
@@ -155,6 +188,20 @@ def main() -> int:
         "",
         task_table(accepted),
         "",
+        "## Capabilities And Expected Failures",
+        "",
+        "The accepted set is meant to test diagnostic capabilities, not just theorem-proving difficulty. Singleton capability rows are visible limitations rather than hidden assumptions.",
+        "",
+        capability_table(diagnostic),
+        "",
+        "Most common accepted-task skills:",
+        "",
+        bullets(Counter(dict(skill_counts.most_common(8)))),
+        "",
+        "Expected failure modes are author/reviewer forecasts until broader model transcripts are independently labeled. Common expected modes include:",
+        "",
+        bullets(Counter(dict(failure_mode_counts.most_common(8)))),
+        "",
         "## Grading And Integrity",
         "",
         "The grader is Lean-first: submissions must pass forbidden-construct scanning, public compilation, hidden `PinCheck.lean`, and axiom auditing. Local QA rows validate reference solutions and wrong submissions; they are not model performance.",
@@ -181,6 +228,7 @@ def main() -> int:
         "The report now has explicit claim authorization and a prose conformance audit. Blocked claims may appear only as limitations or future work.",
         "",
         "- `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.",
+        "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
         "",
         claim_table(claim_authorization),
         "",
@@ -193,6 +241,7 @@ def main() -> int:
         f"- accepted tasks without independent timing observations: `{accepted_without_timing}/{len(accepted)}`",
         "- task-count target remains 20-50 accepted tasks; v0.1 has 6 accepted core tasks.",
         "- accepted human-time coverage is T2/T3 only; there is no T4 accepted stretch task.",
+        "- capability-level claims remain weak where a capability is represented by a singleton accepted task.",
         "- hosted Taiga/Env Linter QA artifacts are absent.",
         "- the detailed evidence report remains appendix-heavy by design; this concise report is the reviewer-facing narrative.",
         "",
@@ -206,13 +255,14 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/report_claim_conformance_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 
     out = ROOT / "reports" / "concise_metr_report.md"
-    out.write_text("\n".join(lines), encoding="utf-8")
-    print(f"wrote {out.relative_to(ROOT)} with {len(lines)} generated lines")
+    text = "\n".join(lines)
+    out.write_text(text, encoding="utf-8")
+    print(f"wrote {out.relative_to(ROOT)} with {len(text.splitlines())} lines")
     return 0
 
 

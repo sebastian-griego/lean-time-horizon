@@ -646,6 +646,37 @@ Claim-conformance checks:
 """
 
 
+def report_shape_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/report_shape_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_report_shape.py` after the concise report and claim-conformance audit, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("answer_status", "unknown") for row in rows)
+    lines = [
+        "| check | playbook question | answer status | evidence | limitation | next action |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        limitation = row.get("limitation", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('playbook_question', '')} | "
+            f"{row.get('answer_status', '')} | {evidence} | {limitation} | {action} |"
+        )
+    return f"""`reports/report_shape_audit.md` and `data/report_shape_audit.csv` check whether the concise METR-style report answers the playbook's main report-shape questions. `blocked_by_evidence` rows are expected in v0.1 when the report explicitly says the current data cannot support a scaffold, time-horizon, or failure-distribution analysis.
+
+- checks: `{len(rows)}`
+- answer statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+
+Report-shape checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def release_decision_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1173,6 +1204,7 @@ def main() -> int:
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization_rows = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     report_claim_conformance_rows = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
+    report_shape_rows = read_csv(ROOT / "data" / "report_shape_audit.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -1426,6 +1458,10 @@ Observed model-sweep failure labels:
 
 {report_claim_conformance_section(report_claim_conformance_rows)}
 
+## Report Shape Audit
+
+{report_shape_section(report_shape_rows)}
+
 ## Release Decision Log
 
 {release_decision_section(release_decision_rows)}
@@ -1494,6 +1530,7 @@ python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
+python scripts/audit_report_shape.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
@@ -1502,6 +1539,7 @@ python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
+python scripts/audit_report_shape.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/audit_scaffold_support.py
@@ -1510,6 +1548,7 @@ python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
 python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
+python scripts/audit_report_shape.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
 python scripts/write_validation_manifest.py --public-export public_tasks

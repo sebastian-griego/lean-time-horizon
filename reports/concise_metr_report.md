@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 45}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 46}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -50,6 +50,42 @@ Accepted core rows:
 | `lt-205` | test | small_formal_library_construction | T3 | 150/300 | accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot. |
 | `lt-206` | test | algorithm_correctness | T2 | 100/210 | accepted_v0_keep_with_caveat: reference proof uses substantial simp/omega automation, but the task is retained for the multi-lemma partition invariant, side predicates, and duplicate-sensitive count preservation; needs independent review before any locked benchmark claim. |
 
+## Capabilities And Expected Failures
+
+The accepted set is meant to test diagnostic capabilities, not just theorem-proving difficulty. Singleton capability rows are visible limitations rather than hidden assumptions.
+
+| capability | status | accepted tasks | limit |
+| --- | --- | --- | --- |
+| `library_search` | caution | 1 | Capability is represented by a singleton accepted task, so task-specific quirks can dominate. |
+| `theorem_decomposition` | pass | 6 | Capability is represented by more than one accepted task. |
+| `semantic_formalization` | caution | 1 | Capability is represented by a singleton accepted task, so task-specific quirks can dominate. |
+| `proof_debugging` | pass | 2 | Capability is represented by more than one accepted task. |
+| `codebase_navigation` | caution | 1 | Capability is represented by a singleton accepted task, so task-specific quirks can dominate. |
+| `invariant_design` | pass | 2 | Capability is represented by more than one accepted task. |
+| `long_horizon_construction` | pass | 3 | Capability is represented by more than one accepted task. |
+
+Most common accepted-task skills:
+
+- `arithmetic normalization`: 1
+- `codebase navigation`: 1
+- `generalized induction`: 1
+- `helper lemma decomposition`: 2
+- `invariant design`: 2
+- `list induction`: 2
+- `proof repair`: 1
+- `theorem decomposition`: 2
+
+Expected failure modes are author/reviewer forecasts until broader model transcripts are independently labeled. Common expected modes include:
+
+- `fails to generalize cache in induction`: 1
+- `forgets surjectivity direction`: 1
+- `keeps multiplicity accidentally`: 1
+- `misses key history API change`: 1
+- `proves only length preservation`: 2
+- `repairs only entry count`: 1
+- `uses equality instead of membership equivalence`: 1
+- `vacuous relation`: 1
+
 ## Grading And Integrity
 
 The grader is Lean-first: submissions must pass forbidden-construct scanning, public compilation, hidden `PinCheck.lean`, and axiom auditing. Local QA rows validate reference solutions and wrong submissions; they are not model performance.
@@ -72,6 +108,7 @@ Committed provider rows are smoke evidence only. They show the runner and transc
 The report now has explicit claim authorization and a prose conformance audit. Blocked claims may appear only as limitations or future work.
 
 - `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.
+- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.
 
 | claim | authorization | allowed wording | required caveat |
 | --- | --- | --- | --- |
@@ -103,6 +140,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 - accepted tasks without independent timing observations: `6/6`
 - task-count target remains 20-50 accepted tasks; v0.1 has 6 accepted core tasks.
 - accepted human-time coverage is T2/T3 only; there is no T4 accepted stretch task.
+- capability-level claims remain weak where a capability is represented by a singleton accepted task.
 - hosted Taiga/Env Linter QA artifacts are absent.
 - the detailed evidence report remains appendix-heavy by design; this concise report is the reviewer-facing narrative.
 
@@ -116,4 +154,4 @@ The report now has explicit claim authorization and a prose conformance audit. B
 
 ## Evidence Appendix
 
-Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/report_claim_conformance_audit.md`, and the committed CSVs under `data/`.
+Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.
