@@ -75,7 +75,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 54}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 55}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -183,6 +183,33 @@ Wilson precision ledger for assumed `p=0.5`:
 | 50 | 0.3664 | 0.6336 | 0.2671 | moderate |
 
 
+## Figure Manifest And Plot Boundaries
+
+`reports/figure_manifest.md` and `data/figure_manifest.csv` map generated SVGs to source artifacts and mark unsupported performance plots as intentionally absent.
+
+- plot rows: `10`
+- statuses: `{"blocked_by_evidence": 5, "generated_descriptive": 4, "generated_provenance": 1}`
+- categories: `{"blocked_performance": 5, "generated_descriptive": 4, "generated_provenance": 1}`
+- generated descriptive/provenance figures: `5`
+- blocked performance plots: `5`
+- problem rows: `0`
+
+Figure and plot-boundary ledger:
+
+| plot | status | figure exists | allowed interpretation | blocked overclaim |
+| --- | --- | --- | --- | --- |
+| `task_counts_by_family` | generated_descriptive | true | Accepted-core family composition only. | Do not infer model performance, family difficulty, or representativeness from task-count bars. |
+| `task_counts_by_bucket` | generated_descriptive | true | Release task-count composition by human-time bucket. | Do not treat author-estimated bucket counts as measured time-horizon performance. |
+| `top_skills` | generated_descriptive | true | Most frequent declared skills in the release set. | Do not read skill-frequency bars as validated capability coverage or model failure frequencies. |
+| `run_rows_by_model` | generated_provenance | true | Committed run-row provenance by model/source, including local QA rows. | Do not read row-count bars as pass-rate evidence or model ranking. |
+| `task_minutes_by_bucket` | generated_descriptive | true | Reviewer-estimated p50 minutes by task bucket. | Do not claim calibrated human-time scaling from this figure without independent timing observations. |
+| `scaffold_pass_at_k_plot` | blocked_by_evidence | false | No scaffold performance plot is generated from the undercovered smoke rows. | A mean pass@10-by-scaffold plot would imply comparisons the data do not support. |
+| `bucket_success_plot` | blocked_by_evidence | false | No success-by-time-bucket plot is generated from the undercovered smoke rows. | Current rows cannot estimate success by human-time bucket. |
+| `family_success_plot` | blocked_by_evidence | false | No family success plot is generated from the undercovered smoke rows. | Current rows cannot estimate success by task family. |
+| `failure_taxonomy_plot` | blocked_by_evidence | false | No failure-taxonomy distribution plot is generated from the undercovered smoke rows. | The current failure taxonomy is useful for transcript QA but too small for distributional claims. |
+| `problem_pass_vs_time` | blocked_by_evidence | false | No problem-level pass-rate versus human-time plot is generated yet. | Do not imply a time-horizon trend from one covered accepted-core non-infra cell and author-estimated times. |
+
+
 ## Committed Run Results
 
 66 local QA rows are committed for reference solutions and plausible wrong submissions. These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -257,6 +284,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
+- `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
 
 ## Reproducibility Checklist
 

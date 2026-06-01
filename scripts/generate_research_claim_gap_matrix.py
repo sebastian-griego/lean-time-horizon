@@ -171,6 +171,8 @@ GAP_PLAN: dict[str, dict[str, object]] = {
             "data/wilson_precision_table.csv",
             "reports/statistical_reporting_audit.md",
             "data/statistical_reporting_audit.csv",
+            "reports/figure_manifest.md",
+            "data/figure_manifest.csv",
             "reports/model_run_analysis.md",
         ],
     },

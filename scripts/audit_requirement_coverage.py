@@ -232,6 +232,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
+    figure_manifest = read_csv(ROOT / "data" / "figure_manifest.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
@@ -733,6 +734,68 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(report_ok),
         f"metr_style_report.md exists: {(ROOT / 'reports' / 'metr_style_report.md').exists()}; generate_report reads CSV: {'read_csv' in generate_report}.",
         "No gap." if report_ok else "Restore report generation from data CSVs.",
+    ))
+
+    required_figure_ids = {
+        "task_counts_by_family",
+        "task_counts_by_bucket",
+        "top_skills",
+        "run_rows_by_model",
+        "task_minutes_by_bucket",
+        "scaffold_pass_at_k_plot",
+        "bucket_success_plot",
+        "family_success_plot",
+        "failure_taxonomy_plot",
+        "problem_pass_vs_time",
+    }
+    figure_ids = {row_data.get("plot_id", "") for row_data in figure_manifest}
+    figure_fields = set(figure_manifest[0].keys()) if figure_manifest else set()
+    required_figure_fields = {
+        "plot_id",
+        "category",
+        "current_status",
+        "figure_path",
+        "figure_exists",
+        "source_artifacts",
+        "sources_exist",
+        "allowed_interpretation",
+        "blocked_overclaim",
+        "evidence",
+        "next_action",
+    }
+    generated_figures = [
+        row_data for row_data in figure_manifest
+        if row_data.get("category") in {"generated_descriptive", "generated_provenance"}
+    ]
+    blocked_figures = [
+        row_data for row_data in figure_manifest
+        if row_data.get("category") == "blocked_performance"
+    ]
+    figure_problem_rows = [
+        row_data for row_data in figure_manifest
+        if row_data.get("current_status") in {
+            "missing_generated_artifact",
+            "unexpected_performance_plot",
+            "missing_source_artifact",
+            "needs_audit_review",
+        }
+    ]
+    figure_manifest_ok = (
+        bool(figure_manifest)
+        and required_figure_ids.issubset(figure_ids)
+        and required_figure_fields.issubset(figure_fields)
+        and len(generated_figures) >= 5
+        and len(blocked_figures) >= 5
+        and not figure_problem_rows
+        and (ROOT / "reports" / "figure_manifest.md").exists()
+    )
+    requirement_rows.append(row(
+        "figure_manifest_audit",
+        "reporting",
+        "Figure manifest should map generated SVGs to source CSVs allowed interpretations and blocked performance-plot overclaims.",
+        status_from_bool(figure_manifest_ok, partial=bool(figure_manifest)),
+        f"figure rows: {len(figure_manifest)}; required plots covered: {len(required_figure_ids & figure_ids)}/{len(required_figure_ids)}; generated rows: {len(generated_figures)}; blocked performance rows: {len(blocked_figures)}; problem rows: {len(figure_problem_rows)}; report exists: {(ROOT / 'reports' / 'figure_manifest.md').exists()}.",
+        "No gap." if figure_manifest_ok else "Run scripts/audit_figure_manifest.py after report generation and inspect missing generated or unexpected performance plots.",
     ))
 
     main_report_path = ROOT / "reports" / "metr_style_report.md"

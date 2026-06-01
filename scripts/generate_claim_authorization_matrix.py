@@ -205,6 +205,7 @@ def build_rows() -> list[dict[str, str]]:
         ["scaffold_result_comparison", "frontier_model_evidence", "independent_human_time_review", "hosted_qa_env_linter"],
         [
             "reports/metr_style_report.md",
+            "reports/figure_manifest.md",
             "reports/threats_to_validity.md",
             "reports/release_decision_log.md",
         ],
@@ -331,7 +332,7 @@ def build_rows() -> list[dict[str, str]]:
         "Statistical reporting checks exist and currently block recommended performance plots.",
         "Describe the statistical audit as a guardrail for future sweeps, not as performance evidence.",
         "Do not publish pass@10-by-scaffold plots, family means, or confidence intervals as substantive results yet.",
-        f"{req_evidence(reqs, 'statistical_analysis_plan')}; {req_evidence(reqs, 'statistical_reporting_audit')}; statistical block rows={statistical_block_count}",
+        f"{req_evidence(reqs, 'statistical_analysis_plan')}; {req_evidence(reqs, 'statistical_reporting_audit')}; {req_evidence(reqs, 'figure_manifest_audit')}; statistical block rows={statistical_block_count}",
         "Run sufficiently covered accepted-core sweeps and report raw n, task-row numerators, and intervals.",
         ["scaffold_result_comparison", "frontier_model_evidence"],
         [
@@ -340,6 +341,8 @@ def build_rows() -> list[dict[str, str]]:
             "data/wilson_precision_table.csv",
             "reports/statistical_reporting_audit.md",
             "data/statistical_reporting_audit.csv",
+            "reports/figure_manifest.md",
+            "data/figure_manifest.csv",
             "reports/model_run_analysis.md",
         ],
     ))

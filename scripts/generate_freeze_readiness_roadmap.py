@@ -98,6 +98,7 @@ def build_rows() -> list[dict[str, str]]:
     hosted = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     statistical_design = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
+    figure_manifest = read_csv(ROOT / "data" / "figure_manifest.csv")
     release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
 
     accepted = [row_data for row_data in metadata if row_data.get("acceptance_status") == "accepted_v0"]
@@ -126,6 +127,10 @@ def build_rows() -> list[dict[str, str]]:
         if row_data.get("current_status") == "blocked"
     ]
     statistical_blocks = [row_data for row_data in statistical if row_data.get("status") == "block"]
+    figure_blocks = [
+        row_data for row_data in figure_manifest
+        if row_data.get("category") == "blocked_performance"
+    ]
     release_blocks = [row_data for row_data in release_decisions if row_data.get("status") == "block"]
     blocked_authorizations = [
         row_data for row_data in claim_authorization
@@ -286,14 +291,15 @@ def build_rows() -> list[dict[str, str]]:
         "statistical_reporting_readiness",
         "analysis",
         "block",
-        f"statistical plan blocked tiers={len(statistical_plan_blocks)}; statistical audit blocks={len(statistical_blocks)}.",
-        f"{requirement(requirements, 'statistical_analysis_plan')}; {requirement(requirements, 'statistical_reporting_audit')}; {requirement(requirements, 'transcript_review_packet')}; {requirement(requirements, 'failure_label_review_audit')}",
+        f"statistical plan blocked tiers={len(statistical_plan_blocks)}; statistical audit blocks={len(statistical_blocks)}; figure-manifest blocked performance plots={len(figure_blocks)}.",
+        f"{requirement(requirements, 'statistical_analysis_plan')}; {requirement(requirements, 'statistical_reporting_audit')}; {requirement(requirements, 'figure_manifest_audit')}; {requirement(requirements, 'transcript_review_packet')}; {requirement(requirements, 'failure_label_review_audit')}",
         "Recommended performance plots should have adequate task/scaffold coverage and report raw n plus Wilson intervals.",
         "Keep performance plots blocked until the planned accepted-core sweep and larger accepted set exist.",
         ["scaffold_effects", "frontier_performance", "locked_benchmark"],
         [
             "reports/statistical_analysis_plan.md",
             "reports/statistical_reporting_audit.md",
+            "reports/figure_manifest.md",
             "reports/model_run_analysis.md",
             "reports/transcript_review_packet.md",
             "reports/failure_label_review_audit.md",

@@ -314,6 +314,25 @@ SECTION_SPECS = [
         "next_action": "Keep blocked claim tiers blocked until committed sweeps meet the threshold rows.",
     },
     {
+        "section_id": "figure_manifest",
+        "heading": "Figure Manifest And Plot Boundaries",
+        "source_artifacts": [
+            "reports/figure_manifest.md",
+            "data/figure_manifest.csv",
+            "reports/figures/task_counts_by_family.svg",
+            "reports/figures/task_counts_by_bucket.svg",
+            "reports/figures/task_minutes_by_bucket.svg",
+        ],
+        "required_phrases": [
+            "generated SVGs",
+            "source artifacts",
+            "blocked performance plots",
+            "intentionally absent",
+        ],
+        "limitation": "The figure manifest allows descriptive and provenance figures while blocking unsupported performance plots.",
+        "next_action": "Regenerate the figure manifest after report or model-result changes.",
+    },
+    {
         "section_id": "committed_runs",
         "heading": "Committed Run Results",
         "source_artifacts": [
@@ -371,6 +390,7 @@ SECTION_SPECS = [
             "reports/report_source_traceability.md",
             "reports/failure_label_review_audit.md",
             "reports/statistical_analysis_plan.md",
+            "reports/figure_manifest.md",
         ],
         "required_phrases": [
             "evidence_appendix.md",
@@ -378,6 +398,7 @@ SECTION_SPECS = [
             "requirement_coverage.md",
             "failure_label_review_audit.md",
             "statistical_analysis_plan.md",
+            "figure_manifest.md",
         ],
         "limitation": "The source map improves traceability but does not create new model evidence.",
         "next_action": "Keep new report artifacts listed in README, manifest, and source traceability.",

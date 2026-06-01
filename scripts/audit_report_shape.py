@@ -151,6 +151,8 @@ def main() -> int:
         [
             "data/model_result_summary.csv",
             "data/statistical_design_thresholds.csv",
+            "data/figure_manifest.csv",
+            "reports/figure_manifest.md",
             "reports/statistical_analysis_plan.md",
             "reports/statistical_reporting_audit.md",
             "reports/human_time_calibration_audit.md",

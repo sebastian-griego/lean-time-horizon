@@ -411,6 +411,54 @@ Wilson precision ledger for assumed `p=0.5`:
 """
 
 
+def figure_manifest_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/figure_manifest.md` has not been generated yet. Run "
+            "`python scripts/audit_figure_manifest.py` after report generation, then regenerate this report."
+        )
+    status_counts = Counter(row.get("current_status", "unknown") for row in rows)
+    category_counts = Counter(row.get("category", "unknown") for row in rows)
+    generated = [
+        row for row in rows
+        if row.get("category") in {"generated_descriptive", "generated_provenance"}
+    ]
+    blocked = [row for row in rows if row.get("category") == "blocked_performance"]
+    problem_rows = [
+        row for row in rows
+        if row.get("current_status") in {
+            "missing_generated_artifact",
+            "unexpected_performance_plot",
+            "missing_source_artifact",
+            "needs_audit_review",
+        }
+    ]
+    lines = [
+        "| plot | status | figure exists | allowed interpretation | blocked overclaim |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        allowed = row.get("allowed_interpretation", "").replace("|", "/")
+        blocked_text = row.get("blocked_overclaim", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('plot_id', '')}` | {row.get('current_status', '')} | "
+            f"{row.get('figure_exists', '')} | {allowed} | {blocked_text} |"
+        )
+    return f"""`reports/figure_manifest.md` and `data/figure_manifest.csv` map generated SVGs to source artifacts and mark unsupported performance plots as intentionally absent.
+
+- plot rows: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- categories: `{compact_json(dict(sorted(category_counts.items())))}`
+- generated descriptive/provenance figures: `{len(generated)}`
+- blocked performance plots: `{len(blocked)}`
+- problem rows: `{len(problem_rows)}`
+
+Figure and plot-boundary ledger:
+
+{chr(10).join(lines)}
+"""
+
+
 def statistical_reporting_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1449,6 +1497,7 @@ def main() -> int:
     model_evidence_provenance_rows = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
     statistical_design_rows = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
     wilson_precision_rows = read_csv(ROOT / "data" / "wilson_precision_table.csv")
+    figure_manifest_rows = read_csv(ROOT / "data" / "figure_manifest.csv")
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
@@ -1673,6 +1722,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {statistical_analysis_plan_section(statistical_design_rows, wilson_precision_rows)}
 
+## Figure Manifest And Plot Boundaries
+
+{figure_manifest_section(figure_manifest_rows)}
+
 ## Statistical Reporting Audit
 
 {statistical_reporting_section(statistical_reporting_rows)}
@@ -1795,6 +1848,7 @@ python scripts/analyze_model_results.py
 python scripts/audit_model_evidence_provenance.py
 python scripts/generate_report.py
 python scripts/audit_statistical_reporting.py
+python scripts/audit_figure_manifest.py
 python scripts/audit_provider_readiness.py
 python scripts/generate_report.py
 python scripts/audit_report_source_traceability.py
@@ -2018,6 +2072,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {statistical_analysis_plan_section(statistical_design_rows, wilson_precision_rows)}
 
+## Figure Manifest And Plot Boundaries
+
+{figure_manifest_section(figure_manifest_rows)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -2056,6 +2114,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
+- `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
 
 ## Reproducibility Checklist
 

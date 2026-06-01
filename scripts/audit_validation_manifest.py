@@ -29,6 +29,7 @@ REQUIRED_COMMANDS = {
     "python scripts/audit_failure_label_reviews.py",
     "python scripts/audit_run_integrity.py",
     "python scripts/generate_report.py",
+    "python scripts/audit_figure_manifest.py",
     "python scripts/generate_statistical_analysis_plan.py",
     "python scripts/audit_statistical_reporting.py",
     "python scripts/audit_report_source_traceability.py",
