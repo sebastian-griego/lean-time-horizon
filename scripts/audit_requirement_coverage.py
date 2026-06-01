@@ -244,6 +244,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_count_consistency = read_csv(ROOT / "data" / "report_count_consistency_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
+    regeneration_command_consistency = read_csv(ROOT / "data" / "regeneration_command_consistency.csv")
     validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
     reviewer_reproduction_steps = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
     clean_workspace_replay = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
@@ -962,6 +963,39 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
             f"report exists: {(ROOT / 'reports' / 'report_source_traceability.md').exists()}."
         ),
         "No gap." if traceability_ok else "Run scripts/audit_report_source_traceability.py after generating the main report and inspect missing sources or boundary phrases.",
+    ))
+
+    required_regeneration_command_ids = {
+        "readme_matches_manifest_source",
+        "json_manifest_matches_source",
+        "required_commands_in_public_gate",
+        "reviewer_packet_local_subset",
+    }
+    regeneration_command_ids = {
+        row_data.get("check_id", "") for row_data in regeneration_command_consistency
+    }
+    regeneration_command_failures = [
+        row_data for row_data in regeneration_command_consistency
+        if row_data.get("status") == "fail"
+    ]
+    regeneration_command_ok = (
+        bool(regeneration_command_consistency)
+        and required_regeneration_command_ids.issubset(regeneration_command_ids)
+        and not regeneration_command_failures
+        and (ROOT / "reports" / "regeneration_command_consistency.md").exists()
+    )
+    requirement_rows.append(row(
+        "regeneration_command_consistency",
+        "reproducibility",
+        "Regeneration command consistency audit should verify that README validation commands manifest source commands committed manifest commands and reviewer local-replay commands stay synchronized.",
+        status_from_bool(regeneration_command_ok, partial=bool(regeneration_command_consistency)),
+        (
+            f"command-consistency rows: {len(regeneration_command_consistency)}; required checks covered: "
+            f"{len(required_regeneration_command_ids & regeneration_command_ids)}/{len(required_regeneration_command_ids)}; "
+            f"failures: {len(regeneration_command_failures)}; report exists: "
+            f"{(ROOT / 'reports' / 'regeneration_command_consistency.md').exists()}."
+        ),
+        "No gap." if regeneration_command_ok else "Run scripts/audit_regeneration_commands.py after writing the validation manifest and inspect command drift.",
     ))
 
     concise_report_path = ROOT / "reports" / "concise_metr_report.md"

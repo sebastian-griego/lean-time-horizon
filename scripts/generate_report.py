@@ -1773,6 +1773,40 @@ Validation manifest audit rows:
 """
 
 
+def regeneration_command_consistency_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/regeneration_command_consistency.md` has not been generated yet. Run "
+            "`python scripts/audit_regeneration_commands.py` after writing the validation "
+            "manifest, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | evidence | required action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        action = row.get("required_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{evidence} | {action} |"
+        )
+    return f"""`reports/regeneration_command_consistency.md` and `data/regeneration_command_consistency.csv` check that README validation commands, manifest-source commands, committed manifest commands, and reviewer local-replay commands stay synchronized. This is a replay-instruction consistency guard, not evidence that hosted QA or provider sweeps have run.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failures: `{len(failures)}`
+
+Regeneration-command checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
@@ -1821,6 +1855,7 @@ def main() -> int:
     threats_to_validity_rows = read_csv(ROOT / "data" / "threats_to_validity.csv")
     threat_coverage_rows = read_csv(ROOT / "data" / "threat_coverage_audit.csv")
     validation_manifest_audit_rows = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
+    regeneration_command_consistency_rows = read_csv(ROOT / "data" / "regeneration_command_consistency.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     metadata_by_id = {row["task_id"]: row for row in metadata}
@@ -1873,6 +1908,16 @@ def main() -> int:
     local_md = f"{len(local_rows)} local QA rows are committed for reference solutions and plausible wrong submissions." if local_rows else "No local QA rows are committed yet."
     local_status_counts = Counter(row.get("qa_findings_status", "unknown") for row in local_rows)
     local_status_md = bullets(local_status_counts)
+    regeneration_commands = validation_manifest.get("regeneration_commands", [])
+    if not isinstance(regeneration_commands, list) or not regeneration_commands:
+        regeneration_commands = [
+            "lake exe cache get",
+            "lake build",
+            "python scripts/validate_all.py",
+            "python scripts/audit_difficulty.py",
+            "python scripts/generate_report.py",
+        ]
+    regeneration_command_block = "\n".join(str(command) for command in regeneration_commands)
 
     report = ROOT / "reports" / "metr_style_report.md"
     report.write_text(
@@ -2173,83 +2218,7 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 The intended local regeneration gate is:
 
 ```powershell
-lake exe cache get
-lake build
-python scripts/validate_all.py
-python scripts/audit_difficulty.py
-python scripts/generate_task_quality_matrix.py
-python scripts/audit_diagnostic_coverage.py
-python scripts/generate_construct_validity_matrix.py
-python scripts/audit_human_time_calibration.py
-python scripts/generate_human_timing_packet.py
-python scripts/record_local_qa_results.py
-python scripts/generate_transcript_review_packet.py
-python scripts/audit_failure_label_reviews.py
-python scripts/audit_pin_coverage.py
-python scripts/audit_run_integrity.py
-python scripts/audit_grader_hardening.py
-python scripts/generate_evaluation_protocol.py
-python scripts/generate_statistical_analysis_plan.py
-python scripts/generate_model_sweep_packet.py
-python scripts/analyze_model_results.py
-python scripts/audit_model_evidence_provenance.py
-python scripts/generate_report.py
-python scripts/audit_statistical_reporting.py
-python scripts/audit_figure_manifest.py
-python scripts/audit_data_schema_manifest.py
-python scripts/generate_reviewer_reproduction_packet.py
-python scripts/run_clean_workspace_replay.py
-python scripts/audit_provider_readiness.py
-python scripts/generate_report.py
-python scripts/audit_report_source_traceability.py
-python scripts/export_public_tasks.py --out public_tasks
-python scripts/validate_public_export.py --out public_tasks
-python scripts/audit_hosted_qa_readiness.py
-python scripts/generate_task_asset_manifest.py --public-export public_tasks
-python scripts/generate_accepted_task_cards.py
-python scripts/audit_prompt_contracts.py
-python scripts/audit_scaffold_support.py
-python scripts/generate_threats_to_validity.py
-python scripts/audit_threat_coverage.py
-python scripts/audit_requirement_coverage.py --public-export public_tasks
-python scripts/audit_claim_evidence.py
-python scripts/generate_claim_authorization_matrix.py
-python scripts/generate_research_claim_gap_matrix.py
-python scripts/generate_concise_report.py
-python scripts/audit_report_claim_conformance.py
-python scripts/audit_report_shape.py
-python scripts/audit_report_count_consistency.py
-python scripts/generate_release_decision_log.py
-python scripts/generate_freeze_readiness_roadmap.py
-python scripts/audit_scaffold_support.py
-python scripts/audit_requirement_coverage.py --public-export public_tasks
-python scripts/audit_claim_evidence.py
-python scripts/generate_claim_authorization_matrix.py
-python scripts/generate_research_claim_gap_matrix.py
-python scripts/generate_concise_report.py
-python scripts/audit_report_claim_conformance.py
-python scripts/audit_report_shape.py
-python scripts/audit_report_count_consistency.py
-python scripts/generate_release_decision_log.py
-python scripts/generate_freeze_readiness_roadmap.py
-python scripts/audit_scaffold_support.py
-python scripts/audit_requirement_coverage.py --public-export public_tasks
-python scripts/audit_claim_evidence.py
-python scripts/generate_claim_authorization_matrix.py
-python scripts/generate_research_claim_gap_matrix.py
-python scripts/generate_concise_report.py
-python scripts/audit_report_claim_conformance.py
-python scripts/audit_report_shape.py
-python scripts/audit_report_count_consistency.py
-python scripts/generate_release_decision_log.py
-python scripts/generate_freeze_readiness_roadmap.py
-python scripts/write_validation_manifest.py --public-export public_tasks
-python scripts/audit_validation_manifest.py
-python scripts/generate_report.py
-python scripts/audit_report_source_traceability.py
-python scripts/write_validation_manifest.py --public-export public_tasks
-python scripts/audit_validation_manifest.py
-python scripts/generate_report.py
+{regeneration_command_block}
 ```
 
 The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
@@ -2267,6 +2236,10 @@ The public export validator checks that hidden references and wrong submissions 
 ## Validation Manifest Audit
 
 {validation_manifest_audit_section(validation_manifest_audit_rows)}
+
+## Regeneration Command Consistency Audit
+
+{regeneration_command_consistency_section(regeneration_command_consistency_rows)}
 
 ## Threats To Validity
 
@@ -2496,6 +2469,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
+- `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
@@ -2518,7 +2492,7 @@ The long generated evidence tables are intentionally outside this main report:
 
 {clean_workspace_replay_section(clean_workspace_replay_rows)}
 
-The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, `reports/reviewer_reproduction_packet.md`, and `reports/clean_workspace_replay.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, `reports/regeneration_command_consistency.md`, `reports/reviewer_reproduction_packet.md`, and `reports/clean_workspace_replay.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The command-consistency audit checks that README, manifest-source, committed manifest, and reviewer local-replay commands stay synchronized. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
 ## Claim Ledger
 
