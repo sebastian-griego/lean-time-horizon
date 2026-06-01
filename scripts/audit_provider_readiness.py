@@ -279,6 +279,23 @@ def build_rows() -> list[dict[str, str]]:
         "Run a fresh smoke job with explicit cost/version notes before claiming provider performance.",
     ))
 
+    anthropic_reconfigures_stdout = "sys.stdout.reconfigure" in anthropic_source
+    anthropic_sets_utf8 = 'encoding="utf-8"' in anthropic_source
+    anthropic_replaces_errors = 'errors="replace"' in anthropic_source
+    anthropic_stdout_ok = anthropic_reconfigures_stdout and anthropic_sets_utf8 and anthropic_replaces_errors
+    rows.append(row(
+        "anthropic_adapter_utf8_stdout",
+        "provider_adapter_surface",
+        "pass" if anthropic_stdout_ok else "fail",
+        (
+            f"stdout_reconfigure={anthropic_reconfigures_stdout}; "
+            f"encoding_utf8={anthropic_sets_utf8}; errors_replace={anthropic_replaces_errors}"
+        ),
+        "The bundled Anthropic adapter configures UTF-8 stdout before printing extracted Lean text, guarding against Windows console encoding failures in Unicode Lean output.",
+        "This is a static regression guard for adapter output encoding; it does not call the provider API.",
+        "Keep UTF-8 stdout handling covered whenever provider adapters are edited.",
+    ))
+
     secret_result = secret_scan()
     rows.append(row(
         "tracked_secret_scan",

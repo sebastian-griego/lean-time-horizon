@@ -619,9 +619,9 @@ Statistical reporting checks:
 
 `reports/provider_readiness_audit.md` and `data/provider_readiness_audit.csv` check model-runner readiness without using provider credentials or creating new model results. The audit separates runner contracts, adapter coverage, credential policy, transcript evidence, planned sweep commands, and smoke-only provider coverage.
 
-- checks: `11`
-- statuses: `{"block": 1, "caution": 1, "pass": 9}`
-- areas: `{"credential_policy": 2, "planned_sweep": 1, "provider_adapter_surface": 2, "reporting": 1, "run_data": 3, "runner_contract": 2}`
+- checks: `12`
+- statuses: `{"block": 1, "caution": 1, "pass": 10}`
+- areas: `{"credential_policy": 2, "planned_sweep": 1, "provider_adapter_surface": 3, "reporting": 1, "run_data": 3, "runner_contract": 2}`
 - failing readiness checks: `0`
 - caution rows: `1`
 - blocked provider-evidence rows: `1`
@@ -634,6 +634,7 @@ Provider readiness checks:
 | `external_runner_env_contract` | runner_contract | pass | External runner commands receive prompt path, task identity, scaffold, lookup command, and public-file metadata. | Static source checks do not prove a third-party adapter honors those variables. | Keep this contract stable and update adapter docs when adding runner-supplied fields. |
 | `bundled_provider_adapters` | provider_adapter_surface | caution | Anthropic has a minimal bundled adapter; OpenAI and Gemini are supported through external command env vars, not dedicated committed adapters. | Missing dedicated adapters are acceptable for local report readiness but limit turnkey provider comparability. | Add dedicated OpenAI and Gemini adapters or document external runner commands before a broad frontier sweep. |
 | `anthropic_adapter_static_safety` | provider_adapter_surface | pass | The bundled Anthropic adapter reads credentials from the environment and emits Lean text. | This is a static audit; it does not call the provider API or validate current model availability. | Run a fresh smoke job with explicit cost/version notes before claiming provider performance. |
+| `anthropic_adapter_utf8_stdout` | provider_adapter_surface | pass | The bundled Anthropic adapter configures UTF-8 stdout before printing extracted Lean text, guarding against Windows console encoding failures in Unicode Lean output. | This is a static regression guard for adapter output encoding; it does not call the provider API. | Keep UTF-8 stdout handling covered whenever provider adapters are edited. |
 | `tracked_secret_scan` | credential_policy | pass | Tracked files contain no high-confidence API key patterns or direct API-key assignments. | Pattern scanning can miss unknown key formats and should not replace careful review. | Keep credentials in environment variables only and rerun this audit before publishing. |
 | `credential_and_no_fake_policy_text` | credential_policy | pass | The public documentation states the no-fake-results and env-var credential policy. | Policy text is not evidence that future provider rows are externally reproduced. | Require transcripts, run-result integrity, and provider-version notes for every future model run. |
 | `primary_sweep_command_plan` | planned_sweep | pass | The committed model-sweep plan encodes accepted_v0 x scaffold pass@10 command templates. | The plan is prospective and does not mean the rows have been run. | Instantiate MODEL and runner env vars only when running real provider sweeps. |
@@ -865,7 +866,7 @@ Claim-conformance checks:
 | `blocked_phrase_context_scan` | reports_and_readme | pass | blocked-claim phrase contexts scanned across reports\metr_style_report.md, reports\concise_metr_report.md, reports\evidence_appendix.md, reports\report_source_traceability.md, and README.md; unsafe_contexts=0 | Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work. |
 | `readme_scope_boundaries` | readme | pass | README checked for locked-benchmark, model-result, and credential-scope boundaries | Keep the README top-level scope aligned with the report's claim authorization matrix. |
 | `limitations_cover_blockers` | main_report | pass | limitations section checked against blocked authorization themes | Keep task-count, T4, independent-timing, provider-smoke, hosted-QA, and locked-benchmark caveats in the limitations section. |
-| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=507; markdown_table_rows=173; evidence_appendix_exists=True; evidence_appendix_line_count=1589 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
+| `report_length_and_appendix_boundary` | main_report | pass | main report line_count=507; markdown_table_rows=173; evidence_appendix_exists=True; evidence_appendix_line_count=1590 | Keep the main report skimmable and keep row-level generated tables in reports/evidence_appendix.md. |
 
 
 ## Report Shape Audit
@@ -1233,9 +1234,9 @@ Clean workspace replay ledger:
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-01T22:21:36.265536+00:00`
+Generated at UTC: `2026-06-01T22:44:39.761982+00:00`
 
-Git branch/head at generation: `main` / `d62a89678e8f`. Worktree status at generation: `clean`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `4426b8c71836`. Worktree status at generation: `16 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -1361,7 +1362,7 @@ Key artifact hashes:
 | `data/statistical_design_thresholds.csv` | `513aaa59e26f` | 7 | 4814 |
 | `data/wilson_precision_table.csv` | `37ea4c8f4ca5` | 15 | 712 |
 | `data/statistical_reporting_audit.csv` | `dbafbce2a5ad` | 9 | 4740 |
-| `data/provider_readiness_audit.csv` | `c9ff1910a432` | 11 | 4912 |
+| `data/provider_readiness_audit.csv` | `391398d0edb7` | 12 | 5378 |
 | `data/hosted_qa_readiness_audit.csv` | `aeba27f89c26` | 11 | 3290 |
 | `data/threats_to_validity.csv` | `649cf81bb658` | 13 | 6777 |
 | `data/threat_coverage_audit.csv` | `babdabd5070c` | 4 | 2834 |
@@ -1394,10 +1395,10 @@ Key artifact hashes:
 | `data/pin_coverage_audit.csv` | `3e6fd3f10e92` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `905d30f62a8c` | 69 | 14540 |
 | `data/grader_hardening_audit.csv` | `b66f1f8fc357` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `68564740d709` | 9 | 22244 |
-| `data/claim_authorization_matrix.csv` | `e9d425e23dba` | 12 | 16546 |
+| `data/claim_evidence_audit.csv` | `2ec216f64e93` | 9 | 22244 |
+| `data/claim_authorization_matrix.csv` | `306723eb220d` | 12 | 16546 |
 | `data/research_claim_gap_matrix.csv` | `afdef5e23a7c` | 12 | 16565 |
-| `data/report_claim_conformance_audit.csv` | `4dc503a8ac62` | 11 | 4101 |
+| `data/report_claim_conformance_audit.csv` | `957a936c6167` | 11 | 4101 |
 | `data/report_source_traceability.csv` | `f68cdd76dbef` | 33 | 14906 |
 | `data/regeneration_command_consistency.csv` | `c8f4555256b9` | 4 | 1537 |
 | `data/report_shape_audit.csv` | `162dd3825949` | 7 | 3350 |
@@ -1406,10 +1407,10 @@ Key artifact hashes:
 | `data/data_schema_manifest.csv` | `706683d1f73c` | 9 | 3823 |
 | `data/reviewer_reproduction_steps.csv` | `0be804f614cf` | 15 | 8678 |
 | `data/clean_workspace_replay.csv` | `be2899712c87` | 7 | 3641 |
-| `data/release_decision_log.csv` | `5864ffe488f6` | 8 | 11525 |
+| `data/release_decision_log.csv` | `b8c0d4720ecf` | 8 | 11525 |
 | `data/freeze_readiness_roadmap.csv` | `9009f883ec82` | 10 | 12704 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `cc3ba8ff5889` | 71 | 27700 |
+| `data/requirement_coverage.csv` | `d70409e92af4` | 71 | 27700 |
 | `reports/difficulty_audit.md` | `4864ad083e8a` |  | 6942 |
 | `reports/task_quality_matrix.md` | `652739777820` |  | 4990 |
 | `reports/candidate_pruning_audit.md` | `07b1cb1ed464` |  | 7227 |
@@ -1428,7 +1429,7 @@ Key artifact hashes:
 | `reports/claim_evidence_audit.md` | `5cd2c5a4f8b4` |  | 6738 |
 | `reports/claim_authorization_matrix.md` | `f2efb00e0b08` |  | 7893 |
 | `reports/research_claim_gap_matrix.md` | `1ca79f308321` |  | 11700 |
-| `reports/report_claim_conformance_audit.md` | `9fdb493ed41d` |  | 4268 |
+| `reports/report_claim_conformance_audit.md` | `b869f098efcd` |  | 4268 |
 | `reports/report_source_traceability.md` | `eb3fdfb4c846` |  | 15667 |
 | `reports/regeneration_command_consistency.md` | `420420054e6c` |  | 2166 |
 | `reports/report_shape_audit.md` | `c5a11554e4ae` |  | 3373 |
@@ -1438,7 +1439,7 @@ Key artifact hashes:
 | `reports/reviewer_reproduction_packet.md` | `f48c501206ea` |  | 5634 |
 | `reports/clean_workspace_replay.md` | `a7727d6727df` |  | 2739 |
 | `reports/concise_metr_report.md` | `c72b5a99811e` |  | 18905 |
-| `reports/release_decision_log.md` | `a05df624387d` |  | 12114 |
+| `reports/release_decision_log.md` | `11b6af90c6bc` |  | 12114 |
 | `reports/freeze_readiness_roadmap.md` | `6b3e1cef3203` |  | 6032 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
@@ -1448,13 +1449,13 @@ Key artifact hashes:
 | `reports/model_evidence_provenance_audit.md` | `ec82bbbab321` |  | 3200 |
 | `reports/statistical_analysis_plan.md` | `759131325902` |  | 4662 |
 | `reports/statistical_reporting_audit.md` | `16c69a8d8e03` |  | 3813 |
-| `reports/provider_readiness_audit.md` | `20047ec923ac` |  | 5876 |
+| `reports/provider_readiness_audit.md` | `01f5dc9a1da2` |  | 6359 |
 | `reports/hosted_qa_readiness_audit.md` | `7c9d07aad947` |  | 3483 |
 | `reports/threats_to_validity.md` | `43116dfa76d2` |  | 6684 |
 | `reports/threat_coverage_audit.md` | `9354eebeb039` |  | 3415 |
 | `reports/transcript_review_packet.md` | `58c5e52bf1b5` |  | 4276 |
 | `reports/failure_label_review_audit.md` | `b8aa8b111870` |  | 2775 |
-| `reports/requirement_coverage.md` | `b15c504e6592` |  | 24930 |
+| `reports/requirement_coverage.md` | `78f005bf2730` |  | 24930 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -1493,14 +1494,14 @@ Key artifact hashes:
 | `scripts/generate_release_decision_log.py` | `3e3c631059fa` |  | 16375 |
 | `scripts/generate_freeze_readiness_roadmap.py` | `26ffefe8ecd1` |  | 20676 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `7813896c3451` |  | 131994 |
+| `scripts/audit_requirement_coverage.py` | `123cbe0a0d8d` |  | 132035 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
 | `scripts/generate_statistical_analysis_plan.py` | `fc6d38797a90` |  | 18559 |
 | `scripts/generate_model_sweep_packet.py` | `338ab30af454` |  | 14347 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/audit_model_evidence_provenance.py` | `f97a3d01f536` |  | 14136 |
 | `scripts/audit_statistical_reporting.py` | `62d3992d0214` |  | 14208 |
-| `scripts/audit_provider_readiness.py` | `ad8b36f25ea7` |  | 18802 |
+| `scripts/audit_provider_readiness.py` | `721efbd15df9` |  | 19841 |
 | `scripts/audit_hosted_qa_readiness.py` | `b9a4b5dc34d4` |  | 13338 |
 | `scripts/generate_threats_to_validity.py` | `da5b3121a97b` |  | 20033 |
 | `scripts/audit_threat_coverage.py` | `e67a9460521e` |  | 11521 |
@@ -1537,7 +1538,7 @@ Validation manifest audit rows:
 | `artifact_inventory_coverage` | artifact_hashes | pass | inventory_candidates=166; recorded_artifacts=177; allowed_unhashed=5; missing_inventory=0; examples=[] | The inventory check covers data CSVs, report markdown, and scripts. It intentionally excludes self-referential final reports, the validation-manifest audit output, and the progress log. |
 | `self_reference_boundary` | artifact_hashes | pass | main_report_omitted=True; evidence_appendix_omitted=True; policy_note_mentions_omission=True | The main report and appendix are regenerated after manifest writing and therefore cannot be hashed by the manifest without circularity. |
 | `public_export_snapshot` | public_export | pass | configured=True; exists=True; task_count=14; hidden_or_wrong_path_count=0 | This is a local public-export snapshot, not hosted QA evidence. |
-| `git_snapshot_policy` | git_state | pass | dirty=False; status_entries=0; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
+| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=16; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
 | `summary_count_snapshot` | counts | pass | task_count=26; acceptance_status_counts={"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}; run_rows=69; local_qa_rows=66; model_rows=3 | Count snapshots are local evidence and do not imply benchmark-scale sufficiency. |
 
 

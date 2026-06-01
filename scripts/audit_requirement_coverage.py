@@ -1688,6 +1688,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "external_runner_env_contract",
         "bundled_provider_adapters",
         "anthropic_adapter_static_safety",
+        "anthropic_adapter_utf8_stdout",
         "tracked_secret_scan",
         "credential_and_no_fake_policy_text",
         "primary_sweep_command_plan",

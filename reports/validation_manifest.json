@@ -1,13 +1,30 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-06-01T22:21:36.265536+00:00",
+  "generated_at_utc": "2026-06-01T22:44:39.761982+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md and reports/evidence_appendix.md to avoid self-referential report hashes. The validation-manifest audit is generated after this manifest and is checked by requirement coverage rather than hashed by the manifest. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "d62a89678e8f6fe22ca2e4412b0970d5fba9bc5f",
-    "dirty": false,
-    "status_short": [],
-    "status_summary_first_line": ""
+    "head": "4426b8c7183687b5fd5e499fb717ef1837a4d1e0",
+    "dirty": true,
+    "status_short": [
+      " M data/claim_authorization_matrix.csv",
+      " M data/claim_evidence_audit.csv",
+      " M data/provider_readiness_audit.csv",
+      " M data/release_decision_log.csv",
+      " M data/report_claim_conformance_audit.csv",
+      " M data/requirement_coverage.csv",
+      " M data/validation_manifest_audit.csv",
+      " M reports/evidence_appendix.md",
+      " M reports/provider_readiness_audit.md",
+      " M reports/release_decision_log.md",
+      " M reports/report_claim_conformance_audit.md",
+      " M reports/requirement_coverage.md",
+      " M reports/validation_manifest.json",
+      " M reports/validation_manifest_audit.md",
+      " M scripts/audit_provider_readiness.py",
+      " M scripts/audit_requirement_coverage.py"
+    ],
+    "status_summary_first_line": " M data/claim_authorization_matrix.csv"
   },
   "tool_versions": {
     "python": "3.11.9",
@@ -346,10 +363,10 @@
     {
       "path": "data/provider_readiness_audit.csv",
       "exists": true,
-      "bytes": 4912,
-      "sha256": "c9ff1910a432a829375c7a9e53e357782b0ed205bebf7e755e00e3503cf547c7",
-      "line_count": 12,
-      "row_count": 11
+      "bytes": 5378,
+      "sha256": "391398d0edb78db67a13b2fa577aaec1d74f456c6a96dc098ef08e7032d53069",
+      "line_count": 13,
+      "row_count": 12
     },
     {
       "path": "data/hosted_qa_readiness_audit.csv",
@@ -608,7 +625,7 @@
       "path": "data/claim_evidence_audit.csv",
       "exists": true,
       "bytes": 22244,
-      "sha256": "68564740d709d5e75e586a3d3abccd7f98b9c1e3fbac5f8efdb7ba1730dce595",
+      "sha256": "2ec216f64e93b4b56d38758b1f79ca644483dd9d89ca01269cad5ad5c91eafb5",
       "line_count": 10,
       "row_count": 9
     },
@@ -616,7 +633,7 @@
       "path": "data/claim_authorization_matrix.csv",
       "exists": true,
       "bytes": 16546,
-      "sha256": "e9d425e23dba0e2a4f2b40faf054cab938757a2eac48690073be3a4127d54bb8",
+      "sha256": "306723eb220da1facc626a97ef3af8c005781061dce8119f66a645f8319a50cb",
       "line_count": 13,
       "row_count": 12
     },
@@ -632,7 +649,7 @@
       "path": "data/report_claim_conformance_audit.csv",
       "exists": true,
       "bytes": 4101,
-      "sha256": "4dc503a8ac6235908b0178f998cd371e2f33968bf5b0962a3b89e436a4f8d475",
+      "sha256": "957a936c6167f7d060f7736c8af9565c658c6ea8da0d57bb05cf1549d61d3989",
       "line_count": 12,
       "row_count": 11
     },
@@ -704,7 +721,7 @@
       "path": "data/release_decision_log.csv",
       "exists": true,
       "bytes": 11525,
-      "sha256": "5864ffe488f6b2bb3f78ad896fe5a231d3410391ac67e50fd27b23e239b18920",
+      "sha256": "b8c0d4720ecf402d8b60f4b4cfd4c0759c6411f402419601c434d061e5026d82",
       "line_count": 9,
       "row_count": 8
     },
@@ -728,7 +745,7 @@
       "path": "data/requirement_coverage.csv",
       "exists": true,
       "bytes": 27700,
-      "sha256": "cc3ba8ff5889f087ed4c3f0fb540fd03ad6386d93f0855a9b23f01328d31e0cf",
+      "sha256": "d70409e92af498922ed9f8f72b2a1498b15b07652ad2cc0217d1d37fb2fd86df",
       "line_count": 72,
       "row_count": 71
     },
@@ -862,7 +879,7 @@
       "path": "reports/report_claim_conformance_audit.md",
       "exists": true,
       "bytes": 4268,
-      "sha256": "9fdb493ed41d32b316deeeaa1df1dd61e7f77cb17a9829a5c1cecf23ad2f59a2",
+      "sha256": "b869f098efcd4e9a9dcb3eef414282c69a4ed4052a6dcaa8b274daaea8a9b270",
       "line_count": 29
     },
     {
@@ -932,7 +949,7 @@
       "path": "reports/release_decision_log.md",
       "exists": true,
       "bytes": 12114,
-      "sha256": "a05df624387dd90eab77dc097552d5468c85b97950baac393edda92bce5c61f2",
+      "sha256": "11b6af90c6bcd31089f11cbbe6746a62eaabd5d604a1f12b47a3f98cb8b2ca49",
       "line_count": 25
     },
     {
@@ -1001,9 +1018,9 @@
     {
       "path": "reports/provider_readiness_audit.md",
       "exists": true,
-      "bytes": 5876,
-      "sha256": "20047ec923accc0fbc71c0c2d99556fe0ad85223da5dbea754222733491baf50",
-      "line_count": 29
+      "bytes": 6359,
+      "sha256": "01f5dc9a1da2cc8b3cd244aa65a9a41528ddd13ed66e8db364c05462d8e8130c",
+      "line_count": 30
     },
     {
       "path": "reports/hosted_qa_readiness_audit.md",
@@ -1044,7 +1061,7 @@
       "path": "reports/requirement_coverage.md",
       "exists": true,
       "bytes": 24930,
-      "sha256": "b15c504e65920a9eac8d8e04c1301b0167148d857a98099360df5484853dbb0e",
+      "sha256": "78f005bf27300adf8c9f0987856c946a8859941c16299a1ca0f4ee335a886474",
       "line_count": 93
     },
     {
@@ -1316,9 +1333,9 @@
     {
       "path": "scripts/audit_requirement_coverage.py",
       "exists": true,
-      "bytes": 131994,
-      "sha256": "7813896c34515470e68b4315b4457fbe0c11db21b67768d8bd67ab753b12086c",
-      "line_count": 2578
+      "bytes": 132035,
+      "sha256": "123cbe0a0d8d80c64389216a338449a9a40125715d5b40a697a6b7427cecc51e",
+      "line_count": 2579
     },
     {
       "path": "scripts/generate_evaluation_protocol.py",
@@ -1365,9 +1382,9 @@
     {
       "path": "scripts/audit_provider_readiness.py",
       "exists": true,
-      "bytes": 18802,
-      "sha256": "ad8b36f25ea7536dcf819dc88a860e8b0d08f533f02ab29f673f3c90858dc983",
-      "line_count": 433
+      "bytes": 19841,
+      "sha256": "721efbd15df9e30f1d794bbf4445028c429a034b55f16d97f617c943052e8ee4",
+      "line_count": 450
     },
     {
       "path": "scripts/audit_hosted_qa_readiness.py",
