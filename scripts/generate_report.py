@@ -466,6 +466,55 @@ Accepted-core quality rows:
 """
 
 
+def task_asset_manifest_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/task_asset_manifest.md` has not been generated yet. Run "
+            "`python scripts/generate_task_asset_manifest.py --public-export public_tasks`, then regenerate this report."
+        )
+    role_counts = Counter(row.get("asset_role", "unknown") for row in rows)
+    status_counts = Counter(row.get("acceptance_status", "unknown") for row in rows if row.get("asset_role") == "metadata")
+    missing = [row for row in rows if row.get("exists") != "true"]
+    missing_export = [
+        row for row in rows
+        if row.get("public_export_expected") == "true" and row.get("public_export_exists") != "true"
+    ]
+    hidden_exported = [
+        row for row in rows
+        if (row.get("asset_role", "").startswith("hidden") or row.get("asset_role") == "wrong_submission")
+        and row.get("public_export_exists") == "true"
+    ]
+    accepted = sorted({row.get("task_id", "") for row in rows if row.get("acceptance_status") == "accepted_v0"})
+    wrong_counts = Counter(row.get("task_id", "") for row in rows if row.get("asset_role") == "wrong_submission")
+    accepted_lines = [
+        "| task | public assets | wrong submissions | hidden ref | pincheck |",
+        "| --- | ---: | ---: | --- | --- |",
+    ]
+    for task_id in accepted:
+        task_rows = [row for row in rows if row.get("task_id") == task_id]
+        public_count = sum(1 for row in task_rows if row.get("asset_role") in {"metadata", "prompt", "public"})
+        hidden_ref = next((row for row in task_rows if row.get("asset_role") == "hidden_reference"), {})
+        pincheck = next((row for row in task_rows if row.get("asset_role") == "hidden_pincheck"), {})
+        accepted_lines.append(
+            f"| `{task_id}` | {public_count} | {wrong_counts.get(task_id, 0)} | "
+            f"{hidden_ref.get('exists', 'missing')} | {pincheck.get('exists', 'missing')} |"
+        )
+    return f"""`reports/task_asset_manifest.md` and `data/task_asset_manifest.csv` provide a task-file-level hash ledger for prompts, metadata, public Lean files, hidden references, hidden pins, and wrong submissions. The report summarizes coverage without copying hidden proof contents.
+
+- task count: `{len({row.get('task_id', '') for row in rows})}`
+- asset rows: `{len(rows)}`
+- task statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- asset roles: `{compact_json(dict(sorted(role_counts.items())))}`
+- missing task assets: `{len(missing)}`
+- release public assets missing from public export: `{len(missing_export)}`
+- hidden/wrong assets present in public export: `{len(hidden_exported)}`
+
+Accepted task asset coverage:
+
+{chr(10).join(accepted_lines)}
+"""
+
+
 def pin_coverage_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -587,6 +636,7 @@ def main() -> int:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
@@ -796,6 +846,10 @@ The regenerated difficulty audit separates mechanical signals from manual judgme
 
 {task_quality_section(task_quality_rows)}
 
+## Task Asset Manifest
+
+{task_asset_manifest_section(task_asset_rows)}
+
 ## Hidden Pin Coverage Audit
 
 {pin_coverage_section(pin_coverage_rows)}
@@ -821,6 +875,7 @@ python scripts/analyze_model_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/generate_task_asset_manifest.py --public-export public_tasks
 python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py

@@ -213,6 +213,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
+    task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -464,6 +465,60 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(public_export_ok),
         f"Public export exists: {public_counts.get('exists')}; exported tasks: {public_counts.get('task_count')}; hidden/wrong paths: {public_counts.get('hidden_or_wrong_paths')}.",
         "No gap." if public_export_ok else "Run export_public_tasks.py and validate_public_export.py, then inspect leaks.",
+    ))
+
+    task_asset_fields = set(task_assets[0].keys()) if task_assets else set()
+    required_task_asset_fields = {
+        "task_id",
+        "split",
+        "acceptance_status",
+        "asset_role",
+        "relative_path",
+        "public_export_expected",
+        "public_export_exists",
+        "exists",
+        "sha256",
+    }
+    task_asset_missing = [row_data for row_data in task_assets if row_data.get("exists") != "true"]
+    release_public_missing = [
+        row_data for row_data in task_assets
+        if row_data.get("public_export_expected") == "true" and row_data.get("public_export_exists") != "true"
+    ]
+    hidden_exported = [
+        row_data for row_data in task_assets
+        if row_data.get("asset_role", "").startswith("hidden") or row_data.get("asset_role") == "wrong_submission"
+        if row_data.get("public_export_exists") == "true"
+    ]
+    accepted_ids = {task.get("task_id") for task in accepted}
+    accepted_wrong_counts = Counter(
+        row_data.get("task_id")
+        for row_data in task_assets
+        if row_data.get("asset_role") == "wrong_submission" and row_data.get("task_id") in accepted_ids
+    )
+    accepted_wrong_gaps = [task_id for task_id in accepted_ids if accepted_wrong_counts.get(task_id, 0) < 2]
+    accepted_hidden_gaps = [
+        row_data for row_data in task_assets
+        if row_data.get("task_id") in accepted_ids
+        and row_data.get("asset_role") in {"hidden_reference", "hidden_pincheck"}
+        and row_data.get("exists") != "true"
+    ]
+    task_asset_ok = (
+        bool(task_assets)
+        and required_task_asset_fields.issubset(task_asset_fields)
+        and not task_asset_missing
+        and not release_public_missing
+        and not hidden_exported
+        and not accepted_wrong_gaps
+        and not accepted_hidden_gaps
+        and (ROOT / "reports" / "task_asset_manifest.md").exists()
+    )
+    requirement_rows.append(row(
+        "task_asset_manifest",
+        "reproducibility",
+        "Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping.",
+        status_from_bool(task_asset_ok, partial=bool(task_assets)),
+        f"task asset rows: {len(task_assets)}; missing assets: {len(task_asset_missing)}; release public export misses: {len(release_public_missing)}; hidden/wrong exported: {len(hidden_exported)}; accepted wrong gaps: {len(accepted_wrong_gaps)}; accepted hidden gaps: {len(accepted_hidden_gaps)}; report exists: {(ROOT / 'reports' / 'task_asset_manifest.md').exists()}.",
+        "No gap." if task_asset_ok else "Regenerate scripts/generate_task_asset_manifest.py after public export and fix missing/hash/export mismatches.",
     ))
 
     report_ok = (ROOT / "reports" / "metr_style_report.md").exists() and "read_csv" in generate_report

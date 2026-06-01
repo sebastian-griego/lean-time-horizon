@@ -20,6 +20,7 @@ scaffold_result_comparison,scaffolds,"The report should compare real model perfo
 transcript_failure_workflow,runs,Run rows should link transcripts and carry failure labels for review.,required_for_release_artifact,Playbook failure taxonomy.
 frontier_model_evidence,runs,Frontier/open-model runs should provide evidence beyond local QA.,required_for_locked_benchmark,Playbook project target.
 public_export_no_hidden_leak,integrity,Public export should include public assets and exclude hidden references and wrong submissions.,required_for_release_artifact,User hidden-material non-leak requirement.
+task_asset_manifest,reproducibility,Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping.,required_for_research_report,Research-report reproducibility requirement for exact task assets.
 report_from_committed_data,reporting,The METR-style report and plots should regenerate from committed CSVs.,required_for_research_report,Playbook report shape and user reporting requirement.
 difficulty_audit_report,reporting,"Difficulty audit should include proof length, tactic profile, automation dominance, hidden-pin strength, and model-solvability estimates.",required_for_research_report,User hard-review requirement.
 manual_accepted_task_review,reporting,Accepted tasks should have hard reviewer-style notes and benchmark-grade caveats.,required_for_research_report,User accepted-task review requirement.
