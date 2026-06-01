@@ -28,8 +28,8 @@ The unit of analysis is a `(task, model, scaffold, k)` row. A task attempt is sc
 
 `reports/data_schema_manifest.md` and `data/data_schema_manifest.csv` validate schema-backed datasets and document where generated CSVs are governed by producer scripts rather than standalone JSON schemas.
 
-- dataset rows: `8`
-- validation statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 2, "inventory_documented": 1, "schema_valid": 3}`
+- dataset rows: `9`
+- validation statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 3, "inventory_documented": 1, "schema_valid": 3}`
 - problem rows: `0`
 
 Data schema ledger:
@@ -42,8 +42,9 @@ Data schema ledger:
 | `failure_annotations` | empty_ready | 0 | `data/failure_label_schema.json` | Empty adjudication data cannot support failure-distribution claims. | Populate after broad provider sweeps and independent transcript review. |
 | `failure_label_reviews` | schema_valid | 3 | `data/failure_label_review_schema.json` | These are single-review smoke rows, not independent distributional adjudication. | Use the transcript review packet and adjudication fields for future broad sweeps. |
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
+| `independent_task_reviews` | empty_ready | 0 | `data/independent_task_review_schema.json` | Empty review data cannot support independent acceptance, time-bucket, hidden-pin, or wrong-submission adequacy claims. | Collect non-author review rows for every accepted_v0 task before strengthening benchmark-grade task-quality claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 54 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 58 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -122,7 +123,30 @@ Accepted-task card summary:
 | `lt-202` | keep_with_caveat | 46 lines; automation=false; one-shot=maybe | pins_not_exercised_by_wrongs; stages `{"public_stage": 2}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence;... |
 | `lt-204` | keep | 36 lines; automation=false; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 1, "public_stage": 1}` | `{"expected_failure": 2, "passed": 1}` | Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence Mutable definitions have public-comp... |
 | `lt-205` | keep | 42 lines; automation=false; one-shot=unlikely | semantic_pins_exercised; stages `{"hidden_pin": 1, "public_stage": 1}` | `{"expected_failure": 2, "passed": 1}` | Independently time at least one human solve and run the planned scaffold sweep before using this as long-horizon evidence. independent human timing; accepted-core scaffold sweep; hosted QA evidence; extra timing revie... |
-| `lt-206` | keep_with_caveat | 60 lines; automation=true; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 1, "unknown": 1}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence M... |
+| `lt-206` | keep_with_caveat | 60 lines; automation=true; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 2, "unknown": 2}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence M... |
+
+
+## Independent Task Review Packet
+
+`reports/independent_task_review_packet.md` and `data/independent_task_review_plan.csv` define a non-author task-quality review workflow for accepted_v0 tasks. `data/independent_task_reviews.csv` is intentionally empty until real reviewers add rows; the status audit records that packet readiness is not independent validation evidence.
+
+- review-plan rows: `6`
+- review-observation rows: `0`
+- plan family counts: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
+- plan bucket counts: `{"T2": 5, "T3": 1}`
+- status-audit counts: `{"block": 1, "empty_ready": 1, "pass": 3}`
+- accepted-review coverage: `accepted reviewed=0/6; missing=["lt-201", "lt-202", "lt-203", "lt-204", "lt-205", "lt-206"]; review_rows=0`
+- observed recommendations: `{}`
+
+Independent review status:
+
+| check | status | evidence | next action |
+| --- | --- | --- | --- |
+| `review_plan_coverage` | pass | accepted=6; plan_rows=6; template_rows=6; missing_plan=[]; missing_template=[] | Regenerate scripts/generate_independent_review_packet.py after accepted task metadata changes. |
+| `review_schema_and_template` | pass | schema_required_fields=15; template_fields_ok=True; review_fields_ok=True; plan_fields=18 | Keep schema, template, and audit in sync if review categories change. |
+| `review_row_validity` | pass | review_rows=0; validation_errors=0; examples=[] | Append real non-author review rows, then rerun this audit. |
+| `accepted_review_coverage` | block | accepted reviewed=0/6; missing=["lt-201", "lt-202", "lt-203", "lt-204", "lt-205", "lt-206"]; review_rows=0 | Collect at least one non-author review row for every accepted_v0 task before freeze. |
+| `review_recommendation_distribution` | empty_ready | recommendations={}; review_rows=0 | Use recommendations only after rows are collected and checked against task evidence. |
 
 
 ## Calibration-Only Release Tasks
@@ -143,7 +167,7 @@ Accepted-task card summary:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 59}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 61}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -225,7 +249,7 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 - tier statuses: `{"blocked": 6, "supported": 1}`
 - claim types: `{"benchmark_status": 1, "descriptive_performance": 1, "failure_analysis": 1, "performance_comparison": 1, "run_provenance": 1, "subgroup_performance": 1, "time_horizon_performance": 1}`
 - blocked tiers: `6`
-- Wilson precision rows: `18`
+- Wilson precision rows: `15`
 
 Claim-tier thresholds:
 
@@ -245,7 +269,6 @@ Wilson precision ledger for assumed `p=0.5`:
 | ---: | ---: | ---: | ---: | --- |
 | 1 | 0.0000 | 0.7935 | 0.7935 | very_wide |
 | 6 | 0.1876 | 0.8124 | 0.6248 | very_wide |
-| 18 | 0.2903 | 0.7097 | 0.4194 | wide |
 | 20 | 0.2993 | 0.7007 | 0.4014 | wide |
 | 30 | 0.3315 | 0.6685 | 0.3369 | moderate |
 | 50 | 0.3664 | 0.6336 | 0.2671 | moderate |
@@ -314,7 +337,7 @@ Claim authorization table:
 | claim | area | status | allowed wording | required caveat | forbidden wording |
 | --- | --- | --- | --- | --- | --- |
 | `local_artifact_validity` | artifact_validity | allowed_with_caveat | The repo is a locally validated v0.1 research artifact with public tasks, hidden checks, Lean scoring, integrity scans, and metadata. | Say this is local validation only; hosted QA, independent timing, and full model sweeps are outside the current evidence. | Do not call the artifact a locked benchmark, final benchmark, or hosted-QA-cleared benchmark. |
-| `research_report_scope` | report_validity | allowed_with_caveat | The report is a generated research review memo that makes task-quality, grading, reproducibility, and evidence-limit claims from committed artifacts. | Pair this with the limitations that broad provider sweeps, independent human timing, and hosted QA are missing. | Do not describe the report as proving frontier capability trends or benchmark-valid pass-rate effects. |
+| `research_report_scope` | report_validity | allowed_with_caveat | The report is a generated research review memo that makes task-quality, grading, reproducibility, and evidence-limit claims from committed artifacts. | Pair this with the limitations that broad provider sweeps, independent human timing, completed independent task reviews, and hosted QA are missing. | Do not describe the report as proving frontier capability trends or benchmark-valid pass-rate effects. |
 | `accepted_core_quality` | task_validity | allowed_with_caveat | The six accepted-core tasks are internally reviewed and stronger than the original candidate pool. | Say the core is small, internally reviewed, and still has caveat rows; do not generalize from family-level singletons. | Do not say the accepted set is benchmark-grade, representative, or sufficient for population-level model claims. |
 | `hidden_pin_and_grader_strength` | grading_validity | allowed_with_caveat | Hidden checks provide meaningful anti-gaming probes for accepted tasks, especially mutable-definition semantic-pin tasks. | Note that proof-only fixed-statement rows mostly rely on Lean typechecking plus downstream signature guards, and all pins are finite probes. | Do not claim hidden pins prove full semantic equivalence or catch every weakened formalization. |
 | `run_data_integrity` | data_validity | allowed | Committed run-result rows are internally consistent with transcripts, score vectors, failure labels, and pass@k arithmetic. | No extra caveat is needed for this narrow data-integrity wording; add the limitation before discussing model performance. | Do not infer model pass rates, scaffold effects, or failure distributions from local QA rows. |
@@ -336,6 +359,7 @@ Claim authorization table:
 | `scaffold_result_comparison` | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `frontier_model_evidence` | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
+| `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
 | `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 9. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 
 ## Report And Evidence Files
@@ -351,6 +375,8 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
 - `reports/candidate_pruning_audit.md`: per-task pruning ledger explaining accepted, calibration-only, and rejected decisions from metadata and difficulty signals.
 - `reports/accepted_task_cards.md`: per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers.
+- `reports/independent_task_review_packet.md`: non-author accepted-task review plan, blank template, and schema for future independent review collection.
+- `reports/independent_review_status_audit.md`: packet-readiness and missing completed-review status audit.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
@@ -419,14 +445,14 @@ The local regeneration gate is recorded in `README.md`, `reports/validation_mani
 | Local references and wrong submissions validate as expected | `python scripts/validate_all.py`; `data/run_results.csv`; local QA transcripts | supported locally |
 | Public task export excludes hidden material | `python scripts/export_public_tasks.py --out public_tasks`; `python scripts/validate_public_export.py --out public_tasks` | supported locally |
 | Accepted core tasks are higher quality than the original pool | `reports/accepted_task_review.md`; `reports/difficulty_audit.md`; downgraded metadata statuses | supported by internal review |
-| v0.1 is a locked benchmark | independent timing, hosted QA, broader model sweeps, and freeze review are missing | not supported |
+| v0.1 is a locked benchmark | independent timing, completed independent task reviews, hosted QA, broader model sweeps, and freeze review are missing | not supported |
 | Reported model pass rates characterize frontier performance | only tiny smoke-sweep rows are committed | not supported |
 
 ## Limitations
 
 - The v0.1 accepted core is below the 20-task target because the original pool did not meet the diagnostic-quality bar.
 - The release has limited T3 coverage and no accepted T4 stretch task yet.
-- Human-time estimates are author/reviewer estimates, not measured independent solves.
+- Human-time estimates are author/reviewer estimates, not measured independent solves, and no completed non-author task-quality reviews are committed yet.
 - Hidden pins are stronger than type checks, but they remain finite semantic probes.
 - Only a tiny real provider smoke sweep is committed; it is adapter/proof-debugging evidence, not a benchmark performance claim.
 - Hosted Taiga/Env Linter QA is not represented in this local artifact.
@@ -434,4 +460,4 @@ The local regeneration gate is recorded in `README.md`, `reports/validation_mani
 
 ## Before Claiming A Locked Benchmark
 
-The next step is to add more high-quality T2/T3/T4 tasks, run independent human review, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.
+The next step is to add more high-quality T2/T3/T4 tasks, collect independent human timing and task-quality reviews, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.

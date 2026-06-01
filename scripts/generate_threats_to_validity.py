@@ -89,6 +89,8 @@ def build_rows() -> list[dict[str, str]]:
     diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
+    independent_task_reviews = read_csv(ROOT / "data" / "independent_task_reviews.csv")
+    independent_review_status = read_csv(ROOT / "data" / "independent_review_status_audit.csv")
     transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
@@ -205,6 +207,20 @@ def build_rows() -> list[dict[str, str]]:
             "Collect independent Lean-human timed solves or second-review timing notes for every accepted task.",
             ["time_horizon_measurement", "locked_benchmark"],
             ["data/human_time_calibration_audit.csv", "data/human_timing_collection_plan.csv"],
+        ),
+        row(
+            "missing_independent_task_quality_review",
+            "internal_validity",
+            "high",
+            "block" if len(independent_task_reviews) < len(accepted_ids) else "controlled",
+            (
+                f"independent task-review rows={len(independent_task_reviews)}/{len(accepted_ids)}; "
+                f"review-status checks={len(independent_review_status)}"
+            ),
+            "Independent task-review packet and status audit make missing non-author review coverage explicit without fabricating observations.",
+            "Collect non-author task-quality reviews covering prompt clarity, time bucket, diagnostic value, hidden pins, wrong submissions, and benchmark-grade recommendation for every accepted task.",
+            ["accepted_core_reviewed", "locked_benchmark"],
+            ["data/independent_task_reviews.csv", "reports/independent_task_review_packet.md", "reports/independent_review_status_audit.md"],
         ),
         row(
             "automation_dominated_retained_tasks",

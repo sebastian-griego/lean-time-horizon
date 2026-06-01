@@ -95,6 +95,8 @@ def build_rows() -> list[dict[str, str]]:
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     human_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
+    independent_task_reviews = read_csv(ROOT / "data" / "independent_task_reviews.csv")
+    independent_review_status = read_csv(ROOT / "data" / "independent_review_status_audit.csv")
     hosted = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     statistical_design = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
@@ -229,16 +231,20 @@ def build_rows() -> list[dict[str, str]]:
         "independent_human_timing",
         "calibration",
         "block",
-        f"human observation rows={len(human_observations)}; accepted tasks={len(accepted)}.",
-        f"{requirement(requirements, 'independent_human_time_review')}; {requirement(requirements, 'human_timing_collection_packet')}",
-        "Every accepted task should have at least one independent Lean-human solve or second-review timing note; T3/T4 rows should get extra scrutiny.",
-        "Run timed solves with non-authors and append rows to data/human_time_observations.csv before freeze.",
+        f"human observation rows={len(human_observations)}; independent task-review rows={len(independent_task_reviews)}; review-status checks={len(independent_review_status)}; accepted tasks={len(accepted)}.",
+        f"{requirement(requirements, 'independent_human_time_review')}; {requirement(requirements, 'independent_task_quality_review')}; {requirement(requirements, 'human_timing_collection_packet')}; {requirement(requirements, 'independent_task_review_packet')}; {requirement(requirements, 'independent_task_review_status_audit')}",
+        "Every accepted task should have at least one independent Lean-human solve or second-review timing note and one non-author task-quality review; T3/T4 rows should get extra scrutiny.",
+        "Run timed solves and task-quality reviews with non-authors, then append rows to data/human_time_observations.csv and data/independent_task_reviews.csv before freeze.",
         ["time_horizon_measurement", "locked_benchmark"],
         [
             "data/human_time_observations.csv",
             "data/human_timing_collection_plan.csv",
+            "data/independent_task_reviews.csv",
+            "data/independent_task_review_plan.csv",
             "reports/human_time_calibration_audit.md",
             "reports/human_timing_collection_packet.md",
+            "reports/independent_task_review_packet.md",
+            "reports/independent_review_status_audit.md",
         ],
     ))
     rows.append(row(

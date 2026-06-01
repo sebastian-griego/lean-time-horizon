@@ -145,6 +145,7 @@ def main() -> int:
     clean_workspace = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
     grader = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
+    independent_review_status = read_csv(ROOT / "data" / "independent_review_status_audit.csv")
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     statistical_design = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
@@ -181,6 +182,7 @@ def main() -> int:
         if row.get("acceptance_status") == "accepted_v0"
         and "accepted_without_independent_timing" in row.get("issues", "")
     )
+    independent_review_status_counts = Counter(row.get("status", "unknown") for row in independent_review_status)
     primary_coverage = row_by_id(run_summary, "analysis_set", "primary_plan_coverage")
     accepted_provider = row_by_id(run_summary, "analysis_set", "accepted_core_results")
     provider_versions = sorted({
@@ -218,7 +220,7 @@ def main() -> int:
             "This repository is a locally validated v0.1 Lean time-horizon evaluation artifact, "
             "not a locked benchmark. It has enough local task, grading, reporting, and "
             "anti-overclaim evidence to support review, but not enough accepted-task scale, "
-            "independent human timing, provider/scaffold coverage, or hosted QA to support "
+            "independent human timing or task review, provider/scaffold coverage, or hosted QA to support "
             "population-level frontier-model claims."
         ),
         "",
@@ -329,6 +331,7 @@ def main() -> int:
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
         "- `reports/candidate_pruning_audit.md` makes the aggressive pruning decision reviewable for every tracked task.",
         "- `reports/accepted_task_cards.md` makes per-task caveats and benchmark-grade blockers easy to inspect without turning them into stronger claims.",
+        "- `reports/independent_task_review_packet.md` and `reports/independent_review_status_audit.md` make missing non-author task reviews explicit.",
         "- `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.",
         "- `reports/reviewer_reproduction_packet.md` gives an ordered local replay workflow and separates external-evidence blockers.",
         "- `reports/clean_workspace_replay.md` records a bounded temporary-workspace replay outside the dirty working directory.",
@@ -351,6 +354,7 @@ def main() -> int:
         "## Validity Notes",
         "",
         f"- accepted tasks without independent timing observations: `{accepted_without_timing}/{len(accepted)}`",
+        f"- independent task-review status counts: `{compact_json(dict(sorted(independent_review_status_counts.items())))}`",
         "- task-count target remains 20-50 accepted tasks; v0.1 has 6 accepted core tasks.",
         "- accepted human-time coverage is T2/T3 only; there is no T4 accepted stretch task.",
         "- capability-level claims remain weak where a capability is represented by a singleton accepted task.",
@@ -359,7 +363,7 @@ def main() -> int:
         "",
         "## Next Work",
         "",
-        "1. Collect independent Lean-human timing observations for every accepted task.",
+        "1. Collect independent Lean-human timing and task-quality review observations for every accepted task.",
         "2. Add a small number of hard-reviewed T3/T4 tasks only if they meet the existing diagnostic bar.",
         "3. Run the accepted-core scaffold sweep across one-shot, lookup, and lookup_unlimited with documented provider versions.",
         "4. Run hosted QA and commit Env Linter findings or rebuttals for exact public task versions.",
@@ -367,7 +371,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

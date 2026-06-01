@@ -2,12 +2,12 @@
 
 ## Bottom Line
 
-This repository is a locally validated v0.1 Lean time-horizon evaluation artifact, not a locked benchmark. It has enough local task, grading, reporting, and anti-overclaim evidence to support review, but not enough accepted-task scale, independent human timing, provider/scaffold coverage, or hosted QA to support population-level frontier-model claims.
+This repository is a locally validated v0.1 Lean time-horizon evaluation artifact, not a locked benchmark. It has enough local task, grading, reporting, and anti-overclaim evidence to support review, but not enough accepted-task scale, independent human timing or task review, provider/scaffold coverage, or hosted QA to support population-level frontier-model claims.
 
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 59}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 61}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -110,7 +110,7 @@ Committed single-review smoke adjudications: `3` rows; failure-label review-audi
 The grader is Lean-first: submissions must pass forbidden-construct scanning, public compilation, hidden `PinCheck.lean`, and axiom auditing. Local QA rows validate reference solutions and wrong submissions; they are not model performance.
 
 - run-integrity failures: `0`
-- data-schema manifest statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 2, "inventory_documented": 1, "schema_valid": 3}`
+- data-schema manifest statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 3, "inventory_documented": 1, "schema_valid": 3}`
 - data-schema problem rows: `0`
 - reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 12}`
 - reviewer reproduction local problem rows: `0`; external-evidence rows blocked: `3`
@@ -129,7 +129,7 @@ Committed provider rows are smoke evidence only. They show the runner and transc
 - accepted-core provider rows: `2` total, `1` non-infra
 - provider/model versions in committed smoke rows: `["anthropic:claude-sonnet-4-6"]`
 - statistical claim-tier statuses: `{"blocked": 6, "supported": 1}`
-- Wilson precision ledger rows for assumed p=0.5: `6`
+- Wilson precision ledger rows for assumed p=0.5: `5`
 - figure-manifest statuses: `{"blocked_by_evidence": 5, "generated_descriptive": 4, "generated_provenance": 1}`
 - blocked performance-plot rows in figure manifest: `5`
 - the statistical analysis plan treats current provider rows as smoke provenance only; performance estimates and scaffold effects stay blocked by threshold rows.
@@ -143,6 +143,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 - `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.
 - `reports/candidate_pruning_audit.md` makes the aggressive pruning decision reviewable for every tracked task.
 - `reports/accepted_task_cards.md` makes per-task caveats and benchmark-grade blockers easy to inspect without turning them into stronger claims.
+- `reports/independent_task_review_packet.md` and `reports/independent_review_status_audit.md` make missing non-author task reviews explicit.
 - `reports/data_schema_manifest.md` records schema-backed data contracts and generated CSV boundaries.
 - `reports/reviewer_reproduction_packet.md` gives an ordered local replay workflow and separates external-evidence blockers.
 - `reports/clean_workspace_replay.md` records a bounded temporary-workspace replay outside the dirty working directory.
@@ -153,7 +154,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 | claim | authorization | allowed wording | required caveat |
 | --- | --- | --- | --- |
 | `local_artifact_validity` | allowed_with_caveat | The repo is a locally validated v0.1 research artifact with public tasks, hidden checks, Lean scoring, integrity scans, and metadata. | Say this is local validation only; hosted QA, independent timing, and full model sweeps are outside the current evidence. |
-| `research_report_scope` | allowed_with_caveat | The report is a generated research review memo that makes task-quality, grading, reproducibility, and evidence-limit claims from committed artifacts. | Pair this with the limitations that broad provider sweeps, independent human timing, and hosted QA are missing. |
+| `research_report_scope` | allowed_with_caveat | The report is a generated research review memo that makes task-quality, grading, reproducibility, and evidence-limit claims from committed artifacts. | Pair this with the limitations that broad provider sweeps, independent human timing, completed independent task reviews, and hosted QA are missing. |
 | `accepted_core_quality` | allowed_with_caveat | The six accepted-core tasks are internally reviewed and stronger than the original candidate pool. | Say the core is small, internally reviewed, and still has caveat rows; do not generalize from family-level singletons. |
 | `hidden_pin_and_grader_strength` | allowed_with_caveat | Hidden checks provide meaningful anti-gaming probes for accepted tasks, especially mutable-definition semantic-pin tasks. | Note that proof-only fixed-statement rows mostly rely on Lean typechecking plus downstream signature guards, and all pins are finite probes. |
 | `time_horizon_scope` | allowed_with_caveat | The artifact explores a limited T2/T3-only slice of time-horizon evaluation design. | State that accepted human times are author/reviewer estimates, there is no T4 row, and no independent timing observations are committed. |
@@ -170,7 +171,7 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 
 | claim | priority | current status | blocking requirements |
 | --- | --- | --- | --- |
-| `accepted_core_quality` | high | allowed_with_caveat | portfolio_accepted_count;time_horizon_spread;independent_human_time_review |
+| `accepted_core_quality` | high | allowed_with_caveat | portfolio_accepted_count;time_horizon_spread;independent_human_time_review;independent_task_quality_review |
 | `time_horizon_scope` | high | allowed_with_caveat | time_horizon_spread;independent_human_time_review;portfolio_accepted_count |
 | `scaffold_effects` | high | blocked | scaffold_result_comparison;frontier_model_evidence |
 | `frontier_model_performance` | high | blocked | frontier_model_evidence;scaffold_result_comparison;hosted_qa_env_linter |
@@ -187,11 +188,13 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 | `scaffold_result_comparison` | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `frontier_model_evidence` | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
+| `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
 | `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 9. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 
 ## Validity Notes
 
 - accepted tasks without independent timing observations: `6/6`
+- independent task-review status counts: `{"block": 1, "empty_ready": 1, "pass": 3}`
 - task-count target remains 20-50 accepted tasks; v0.1 has 6 accepted core tasks.
 - accepted human-time coverage is T2/T3 only; there is no T4 accepted stretch task.
 - capability-level claims remain weak where a capability is represented by a singleton accepted task.
@@ -200,7 +203,7 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 
 ## Next Work
 
-1. Collect independent Lean-human timing observations for every accepted task.
+1. Collect independent Lean-human timing and task-quality review observations for every accepted task.
 2. Add a small number of hard-reviewed T3/T4 tasks only if they meet the existing diagnostic bar.
 3. Run the accepted-core scaffold sweep across one-shot, lookup, and lookup_unlimited with documented provider versions.
 4. Run hosted QA and commit Env Linter findings or rebuttals for exact public task versions.
@@ -208,4 +211,4 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 
 ## Evidence Appendix
 
-Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.
+Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.

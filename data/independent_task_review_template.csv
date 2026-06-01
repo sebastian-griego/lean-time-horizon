@@ -1,0 +1,7 @@
+task_id,reviewer_id_hash,reviewer_role,review_date_utc,reviewed_public_assets_only,hidden_grader_files_inspected,validation_command_run,prompt_clarity,time_bucket_assessment,diagnostic_value_assessment,hidden_pin_assessment,wrong_submission_assessment,automation_caveat_acknowledged,benchmark_grade_recommendation,notes
+lt-201,,,,,,,,,,,,,,
+lt-203,,,,,,,,,,,,,,
+lt-202,,,,,,,,,,,,,,
+lt-204,,,,,,,,,,,,,,
+lt-205,,,,,,,,,,,,,,
+lt-206,,,,,,,,,,,,,,

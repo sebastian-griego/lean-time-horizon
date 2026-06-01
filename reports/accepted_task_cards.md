@@ -21,7 +21,7 @@ The cards intentionally describe hidden checks by role, counts, and stage outcom
 | `lt-202` | keep_with_caveat | T2 | false | pins_not_exercised_by_wrongs | `{"public_stage": 2}` | task_level_with_caveat | maybe |
 | `lt-204` | keep | T2 | false | semantic_pins_exercised | `{"hidden_pin": 1, "public_stage": 1}` | task_level_internal_review | maybe |
 | `lt-205` | keep | T3 | false | semantic_pins_exercised | `{"hidden_pin": 1, "public_stage": 1}` | task_level_internal_review | unlikely |
-| `lt-206` | keep_with_caveat | T2 | true | semantic_pins_exercised | `{"hidden_pin": 1, "unknown": 1}` | task_level_with_caveat | maybe |
+| `lt-206` | keep_with_caveat | T2 | true | semantic_pins_exercised | `{"hidden_pin": 2, "unknown": 2}` | task_level_with_caveat | maybe |
 
 ## Cards
 
@@ -109,7 +109,7 @@ The cards intentionally describe hidden checks by role, counts, and stage outcom
 - one-shot likelihood and diagnostic value: `maybe` / `high`
 - claimed capabilities: `theorem_decomposition`, `invariant_design`, `long_horizon_construction`
 - construct support: `task_level_with_caveat`; limit: accepted row carries a task-quality caveat; reference proof is automation-dominated
-- hidden-pin evidence: `semantic` pins; role `semantic_positive_negative_guard`; coverage `semantic_pins_exercised`; wrong stages `{"hidden_pin": 1, "unknown": 1}`
+- hidden-pin evidence: `semantic` pins; role `semantic_positive_negative_guard`; coverage `semantic_pins_exercised`; wrong stages `{"hidden_pin": 2, "unknown": 2}`
 - validation evidence: local QA `{"expected_failure": 2, "passed": 1}`; validation command kinds `reference_pass;wrong_fail:DropRightSide;wrong_fail:WeakAllGt`
 - asset evidence: prompt=1; public=1; metadata=1; hidden_reference=1; hidden_pincheck=1; wrong_submission=2
 - reviewer note: accepted_v0_keep_with_caveat: reference proof uses substantial simp/omega automation, but the task is retained for the multi-lemma partition invariant, side predicates, and duplicate-sensitive count preservation; needs independent review before any locked benchmark claim.

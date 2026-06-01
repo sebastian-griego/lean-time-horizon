@@ -1194,6 +1194,48 @@ Accepted-task card summary:
 """
 
 
+def independent_task_review_section(
+    plan_rows: list[dict[str, str]],
+    review_rows: list[dict[str, str]],
+    status_rows: list[dict[str, str]],
+) -> str:
+    if not plan_rows and not status_rows:
+        return (
+            "`reports/independent_task_review_packet.md` has not been generated yet. Run "
+            "`python scripts/generate_independent_review_packet.py` and "
+            "`python scripts/audit_independent_review_status.py`, then regenerate this report."
+        )
+    family_counts = Counter(row.get("family", "unknown") for row in plan_rows)
+    bucket_counts = Counter(row.get("human_time_bucket", "unknown") for row in plan_rows)
+    status_counts = Counter(row.get("status", "unknown") for row in status_rows)
+    coverage = next((row for row in status_rows if row.get("check_id") == "accepted_review_coverage"), {})
+    recommendation_counts = Counter(row.get("benchmark_grade_recommendation", "unknown") for row in review_rows)
+    lines = [
+        "| check | status | evidence | next action |",
+        "| --- | --- | --- | --- |",
+    ]
+    for row in status_rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        next_action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('status', '')} | {evidence} | {next_action} |"
+        )
+    return f"""`reports/independent_task_review_packet.md` and `data/independent_task_review_plan.csv` define a non-author task-quality review workflow for accepted_v0 tasks. `data/independent_task_reviews.csv` is intentionally empty until real reviewers add rows; the status audit records that packet readiness is not independent validation evidence.
+
+- review-plan rows: `{len(plan_rows)}`
+- review-observation rows: `{len(review_rows)}`
+- plan family counts: `{compact_json(dict(sorted(family_counts.items())))}`
+- plan bucket counts: `{compact_json(dict(sorted(bucket_counts.items())))}`
+- status-audit counts: `{compact_json(dict(sorted(status_counts.items())))}`
+- accepted-review coverage: `{coverage.get('evidence', 'not audited')}`
+- observed recommendations: `{compact_json(dict(sorted(recommendation_counts.items())))}`
+
+Independent review status:
+
+{chr(10).join(lines)}
+"""
+
+
 def diagnostic_coverage_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1676,6 +1718,9 @@ def main() -> int:
     construct_validity_rows = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_timing_plan_rows = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
+    independent_review_plan_rows = read_csv(ROOT / "data" / "independent_task_review_plan.csv")
+    independent_task_review_rows = read_csv(ROOT / "data" / "independent_task_reviews.csv")
+    independent_review_status_rows = read_csv(ROOT / "data" / "independent_review_status_audit.csv")
     transcript_review_queue_rows = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     failure_label_review_audit_rows = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
@@ -1826,6 +1871,10 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 ## Accepted Task Cards
 
 {accepted_task_cards_section(accepted_task_card_rows)}
+
+## Independent Task Review Packet
+
+{independent_task_review_section(independent_review_plan_rows, independent_task_review_rows, independent_review_status_rows)}
 
 ## Calibration-Only Release Tasks
 
@@ -2150,14 +2199,14 @@ The generated register in `reports/threats_to_validity.md` is the authoritative 
 | Local references and wrong submissions validate as expected | `python scripts/validate_all.py`; `data/run_results.csv`; local QA transcripts | supported locally |
 | Public task export excludes hidden material | `python scripts/export_public_tasks.py --out public_tasks`; `python scripts/validate_public_export.py --out public_tasks` | supported locally |
 | Accepted core tasks are higher quality than the original pool | `reports/accepted_task_review.md`; `reports/difficulty_audit.md`; downgraded metadata statuses | supported by internal review |
-| v0.1 is a locked benchmark | independent timing, hosted QA, broader model sweeps, and freeze review are missing | not supported |
+| v0.1 is a locked benchmark | independent timing, completed independent task reviews, hosted QA, broader model sweeps, and freeze review are missing | not supported |
 | Reported model pass rates characterize frontier performance | only tiny smoke-sweep rows are committed | not supported |
 
 ## Limitations
 
 - The v0.1 accepted core is below the 20-task target because the original pool did not meet the diagnostic-quality bar.
 - The release has limited T3 coverage and no accepted T4 stretch task yet.
-- Human-time estimates are author/reviewer estimates, not measured independent solves.
+- Human-time estimates are author/reviewer estimates, not measured independent solves, and no completed non-author task-quality reviews are committed yet.
 - Hidden pins are stronger than type checks, but they remain finite semantic probes.
 - Only a tiny real provider smoke sweep is committed; it is adapter/proof-debugging evidence, not a benchmark performance claim.
 - Hosted Taiga/Env Linter QA is not represented in this local artifact.
@@ -2165,7 +2214,7 @@ The generated register in `reports/threats_to_validity.md` is the authoritative 
 
 ## Before Claiming A Locked Benchmark
 
-The next step is to add more high-quality T2/T3/T4 tasks, run independent human review, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.
+The next step is to add more high-quality T2/T3/T4 tasks, collect independent human timing and task-quality reviews, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.
 """,
         encoding="utf-8",
     )
@@ -2258,6 +2307,10 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 ## Accepted Task Cards
 
 {accepted_task_cards_section(accepted_task_card_rows)}
+
+## Independent Task Review Packet
+
+{independent_task_review_section(independent_review_plan_rows, independent_task_review_rows, independent_review_status_rows)}
 
 ## Calibration-Only Release Tasks
 
@@ -2359,6 +2412,8 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.
 - `reports/candidate_pruning_audit.md`: per-task pruning ledger explaining accepted, calibration-only, and rejected decisions from metadata and difficulty signals.
 - `reports/accepted_task_cards.md`: per-accepted-task synthesis of review status, proof signals, pin-stage evidence, local QA, asset counts, and benchmark-grade blockers.
+- `reports/independent_task_review_packet.md`: non-author accepted-task review plan, blank template, and schema for future independent review collection.
+- `reports/independent_review_status_audit.md`: packet-readiness and missing completed-review status audit.
 - `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
@@ -2382,14 +2437,14 @@ The local regeneration gate is recorded in `README.md`, `reports/validation_mani
 | Local references and wrong submissions validate as expected | `python scripts/validate_all.py`; `data/run_results.csv`; local QA transcripts | supported locally |
 | Public task export excludes hidden material | `python scripts/export_public_tasks.py --out public_tasks`; `python scripts/validate_public_export.py --out public_tasks` | supported locally |
 | Accepted core tasks are higher quality than the original pool | `reports/accepted_task_review.md`; `reports/difficulty_audit.md`; downgraded metadata statuses | supported by internal review |
-| v0.1 is a locked benchmark | independent timing, hosted QA, broader model sweeps, and freeze review are missing | not supported |
+| v0.1 is a locked benchmark | independent timing, completed independent task reviews, hosted QA, broader model sweeps, and freeze review are missing | not supported |
 | Reported model pass rates characterize frontier performance | only tiny smoke-sweep rows are committed | not supported |
 
 ## Limitations
 
 - The v0.1 accepted core is below the 20-task target because the original pool did not meet the diagnostic-quality bar.
 - The release has limited T3 coverage and no accepted T4 stretch task yet.
-- Human-time estimates are author/reviewer estimates, not measured independent solves.
+- Human-time estimates are author/reviewer estimates, not measured independent solves, and no completed non-author task-quality reviews are committed yet.
 - Hidden pins are stronger than type checks, but they remain finite semantic probes.
 - Only a tiny real provider smoke sweep is committed; it is adapter/proof-debugging evidence, not a benchmark performance claim.
 - Hosted Taiga/Env Linter QA is not represented in this local artifact.
@@ -2397,7 +2452,7 @@ The local regeneration gate is recorded in `README.md`, `reports/validation_mani
 
 ## Before Claiming A Locked Benchmark
 
-The next step is to add more high-quality T2/T3/T4 tasks, run independent human review, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.
+The next step is to add more high-quality T2/T3/T4 tasks, collect independent human timing and task-quality reviews, execute real provider smoke sweeps across the scaffold ladder, run hosted QA, settle linter findings, and freeze exact public task versions.
 """,
         encoding="utf-8",
     )

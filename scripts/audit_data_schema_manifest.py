@@ -325,6 +325,24 @@ def build_rows() -> list[dict[str, str]]:
         "Collect non-author timing rows before strengthening time-horizon claims.",
     ))
 
+    task_review_schema = read_json(ROOT / "data" / "independent_task_review_schema.json")
+    task_review_rows, task_review_fields = read_csv(ROOT / "data" / "independent_task_reviews.csv")
+    task_review_errors = validate_csv_rows(task_review_rows, task_review_fields, task_review_schema, "task_id")
+    rows.append(row(
+        "independent_task_reviews",
+        "data/independent_task_reviews.csv",
+        "data/independent_task_review_schema.json",
+        "independent_non_author_task_quality_reviews",
+        len(task_review_rows),
+        len(task_review_fields),
+        all(field in task_review_fields for field in task_review_schema.get("required", [])),
+        "empty_ready" if not task_review_rows and not task_review_errors else ("schema_valid" if not task_review_errors else "schema_error"),
+        task_review_errors,
+        "The independent accepted-task review table has schema-compatible headers but no non-author task-quality reviews yet.",
+        "Empty review data cannot support independent acceptance, time-bucket, hidden-pin, or wrong-submission adequacy claims.",
+        "Collect non-author review rows for every accepted_v0 task before strengthening benchmark-grade task-quality claims.",
+    ))
+
     label_rows, label_fields = read_csv(ROOT / "data" / "failure_labels.csv")
     labels = {item.get("label", "") for item in label_rows}
     missing_labels = sorted(RECOMMENDED_FAILURE_LABELS - labels)
@@ -353,6 +371,7 @@ def build_rows() -> list[dict[str, str]]:
             "failure_annotations.csv",
             "failure_label_reviews.csv",
             "human_time_observations.csv",
+            "independent_task_reviews.csv",
             "failure_labels.csv",
         }
     ])

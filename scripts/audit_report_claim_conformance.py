@@ -180,14 +180,21 @@ def build_rows() -> list[dict[str, str]]:
     }
 
     rows: list[dict[str, str]] = []
-    matrix_ok = bool(authorization) and len(blocked_ids) >= 4 and len(caveated_ids) >= 4
+    non_allowed_ids = blocked_ids | caveated_ids
+    matrix_ok = (
+        bool(authorization)
+        and len(blocked_ids) >= 4
+        and len(non_allowed_ids) >= 8
+        and "locked_benchmark_status" in blocked_ids
+        and "frontier_model_performance" in blocked_ids
+    )
     rows.append(row(
         "authorization_matrix_loaded",
         "claim_authorization",
         "pass" if matrix_ok else "fail",
         (
             f"authorization rows={len(authorization)}; statuses={compact_json(dict(sorted(status_counts.items())))}; "
-            f"blocked={len(blocked_ids)}; caveated={len(caveated_ids)}"
+            f"blocked={len(blocked_ids)}; caveated={len(caveated_ids)}; non_allowed={len(non_allowed_ids)}"
         ),
         [] if matrix_ok else ["claim authorization matrix missing or under-specified"],
         "Regenerate scripts/generate_claim_authorization_matrix.py and inspect blocked/caveated coverage.",

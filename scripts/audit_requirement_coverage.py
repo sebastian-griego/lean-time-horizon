@@ -216,6 +216,10 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     human_timing_plan = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
     human_timing_template = read_csv(ROOT / "data" / "human_time_observations_template.csv")
+    independent_task_reviews = read_csv(ROOT / "data" / "independent_task_reviews.csv")
+    independent_task_review_plan = read_csv(ROOT / "data" / "independent_task_review_plan.csv")
+    independent_task_review_template = read_csv(ROOT / "data" / "independent_task_review_template.csv")
+    independent_review_status = read_csv(ROOT / "data" / "independent_review_status_audit.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     grader_hardening = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
@@ -422,13 +426,14 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "failure_label_schema.json",
         "failure_label_review_schema.json",
         "task_metadata_schema.json",
+        "independent_task_review_schema.json",
     ])
     requirement_rows.append(row(
         "schemas_present",
         "data",
         "Task metadata, run results, and failure labels should have schemas.",
         status_from_bool(schema_ok),
-        f"Schema files present: run={((ROOT / 'data' / 'run_results_schema.json').exists())}, failure={((ROOT / 'data' / 'failure_label_schema.json').exists())}, failure_review={((ROOT / 'data' / 'failure_label_review_schema.json').exists())}, metadata={((ROOT / 'data' / 'task_metadata_schema.json').exists())}.",
+        f"Schema files present: run={((ROOT / 'data' / 'run_results_schema.json').exists())}, failure={((ROOT / 'data' / 'failure_label_schema.json').exists())}, failure_review={((ROOT / 'data' / 'failure_label_review_schema.json').exists())}, metadata={((ROOT / 'data' / 'task_metadata_schema.json').exists())}, independent_task_review={((ROOT / 'data' / 'independent_task_review_schema.json').exists())}.",
         "No gap." if schema_ok else "Add or restore missing JSON schema files.",
     ))
 
@@ -439,6 +444,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "failure_annotations",
         "failure_label_reviews",
         "human_time_observations",
+        "independent_task_reviews",
         "failure_label_codebook",
         "derived_reporting_csv_inventory",
     }
@@ -900,6 +906,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "accepted_core",
         "accepted_evidence_matrix",
         "accepted_task_cards",
+        "independent_task_review_packet",
         "calibration_tasks",
         "portfolio_counts",
         "capabilities",
@@ -1290,6 +1297,105 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(human_timing_packet_ok, partial=bool(human_timing_plan)),
         f"timing plan rows: {len(human_timing_plan)}; accepted tasks covered: {len(accepted_ids & human_plan_ids)}/{len(accepted_ids)}; template rows: {len(human_timing_template)}; hidden-reference command leaks: {human_plan_hidden_leak}; report exists: {(ROOT / 'reports' / 'human_timing_collection_packet.md').exists()}.",
         "No gap." if human_timing_packet_ok else "Regenerate scripts/generate_human_timing_packet.py and inspect timing plan/template coverage.",
+    ))
+
+    independent_review_plan_fields = set(independent_task_review_plan[0].keys()) if independent_task_review_plan else set()
+    independent_review_template_fields = set(independent_task_review_template[0].keys()) if independent_task_review_template else set()
+    independent_review_observation_fields = set(independent_task_reviews[0].keys()) if independent_task_reviews else set()
+    if not independent_review_observation_fields and (ROOT / "data" / "independent_task_reviews.csv").exists():
+        with (ROOT / "data" / "independent_task_reviews.csv").open(newline="", encoding="utf-8") as f:
+            independent_review_observation_fields = set(csv.DictReader(f).fieldnames or [])
+    required_independent_review_plan_fields = {
+        "task_id",
+        "benchmark_grade_status",
+        "automation_dominated",
+        "hidden_pin_strength",
+        "wrong_submission_count",
+        "frontier_one_shot_likelihood",
+        "diagnostic_value",
+        "required_reviewer_profile",
+        "review_scope",
+        "review_questions",
+        "validation_command",
+    }
+    required_independent_review_template_fields = {
+        "task_id",
+        "reviewer_id_hash",
+        "reviewer_role",
+        "review_date_utc",
+        "reviewed_public_assets_only",
+        "hidden_grader_files_inspected",
+        "validation_command_run",
+        "prompt_clarity",
+        "time_bucket_assessment",
+        "diagnostic_value_assessment",
+        "hidden_pin_assessment",
+        "wrong_submission_assessment",
+        "automation_caveat_acknowledged",
+        "benchmark_grade_recommendation",
+        "notes",
+    }
+    independent_review_plan_ids = {row_data.get("task_id", "") for row_data in independent_task_review_plan}
+    independent_review_template_ids = {row_data.get("task_id", "") for row_data in independent_task_review_template}
+    independent_review_command_leak = any(
+        "hidden" in row_data.get("validation_command", "").lower()
+        or "Reference.lean" in row_data.get("validation_command", "")
+        for row_data in independent_task_review_plan
+    )
+    independent_review_packet_ok = (
+        bool(independent_task_review_plan)
+        and accepted_ids == independent_review_plan_ids
+        and accepted_ids == independent_review_template_ids
+        and required_independent_review_plan_fields.issubset(independent_review_plan_fields)
+        and required_independent_review_template_fields.issubset(independent_review_template_fields)
+        and required_independent_review_template_fields.issubset(independent_review_observation_fields)
+        and not independent_review_command_leak
+        and (ROOT / "data" / "independent_task_review_schema.json").exists()
+        and (ROOT / "reports" / "independent_task_review_packet.md").exists()
+    )
+    requirement_rows.append(row(
+        "independent_task_review_packet",
+        "calibration",
+        "Independent accepted-task review packet should provide non-author review instructions per-task plan blank template and schema without fabricating observations.",
+        status_from_bool(independent_review_packet_ok, partial=bool(independent_task_review_plan)),
+        f"review plan rows: {len(independent_task_review_plan)}; accepted tasks covered: {len(accepted_ids & independent_review_plan_ids)}/{len(accepted_ids)}; template rows: {len(independent_task_review_template)}; observation rows: {len(independent_task_reviews)}; hidden-reference command leaks: {independent_review_command_leak}; report exists: {(ROOT / 'reports' / 'independent_task_review_packet.md').exists()}.",
+        "No gap." if independent_review_packet_ok else "Regenerate scripts/generate_independent_review_packet.py and inspect review plan/template/schema coverage.",
+    ))
+
+    required_independent_review_status_ids = {
+        "review_plan_coverage",
+        "review_schema_and_template",
+        "review_row_validity",
+        "accepted_review_coverage",
+        "review_recommendation_distribution",
+    }
+    independent_review_status_ids = {row_data.get("check_id", "") for row_data in independent_review_status}
+    independent_review_status_fields = set(independent_review_status[0].keys()) if independent_review_status else set()
+    required_independent_review_status_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "limitation",
+        "next_action",
+    }
+    independent_review_failures = [row_data for row_data in independent_review_status if row_data.get("status") == "fail"]
+    independent_review_blocks = [row_data for row_data in independent_review_status if row_data.get("status") == "block"]
+    independent_review_status_ok = (
+        bool(independent_review_status)
+        and required_independent_review_status_ids.issubset(independent_review_status_ids)
+        and required_independent_review_status_fields.issubset(independent_review_status_fields)
+        and not independent_review_failures
+        and any(row_data.get("check_id") == "accepted_review_coverage" and row_data.get("status") == "block" for row_data in independent_review_status)
+        and (ROOT / "reports" / "independent_review_status_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "independent_task_review_status_audit",
+        "calibration",
+        "Independent task-review status audit should distinguish packet readiness from missing completed non-author reviews.",
+        status_from_bool(independent_review_status_ok, partial=bool(independent_review_status)),
+        f"review-status rows: {len(independent_review_status)}; required checks covered: {len(required_independent_review_status_ids & independent_review_status_ids)}/{len(required_independent_review_status_ids)}; failures: {len(independent_review_failures)}; blocks: {len(independent_review_blocks)}; report exists: {(ROOT / 'reports' / 'independent_review_status_audit.md').exists()}.",
+        "No gap." if independent_review_status_ok else "Run scripts/audit_independent_review_status.py and inspect missing status checks or fabricated-coverage risk.",
     ))
 
     accepted_pin_rows = [row_data for row_data in pin_coverage if row_data.get("acceptance_status") == "accepted_v0"]
@@ -2062,6 +2168,25 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(human_independent_ok, partial=human_review_partial or bool(human_time_audit)),
         f"Accepted tasks with manual_review_complete: {sum(task.get('difficulty_review_status') == 'manual_review_complete' for task in accepted)}/{len(accepted)}; accepted tasks with successful independent timing observations: {len(accepted_successful_timing)}/{len(accepted)}; observation rows: {len(human_time_observations)}.",
         "Collect independent Lean-human timed solves or second-reviewer timing notes before freeze.",
+    ))
+
+    accepted_task_ids = {task.get("task_id", "") for task in accepted}
+    reviewed_accepted_ids = {
+        row_data.get("task_id", "")
+        for row_data in independent_task_reviews
+        if row_data.get("task_id", "") in accepted_task_ids
+    }
+    task_quality_review_ok = bool(accepted_task_ids) and reviewed_accepted_ids == accepted_task_ids
+    requirement_rows.append(row(
+        "independent_task_quality_review",
+        "calibration",
+        "Accepted task-quality claims should receive completed independent non-author task review before benchmark freeze.",
+        status_from_bool(task_quality_review_ok, partial=bool(reviewed_accepted_ids)),
+        (
+            f"Accepted tasks with completed independent task reviews: {len(reviewed_accepted_ids)}/{len(accepted_task_ids)}; "
+            f"review rows: {len(independent_task_reviews)}; status-audit rows: {len(independent_review_status)}."
+        ),
+        "Collect non-author task-quality reviews for every accepted_v0 task before freeze.",
     ))
 
     hosted_artifacts = [ROOT / "reports" / "hosted_qa.md", ROOT / "data" / "hosted_qa_results.csv"]

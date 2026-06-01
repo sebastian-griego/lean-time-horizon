@@ -160,6 +160,8 @@ def build_rows() -> list[dict[str, str]]:
         "construct_validity_matrix",
         "human_time_calibration_audit",
         "human_timing_collection_packet",
+        "independent_task_review_packet",
+        "independent_task_review_status_audit",
         "transcript_review_packet",
         "failure_label_review_audit",
         "pin_coverage_audit",
@@ -192,6 +194,7 @@ def build_rows() -> list[dict[str, str]]:
         "scaffold_result_comparison",
         "frontier_model_evidence",
         "independent_human_time_review",
+        "independent_task_quality_review",
         "hosted_qa_env_linter",
     ]
 
@@ -208,13 +211,13 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes a concise reviewer-facing METR-style report, a data schema manifest for schema-backed datasets and generated CSV boundaries, a reviewer reproduction packet with local replay steps and external-evidence boundaries, a clean-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation, a figure manifest that ties SVGs to source data and blocked plot claims, a main-report/evidence-appendix boundary, a source-traceability audit mapping report sections to committed artifacts, a report-shape audit that checks the narrative against the playbook questions, research-quality caveats, task quality matrices, accepted-task cards, diagnostic-coverage checks, a construct-validity matrix, human-time calibration checks, a human-timing collection packet, a transcript-review packet, a failure-label review audit for committed smoke transcripts, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, a statistical analysis plan with precision thresholds, statistical reporting checks, model-evidence provenance checks for sample sizes and model versions, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, a claim-authorization matrix with forbidden overclaim wording, a research claim gap matrix that maps stronger claims to missing evidence packages, a report claim-conformance audit that checks prose against those authorizations, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes a concise reviewer-facing METR-style report, a data schema manifest for schema-backed datasets and generated CSV boundaries, a reviewer reproduction packet with local replay steps and external-evidence boundaries, a clean-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation, a figure manifest that ties SVGs to source data and blocked plot claims, a main-report/evidence-appendix boundary, a source-traceability audit mapping report sections to committed artifacts, a report-shape audit that checks the narrative against the playbook questions, research-quality caveats, task quality matrices, accepted-task cards, diagnostic-coverage checks, a construct-validity matrix, human-time calibration checks, a human-timing collection packet, an independent task-review packet plus status audit, a transcript-review packet, a failure-label review audit for committed smoke transcripts, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, a statistical analysis plan with precision thresholds, statistical reporting checks, model-evidence provenance checks for sample sizes and model versions, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, a claim-authorization matrix with forbidden overclaim wording, a research claim gap matrix that maps stronger claims to missing evidence packages, a report claim-conformance audit that checks prose against those authorizations, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
         "; ".join(evidence(reqs, requirement_id) for requirement_id in research_ids),
-        "The report is still limited by missing broad model sweeps and independent human timing.",
-        "Run the planned scaffold sweep, collect independent timing, and add external QA artifacts.",
+        "The report is still limited by missing broad model sweeps, independent human timing, and completed independent task reviews.",
+        "Run the planned scaffold sweep, collect independent timing and task-quality reviews, and add external QA artifacts.",
     ))
     rows.append(row(
         "accepted_core_reviewed",
@@ -222,9 +225,9 @@ def build_rows() -> list[dict[str, str]]:
         "task_validity",
         "supported",
         "medium",
-        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}; {evidence(reqs, 'candidate_pruning_audit')}; {evidence(reqs, 'accepted_task_cards')}; {evidence(reqs, 'diagnostic_coverage_audit')}; {evidence(reqs, 'construct_validity_matrix')}",
-        "This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size.",
-        "Independent Lean-human review and more accepted high-quality T2/T3/T4 rows.",
+        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}; {evidence(reqs, 'candidate_pruning_audit')}; {evidence(reqs, 'accepted_task_cards')}; {evidence(reqs, 'independent_task_review_packet')}; {evidence(reqs, 'independent_task_review_status_audit')}; {evidence(reqs, 'independent_task_quality_review')}; {evidence(reqs, 'diagnostic_coverage_audit')}; {evidence(reqs, 'construct_validity_matrix')}",
+        "This is an internal-review claim. The independent task-review workflow is present, but no completed non-author review rows are committed.",
+        "Collect independent Lean-human task-quality reviews and more accepted high-quality T2/T3/T4 rows.",
     ))
     rows.append(row(
         "hidden_pin_strength",
@@ -295,8 +298,8 @@ def build_rows() -> list[dict[str, str]]:
         "unsupported",
         "none",
         "; ".join(evidence(reqs, requirement_id) for requirement_id in locked_ids + ["hosted_qa_readiness_audit", "freeze_readiness_roadmap"]),
-        "The artifact has 6 accepted tasks, no hosted QA, no independent timing, no T4 accepted task, and limited provider data.",
-        "Reach the 20-50 accepted-task target, run hosted QA, collect independent timing, complete scaffold sweeps, and freeze exact public task versions.",
+        "The artifact has 6 accepted tasks, no hosted QA, no independent timing or completed non-author task reviews, no T4 accepted task, and limited provider data.",
+        "Reach the 20-50 accepted-task target, run hosted QA, collect independent timing and task reviews, complete scaffold sweeps, and freeze exact public task versions.",
     ))
     return rows
 

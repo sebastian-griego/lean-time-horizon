@@ -4,8 +4,8 @@ This generated audit documents the schema status of the benchmark's data inputs.
 
 ## Summary
 
-- dataset rows: `8`
-- validation statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 2, "inventory_documented": 1, "schema_valid": 3}`
+- dataset rows: `9`
+- validation statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 3, "inventory_documented": 1, "schema_valid": 3}`
 
 ## Schema Ledger
 
@@ -17,8 +17,9 @@ This generated audit documents the schema status of the benchmark's data inputs.
 | `failure_annotations` | empty_ready | 0 | 6 | `data/failure_label_schema.json` | true | `[]` | The adjudicated-failure table has schema-compatible headers but no broad-run rows yet. | Empty adjudication data cannot support failure-distribution claims. | Populate after broad provider sweeps and independent transcript review. |
 | `failure_label_reviews` | schema_valid | 3 | 11 | `data/failure_label_review_schema.json` | true | `[]` | Committed smoke transcript reviews satisfy the review-row schema. | These are single-review smoke rows, not independent distributional adjudication. | Use the transcript review packet and adjudication fields for future broad sweeps. |
 | `human_time_observations` | empty_ready | 0 | 7 | `data/human_time_observations_schema.json` | true | `[]` | The timing-observation table has schema-compatible headers but no independent observations yet. | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
+| `independent_task_reviews` | empty_ready | 0 | 15 | `data/independent_task_review_schema.json` | true | `[]` | The independent accepted-task review table has schema-compatible headers but no non-author task-quality reviews yet. | Empty review data cannot support independent acceptance, time-bucket, hidden-pin, or wrong-submission adequacy claims. | Collect non-author review rows for every accepted_v0 task before strengthening benchmark-grade task-quality claims. |
 | `failure_label_codebook` | codebook_valid | 13 | 2 | `data/failure_label_schema.json` | true | `[]` | Failure-label codebook covers the playbook taxonomy used by run and transcript audits. | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 54 | 0 | `` | true | `[]` | CSV files=54; schema JSON files=5; derived/reporting CSV files=48. | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 58 | 0 | `` | true | `[]` | CSV files=58; schema JSON files=6; derived/reporting CSV files=51. | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 ## Interpretation
 

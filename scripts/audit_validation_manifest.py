@@ -26,6 +26,8 @@ REQUIRED_COMMANDS = {
     "python scripts/generate_task_quality_matrix.py",
     "python scripts/generate_candidate_pruning_audit.py",
     "python scripts/generate_accepted_task_cards.py",
+    "python scripts/generate_independent_review_packet.py",
+    "python scripts/audit_independent_review_status.py",
     "python scripts/audit_diagnostic_coverage.py",
     "python scripts/generate_construct_validity_matrix.py",
     "python scripts/record_local_qa_results.py",

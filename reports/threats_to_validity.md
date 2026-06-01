@@ -4,10 +4,10 @@ This generated register turns the report limitations into reviewable evidence ro
 
 ## Summary
 
-- threats: `12`
-- statuses: `{"block": 7, "caution": 3, "controlled": 2}`
-- categories: `{"construct_validity": 2, "external_validity": 2, "internal_validity": 3, "operational_security": 2, "operational_validity": 1, "statistical_validity": 2}`
-- severities: `{"high": 8, "medium": 4}`
+- threats: `13`
+- statuses: `{"block": 8, "caution": 3, "controlled": 2}`
+- categories: `{"construct_validity": 2, "external_validity": 2, "internal_validity": 4, "operational_security": 2, "operational_validity": 1, "statistical_validity": 2}`
+- severities: `{"high": 9, "medium": 4}`
 
 ## Register
 
@@ -16,6 +16,7 @@ This generated register turns the report limitations into reviewable evidence ro
 | `construct_time_horizon_depth` | construct_validity | high | block | accepted=6; accepted buckets={"T2": 5, "T3": 1}; diagnostic blocks=1; diagnostic cautions=3 | The report and freeze roadmap explicitly block strong time-horizon claims. | Add independently reviewed and timed T3/T4 tasks, including at least one T4 stretch row. | time_horizon_measurement;locked_benchmark |
 | `portfolio_scale_and_balance` | external_validity | high | block | accepted=6; calibration_only=8; rejected=12; accepted families={"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1} | Accepted, calibration, and rejected rows are separated so small-core claims are visible. | Reach the 20-50 accepted-task target while preserving family and capability diversity. | frontier_performance;locked_benchmark;family_level_performance |
 | `author_estimated_human_time` | internal_validity | high | block | accepted timed solves=0/6; human_time_observation_rows=0 | Human-time calibration audit and timing collection packet make missing observations explicit. | Collect independent Lean-human timed solves or second-review timing notes for every accepted task. | time_horizon_measurement;locked_benchmark |
+| `missing_independent_task_quality_review` | internal_validity | high | block | independent task-review rows=0/6; review-status checks=5 | Independent task-review packet and status audit make missing non-author review coverage explicit without fabricating observations. | Collect non-author task-quality reviews covering prompt clarity, time bucket, diagnostic value, hidden pins, wrong submissions, and benchmark-grade recommendation for every accepted task. | accepted_core_reviewed;locked_benchmark |
 | `automation_dominated_retained_tasks` | construct_validity | medium | caution | automation-dominated accepted tasks=2: ["lt-201", "lt-206"] | Automation-dominated accepted rows are marked with caveats and excluded from claims of standalone proof-depth difficulty. | Replace or independently validate retained caveat rows before locked benchmark status. | accepted_core_reviewed;time_horizon_measurement |
 | `semantic_pin_finiteness` | internal_validity | medium | caution | accepted tasks with hidden-pin wrong failures=4/6; proof-only fixed-statement rows=2 | Pin coverage audit distinguishes semantic hidden-pin failures from public-stage and fixed-statement proof checks. | Have an independent reviewer inspect hidden pins and add richer same-signature hidden wrongs for future mutable tasks. | hidden_pin_strength;grading_validity |
 | `scaffold_sweep_undercoverage` | statistical_validity | high | block | planned accepted-core cells=18; covered non-infra cells=1 | Evaluation protocol and model-sweep execution packet define the missing sweep before broad model runs. | Run accepted_v0 x one-shot/lookup/lookup_unlimited rows with fixed k and committed transcripts. | scaffold_effects;frontier_performance |

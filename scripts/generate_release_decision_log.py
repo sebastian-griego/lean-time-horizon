@@ -188,6 +188,8 @@ def build_rows() -> list[dict[str, str]]:
             f"{evidence(reqs, 'report_source_traceability')}; "
             f"{evidence(reqs, 'report_shape_audit')}; "
             f"{evidence(reqs, 'model_evidence_provenance_audit')}; "
+            f"{evidence(reqs, 'independent_task_review_packet')}; "
+            f"{evidence(reqs, 'independent_task_review_status_audit')}; "
             f"{evidence(reqs, 'statistical_analysis_plan')}; "
             f"{evidence(reqs, 'figure_manifest_audit')}; "
             f"{evidence(reqs, 'research_claim_gap_matrix')}; "
@@ -198,7 +200,7 @@ def build_rows() -> list[dict[str, str]]:
             f"{evidence(reqs, 'report_claim_conformance_audit')}; "
             f"{evidence(reqs, 'freeze_readiness_roadmap')}"
         ),
-        "The report is evidence-rich but not backed by broad model sweeps or independent timing.",
+        "The report is evidence-rich but not backed by broad model sweeps, independent timing, or completed non-author task reviews.",
         "Update the decision log whenever a requirement, claim audit, or provider sweep changes.",
     ))
     rows.append(row(
@@ -211,10 +213,12 @@ def build_rows() -> list[dict[str, str]]:
             f"{evidence(reqs, 'portfolio_accepted_count')}; {evidence(reqs, 'task_quality_matrix')}; "
             f"{evidence(reqs, 'candidate_pruning_audit')}; "
             f"{evidence(reqs, 'accepted_task_cards')}; "
+            f"{evidence(reqs, 'independent_task_review_status_audit')}; "
+            f"{evidence(reqs, 'independent_task_quality_review')}; "
             f"{evidence(reqs, 'diagnostic_coverage_audit')}"
         ),
         "The core is intentionally small and several rows retain caveats.",
-        "Add independently reviewed T2/T3/T4 rows before treating accepted-core aggregates as benchmark estimates.",
+        "Add completed non-author task reviews and more independently reviewed T2/T3/T4 rows before treating accepted-core aggregates as benchmark estimates.",
     ))
     rows.append(row(
         "hidden_pin_confidence",
@@ -275,8 +279,8 @@ def build_rows() -> list[dict[str, str]]:
             f"{evidence(reqs, 'hosted_qa_readiness_audit')}; {evidence(reqs, 'model_sweep_execution_packet')}; "
             f"{evidence(reqs, 'freeze_readiness_roadmap')}"
         ),
-        "The accepted count, time-horizon spread, scaffold data, frontier data, independent timing, and hosted QA are not complete.",
-        "Reach the 20-50 accepted-task target, complete hosted QA, independent timing, and scaffold sweeps, then freeze exact task versions.",
+        "The accepted count, time-horizon spread, scaffold data, frontier data, independent timing, completed task reviews, and hosted QA are not complete.",
+        "Reach the 20-50 accepted-task target, complete hosted QA, independent timing, task reviews, and scaffold sweeps, then freeze exact task versions.",
     ))
     return rows
 

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lean Time-Horizon independent accepted-task review",
+  "type": "object",
+  "required": [
+    "task_id",
+    "reviewer_id_hash",
+    "reviewer_role",
+    "review_date_utc",
+    "reviewed_public_assets_only",
+    "hidden_grader_files_inspected",
+    "validation_command_run",
+    "prompt_clarity",
+    "time_bucket_assessment",
+    "diagnostic_value_assessment",
+    "hidden_pin_assessment",
+    "wrong_submission_assessment",
+    "automation_caveat_acknowledged",
+    "benchmark_grade_recommendation",
+    "notes"
+  ],
+  "properties": {
+    "task_id": {"type": "string"},
+    "reviewer_id_hash": {"type": "string"},
+    "reviewer_role": {"type": "string"},
+    "review_date_utc": {"type": "string"},
+    "reviewed_public_assets_only": {
+      "type": "string",
+      "enum": ["true", "false"]
+    },
+    "hidden_grader_files_inspected": {
+      "type": "string",
+      "enum": ["true", "false"]
+    },
+    "validation_command_run": {
+      "type": "string",
+      "enum": ["true", "false"]
+    },
+    "prompt_clarity": {
+      "type": "string",
+      "enum": ["clear", "minor_ambiguity", "major_ambiguity", "uncertain"]
+    },
+    "time_bucket_assessment": {
+      "type": "string",
+      "enum": ["too_low", "plausible", "too_high", "uncertain"]
+    },
+    "diagnostic_value_assessment": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "uncertain"]
+    },
+    "hidden_pin_assessment": {
+      "type": "string",
+      "enum": ["adequate", "needs_strengthening", "not_applicable", "uncertain"]
+    },
+    "wrong_submission_assessment": {
+      "type": "string",
+      "enum": ["meaningful", "too_signature_based", "insufficient", "uncertain"]
+    },
+    "automation_caveat_acknowledged": {
+      "type": "string",
+      "enum": ["true", "false"]
+    },
+    "benchmark_grade_recommendation": {
+      "type": "string",
+      "enum": ["keep", "keep_with_caveat", "revise", "downgrade", "reject"]
+    },
+    "notes": {"type": "string"}
+  }
+}
