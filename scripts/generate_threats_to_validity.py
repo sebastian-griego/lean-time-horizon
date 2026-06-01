@@ -89,6 +89,7 @@ def build_rows() -> list[dict[str, str]]:
     diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
+    transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
@@ -139,6 +140,10 @@ def build_rows() -> list[dict[str, str]]:
         {},
     )
     accepted_provider_rows = int_value(accepted_provider, "rows_noninfra")
+    transcript_high_priority = [
+        row_data for row_data in transcript_review_queue
+        if row_data.get("review_priority") in {"critical", "high"}
+    ]
     statistical_blocks = [row_data for row_data in statistical if row_data.get("status") == "block"]
     hosted_blocks = [row_data for row_data in hosted if row_data.get("status") == "block"]
     provider_failures = [row_data for row_data in provider if row_data.get("status") == "fail"]
@@ -258,11 +263,15 @@ def build_rows() -> list[dict[str, str]]:
             "internal_validity",
             "medium",
             "caution" if accepted_provider_rows < len(accepted) else "controlled",
-            f"accepted-core non-infra provider rows={accepted_provider_rows}; expected failure modes are still mostly metadata forecasts",
-            "Failure labels and transcript workflow exist, but distributions are not interpreted until broad provider rows exist.",
-            "Label real model transcripts after the scaffold sweep and compare observed failures to intended diagnostic modes.",
+            (
+                f"accepted-core non-infra provider rows={accepted_provider_rows}; "
+                f"transcript review queue rows={len(transcript_review_queue)}; "
+                f"high/critical review rows={len(transcript_high_priority)}"
+            ),
+            "Failure labels, transcript workflow, and a blank transcript-review packet exist, but distributions are not interpreted until broad provider rows are reviewed.",
+            "Label real model transcripts after the scaffold sweep, adjudicate disagreements, and compare observed failures to intended diagnostic modes.",
             ["diagnostic_failure_distribution", "scaffold_effects"],
-            ["data/failure_labels.csv", "data/run_results.csv", "reports/run_integrity_audit.md"],
+            ["data/failure_labels.csv", "data/run_results.csv", "data/transcript_review_queue.csv", "reports/transcript_review_packet.md"],
         ),
         row(
             "hosted_environment_gap",

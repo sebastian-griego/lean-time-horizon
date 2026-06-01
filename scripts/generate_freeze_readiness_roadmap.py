@@ -218,7 +218,7 @@ def build_rows() -> list[dict[str, str]]:
         "model_sweeps",
         "block",
         f"provider rows={len(provider_rows)}; non-infra provider rows={len(noninfra_provider_rows)}; unsupported claims={compact_json(unsupported_claims)}.",
-        f"{requirement(requirements, 'frontier_model_evidence')}; {requirement(requirements, 'model_sweep_execution_packet')}",
+        f"{requirement(requirements, 'frontier_model_evidence')}; {requirement(requirements, 'model_sweep_execution_packet')}; {requirement(requirements, 'transcript_review_packet')}",
         "Commit documented provider/model-version rows across the accepted scaffold plan before any frontier or open-model capability claim.",
         "After hosted/local QA are stable, run provider adapters for the selected frontier/open models and retain transcripts plus infra notes.",
         ["frontier_performance", "scaffold_effects", "locked_benchmark"],
@@ -228,6 +228,7 @@ def build_rows() -> list[dict[str, str]]:
             "reports/provider_readiness_audit.md",
             "reports/model_run_analysis.md",
             "reports/model_sweep_execution_packet.md",
+            "reports/transcript_review_packet.md",
         ],
     ))
     rows.append(row(
@@ -246,11 +247,11 @@ def build_rows() -> list[dict[str, str]]:
         "analysis",
         "block",
         f"statistical audit blocks={len(statistical_blocks)}.",
-        requirement(requirements, "statistical_reporting_audit"),
+        f"{requirement(requirements, 'statistical_reporting_audit')}; {requirement(requirements, 'transcript_review_packet')}",
         "Recommended performance plots should have adequate task/scaffold coverage and report raw n plus Wilson intervals.",
         "Keep performance plots blocked until the planned accepted-core sweep and larger accepted set exist.",
         ["scaffold_effects", "frontier_performance", "locked_benchmark"],
-        ["reports/statistical_reporting_audit.md", "reports/model_run_analysis.md"],
+        ["reports/statistical_reporting_audit.md", "reports/model_run_analysis.md", "reports/transcript_review_packet.md"],
     ))
     rows.append(row(
         "freeze_versioning",

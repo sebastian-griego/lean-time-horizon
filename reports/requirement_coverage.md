@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 41
+- `supported`: 42
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 24
+- `required_for_research_report` / `supported`: 25
 
 ## Coverage Table
 
@@ -40,6 +40,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `model_result_analysis` | runs | required_for_research_report | supported | Committed provider rows should be analyzed separately from local QA and against the planned primary sweep. | model_run_analysis.md exists: True; model_result_summary rows: 10; primary coverage rows: 1. | No gap. |
 | `scaffold_result_comparison` | scaffolds | required_for_locked_benchmark | partial | The report should compare real model performance across scaffolds, ideally pass@10. | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `transcript_failure_workflow` | runs | required_for_release_artifact | supported | Run rows should link transcripts and carry failure labels for review. | run_results rows: 69; local QA rows: 66; model rows: 3. | No gap for workflow; broader model sweeps are still needed. |
+| `transcript_review_packet` | runs | required_for_research_report | supported | Transcript review packet should provide a non-local run review queue failure-label codebook blank adjudication template and label-claim boundary without fabricating review labels. | queue rows: 3; non-local run ids covered: 3/3; template rows: 3; missing transcripts in queue: 0; prefilled template labels: 0; report exists: True. | No gap. |
 | `frontier_model_evidence` | runs | required_for_locked_benchmark | partial | Frontier/open-model runs should provide evidence beyond local QA. | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `public_export_no_hidden_leak` | integrity | required_for_release_artifact | supported | Public export should include public assets and exclude hidden references and wrong submissions. | Public export exists: True; exported tasks: 14; hidden/wrong paths: 0. | No gap. |
 | `task_asset_manifest` | reproducibility | required_for_research_report | supported | Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping. | task asset rows: 171; missing assets: 0; release public export misses: 0; hidden/wrong exported: 0; accepted wrong gaps: 0; accepted hidden gaps: 0; report exists: True. | No gap. |

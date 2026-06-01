@@ -842,6 +842,45 @@ Accepted-task timing collection plan:
 """
 
 
+def transcript_review_packet_section(queue_rows: list[dict[str, str]]) -> str:
+    if not queue_rows:
+        return (
+            "`reports/transcript_review_packet.md` has not been generated yet. Run "
+            "`python scripts/generate_transcript_review_packet.py`, then regenerate this report."
+        )
+    priority_counts = Counter(row.get("review_priority", "unknown") for row in queue_rows)
+    label_counts = Counter(row.get("failure_label_current", "unknown") for row in queue_rows)
+    status_counts = Counter(row.get("qa_findings_status", "unknown") for row in queue_rows)
+    missing_transcripts = [row for row in queue_rows if row.get("transcript_exists") != "true"]
+    high_priority = [
+        row for row in queue_rows
+        if row.get("review_priority") in {"critical", "high"}
+    ]
+    table_lines = [
+        "| priority | run id | task | scaffold | pass@k | current label | action |",
+        "| --- | --- | --- | --- | ---: | --- | --- |",
+    ]
+    for row in queue_rows:
+        action = row.get("review_action", "").replace("|", "/")
+        table_lines.append(
+            f"| {row.get('review_priority', '')} | `{row.get('run_id', '')}` | `{row.get('task_id', '')}` | "
+            f"{row.get('scaffold', '')} | {row.get('pass_at_k', '')} | `{row.get('failure_label_current', '')}` | {action} |"
+        )
+    return f"""`reports/transcript_review_packet.md`, `data/transcript_review_queue.csv`, and `data/failure_label_review_template.csv` make failure-label review operational without fabricating adjudicated labels.
+
+- queued non-local rows: `{len(queue_rows)}`
+- review priorities: `{compact_json(dict(sorted(priority_counts.items())))}`
+- current failure labels: `{compact_json(dict(sorted(label_counts.items())))}`
+- QA finding statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- missing transcript files in queue: `{len(missing_transcripts)}`
+- high/critical review rows: `{len(high_priority)}`
+
+Transcript review queue:
+
+{chr(10).join(table_lines)}
+"""
+
+
 def task_asset_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1060,6 +1099,7 @@ def main() -> int:
     diagnostic_coverage_rows = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_timing_plan_rows = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
+    transcript_review_queue_rows = read_csv(ROOT / "data" / "transcript_review_queue.csv")
     task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract_rows = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
@@ -1215,6 +1255,10 @@ The p50/p90 estimates in metadata are reviewer estimates, not measured independe
 
 {human_timing_packet_section(human_timing_plan_rows)}
 
+## Transcript Review Packet
+
+{transcript_review_packet_section(transcript_review_queue_rows)}
+
 ## Grader And Integrity Controls
 
 The grader is Lean-first. For each submission it copies the public files listed in `metadata.json`, replaces the submission file, scans forbidden constructs, compiles public Lean files, compiles hidden semantic pins, and audits axioms on declared targets. Accepted and calibration tasks must have at least two wrong submissions.
@@ -1348,6 +1392,7 @@ python scripts/audit_diagnostic_coverage.py
 python scripts/audit_human_time_calibration.py
 python scripts/generate_human_timing_packet.py
 python scripts/record_local_qa_results.py
+python scripts/generate_transcript_review_packet.py
 python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py
 python scripts/audit_grader_hardening.py

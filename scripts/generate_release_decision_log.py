@@ -139,7 +139,8 @@ def build_rows() -> list[dict[str, str]]:
         (
             f"research-report gaps={len(research_gaps)}; claim statuses={compact_json(dict(sorted(claim_status_counts.items())))}; "
             f"unsupported claims={compact_json([row_data.get('claim_id') for row_data in unsupported_claims])}; "
-            f"{evidence(reqs, 'hosted_qa_readiness_audit')}; {evidence(reqs, 'model_sweep_execution_packet')}; "
+            f"{evidence(reqs, 'transcript_review_packet')}; {evidence(reqs, 'hosted_qa_readiness_audit')}; "
+            f"{evidence(reqs, 'model_sweep_execution_packet')}; "
             f"{evidence(reqs, 'threats_to_validity_register')}; {evidence(reqs, 'freeze_readiness_roadmap')}"
         ),
         "The report is evidence-rich but not backed by broad model sweeps or independent timing.",

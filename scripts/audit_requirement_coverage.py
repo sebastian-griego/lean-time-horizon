@@ -227,6 +227,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     task_assets = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
+    transcript_review_queue = read_csv(ROOT / "data" / "transcript_review_queue.csv")
+    failure_label_review_template = read_csv(ROOT / "data" / "failure_label_review_template.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
@@ -488,6 +490,67 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(transcript_ok),
         f"run_results rows: {len(run_results)}; local QA rows: {len(local_rows)}; model rows: {len(model_rows)}.",
         "No gap for workflow; broader model sweeps are still needed." if transcript_ok else "Populate transcript links and failure labels.",
+    ))
+
+    transcript_queue_fields = set(transcript_review_queue[0].keys()) if transcript_review_queue else set()
+    transcript_template_fields = set(failure_label_review_template[0].keys()) if failure_label_review_template else set()
+    required_transcript_queue_fields = {
+        "run_id",
+        "task_id",
+        "scaffold",
+        "model",
+        "job_id",
+        "pass_at_k",
+        "failure_label_current",
+        "qa_findings_status",
+        "transcript_link",
+        "transcript_exists",
+        "transcript_record_count",
+        "transcript_labels",
+        "review_priority",
+        "review_action",
+    }
+    required_transcript_template_fields = {
+        "run_id",
+        "task_id",
+        "reviewer_id",
+        "review_timestamp_utc",
+        "primary_label",
+        "secondary_labels",
+        "confidence",
+        "rationale",
+        "evidence_excerpt",
+        "adjudication_needed",
+        "adjudication_notes",
+    }
+    nonlocal_run_ids = {f"{row_data.get('job_id', '')}:{row_data.get('task_id', '')}" for row_data in model_rows}
+    queued_run_ids = {row_data.get("run_id", "") for row_data in transcript_review_queue}
+    template_run_ids = {row_data.get("run_id", "") for row_data in failure_label_review_template}
+    missing_transcript_queue = [
+        row_data for row_data in transcript_review_queue
+        if row_data.get("transcript_exists") != "true"
+    ]
+    fabricated_template_labels = [
+        row_data for row_data in failure_label_review_template
+        if row_data.get("primary_label") or row_data.get("rationale") or row_data.get("reviewer_id")
+    ]
+    transcript_review_ok = (
+        bool(transcript_review_queue)
+        and required_transcript_queue_fields.issubset(transcript_queue_fields)
+        and required_transcript_template_fields.issubset(transcript_template_fields)
+        and nonlocal_run_ids.issubset(queued_run_ids)
+        and queued_run_ids.issubset(template_run_ids)
+        and not missing_transcript_queue
+        and not fabricated_template_labels
+        and (ROOT / "reports" / "transcript_review_packet.md").exists()
+    )
+    requirement_rows.append(row(
+        "transcript_review_packet",
+        "runs",
+        "Transcript review packet should provide a non-local run review queue failure-label codebook blank adjudication template and label-claim boundary without fabricating review labels.",
+        status_from_bool(transcript_review_ok, partial=bool(transcript_review_queue)),
+        f"queue rows: {len(transcript_review_queue)}; non-local run ids covered: {len(nonlocal_run_ids & queued_run_ids)}/{len(nonlocal_run_ids)}; template rows: {len(failure_label_review_template)}; missing transcripts in queue: {len(missing_transcript_queue)}; prefilled template labels: {len(fabricated_template_labels)}; report exists: {(ROOT / 'reports' / 'transcript_review_packet.md').exists()}.",
+        "No gap." if transcript_review_ok else "Regenerate scripts/generate_transcript_review_packet.py and inspect queue/template coverage.",
     ))
 
     model_ok = len(non_infra_model_rows) >= len(accepted)

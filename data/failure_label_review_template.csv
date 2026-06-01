@@ -1,0 +1,4 @@
+run_id,task_id,reviewer_id,review_timestamp_utc,primary_label,secondary_labels,confidence,rationale,evidence_excerpt,adjudication_needed,adjudication_notes
+anthropic-claude-sonnet-4-6-one-shot-1780206167:lt-201,lt-201,,,,,,,,,
+anthropic-claude-sonnet-4-6-one-shot-1780206126:lt-201,lt-201,,,,,,,,,
+anthropic-claude-sonnet-4-6-one-shot-1780206109:lt-001,lt-001,,,,,,,,,
