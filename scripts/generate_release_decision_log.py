@@ -163,6 +163,7 @@ def build_rows() -> list[dict[str, str]]:
             f"claim authorizations={compact_json(dict(sorted(authorization_status_counts.items())))}; "
             f"claim-conformance failures={len(conformance_failures)}; claim-conformance cautions={len(conformance_cautions)}; "
             f"unsupported claims={compact_json([row_data.get('claim_id') for row_data in unsupported_claims])}; "
+            f"{evidence(reqs, 'concise_metr_report')}; "
             f"{evidence(reqs, 'transcript_review_packet')}; {evidence(reqs, 'hosted_qa_readiness_audit')}; "
             f"{evidence(reqs, 'model_sweep_execution_packet')}; "
             f"{evidence(reqs, 'threats_to_validity_register')}; {evidence(reqs, 'claim_authorization_matrix')}; "

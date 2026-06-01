@@ -4,9 +4,9 @@ This generated audit checks whether the main report and README obey the claim-au
 
 ## Summary
 
-- checks: `9`
-- statuses: `{"caution": 1, "pass": 8}`
-- scopes: `{"claim_authorization": 1, "main_report": 6, "main_report_and_readme": 1, "readme": 1}`
+- checks: `10`
+- statuses: `{"caution": 1, "pass": 9}`
+- scopes: `{"claim_authorization": 1, "concise_report": 1, "main_report": 6, "readme": 1, "reports_and_readme": 1}`
 
 ## Check Table
 
@@ -17,10 +17,11 @@ This generated audit checks whether the main report and README obey the claim-au
 | `abstract_scope_boundaries` | main_report | pass | front-matter scope phrases checked before the first task table | `[]` | Keep locked-benchmark, sample-size, human-time, and provider-smoke limitations in the report abstract/front matter. |
 | `run_result_boundary_wording` | main_report | pass | committed-run section checked for local-QA and smoke-row boundaries | `[]` | Keep local QA and tiny provider smoke rows explicitly separated from benchmark performance claims. |
 | `claim_ledger_blocks_overclaims` | main_report | pass | claim ledger checked for explicit not-supported locked-benchmark and frontier-performance rows | `[]` | Keep tempting overclaims in the claim ledger as unsupported, not as conclusions. |
-| `blocked_phrase_context_scan` | main_report_and_readme | pass | blocked-claim phrase contexts scanned across reports\metr_style_report.md and README.md; unsafe_contexts=0 | `[]` | Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work. |
+| `concise_report_scope_and_length` | concise_report | pass | concise report exists=True; line_count=119; missing_scope_phrases=[] | `[]` | Regenerate scripts/generate_concise_report.py and keep the reviewer-facing report concise and claim-bounded. |
+| `blocked_phrase_context_scan` | reports_and_readme | pass | blocked-claim phrase contexts scanned across reports\metr_style_report.md, reports\concise_metr_report.md, and README.md; unsafe_contexts=0 | `[]` | Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work. |
 | `readme_scope_boundaries` | readme | pass | README checked for locked-benchmark, model-result, and credential-scope boundaries | `[]` | Keep the README top-level scope aligned with the report's claim authorization matrix. |
 | `limitations_cover_blockers` | main_report | pass | limitations section checked against blocked authorization themes | `[]` | Keep task-count, T4, independent-timing, provider-smoke, hosted-QA, and locked-benchmark caveats in the limitations section. |
-| `report_length_and_appendix_boundary` | main_report | caution | main report line_count=1026; markdown_table_rows=385 | `["line_count=1026"]` | The report is evidence-rich but appendix-heavy; when results mature, move long generated tables out of the main narrative. |
+| `report_length_and_appendix_boundary` | main_report | caution | main report line_count=1039; markdown_table_rows=388 | `["line_count=1039"]` | The report is evidence-rich but appendix-heavy; when results mature, move long generated tables out of the main narrative. |
 
 ## Interpretation
 

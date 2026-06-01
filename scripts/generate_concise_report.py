@@ -1,0 +1,220 @@
+from __future__ import annotations
+
+import csv
+import json
+from collections import Counter
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def read_csv(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def compact_json(value: object) -> str:
+    return json.dumps(value, sort_keys=True)
+
+
+def bullets(counter: Counter[str]) -> str:
+    return "\n".join(f"- `{key}`: {value}" for key, value in sorted(counter.items())) or "- _None_"
+
+
+def table(rows: list[list[str]]) -> str:
+    if not rows:
+        return "_None._"
+    header = rows[0]
+    lines = [
+        "| " + " | ".join(header) + " |",
+        "| " + " | ".join("---" for _ in header) + " |",
+    ]
+    for row in rows[1:]:
+        lines.append("| " + " | ".join(cell.replace("|", "/") for cell in row) + " |")
+    return "\n".join(lines)
+
+
+def row_by_id(rows: list[dict[str, str]], key: str, value: str) -> dict[str, str]:
+    return next((row for row in rows if row.get(key) == value), {})
+
+
+def requirement_summary(requirements: list[dict[str, str]]) -> tuple[str, str]:
+    counts = Counter(row.get("status", "unknown") for row in requirements)
+    gaps = [row for row in requirements if row.get("status") != "supported"]
+    rows = [["requirement", "status", "current evidence", "next step"]]
+    for row in gaps:
+        rows.append([
+            f"`{row.get('requirement_id', '')}`",
+            row.get("status", ""),
+            row.get("evidence", ""),
+            row.get("gap_or_next_step", ""),
+        ])
+    return bullets(counts), table(rows)
+
+
+def task_table(tasks: list[dict[str, str]]) -> str:
+    rows = [["task", "split", "family", "bucket", "p50/p90", "review note"]]
+    for task in tasks:
+        rows.append([
+            f"`{task.get('task_id', '')}`",
+            task.get("split", ""),
+            task.get("family", ""),
+            task.get("human_time_bucket", ""),
+            f"{task.get('human_minutes_p50', '')}/{task.get('human_minutes_p90', '')}",
+            task.get("difficulty_review_notes", ""),
+        ])
+    return table(rows)
+
+
+def claim_table(claims: list[dict[str, str]]) -> str:
+    rows = [["claim", "authorization", "allowed wording", "required caveat"]]
+    for claim in claims:
+        if claim.get("authorization_status") == "allowed":
+            continue
+        rows.append([
+            f"`{claim.get('claim_id', '')}`",
+            claim.get("authorization_status", ""),
+            claim.get("allowed_wording", ""),
+            claim.get("required_caveat", ""),
+        ])
+    return table(rows)
+
+
+def main() -> int:
+    metadata = read_csv(ROOT / "data" / "task_metadata.csv")
+    requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
+    claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
+    release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
+    freeze = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
+    run_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
+    grader = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
+    human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
+
+    accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
+    calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
+    rejected = [row for row in metadata if row.get("acceptance_status", "").startswith("rejected_")]
+    requirement_counts, requirement_gap_table = requirement_summary(requirements)
+    auth_counts = Counter(row.get("authorization_status", "unknown") for row in claim_authorization)
+    release_counts = Counter(row.get("status", "unknown") for row in release_decisions)
+    freeze_counts = Counter(row.get("roadmap_status", "unknown") for row in freeze)
+    integrity_failures = sum(1 for row in run_integrity if row.get("integrity_status") == "fail")
+    grader_failures = sum(1 for row in grader if row.get("status") == "fail")
+    accepted_without_timing = sum(
+        1 for row in human_time
+        if row.get("acceptance_status") == "accepted_v0"
+        and "accepted_without_independent_timing" in row.get("issues", "")
+    )
+    primary_coverage = row_by_id(run_summary, "analysis_set", "primary_plan_coverage")
+    accepted_provider = row_by_id(run_summary, "analysis_set", "accepted_core_results")
+
+    lines = [
+        "# Concise METR-Style Report",
+        "",
+        "## Bottom Line",
+        "",
+        (
+            "This repository is a locally validated v0.1 Lean time-horizon evaluation artifact, "
+            "not a locked benchmark. It has enough local task, grading, reporting, and "
+            "anti-overclaim evidence to support review, but not enough accepted-task scale, "
+            "independent human timing, provider/scaffold coverage, or hosted QA to support "
+            "population-level frontier-model claims."
+        ),
+        "",
+        f"- accepted core tasks: `{len(accepted)}`",
+        f"- calibration-only tasks: `{len(calibration)}`",
+        f"- rejected archive tasks: `{len(rejected)}`",
+        f"- requirement statuses: `{compact_json(dict(sorted(Counter(row.get('status', 'unknown') for row in requirements).items())))}`",
+        f"- claim authorizations: `{compact_json(dict(sorted(auth_counts.items())))}`",
+        f"- release-decision gates: `{compact_json(dict(sorted(release_counts.items())))}`",
+        f"- freeze-readiness gates: `{compact_json(dict(sorted(freeze_counts.items())))}`",
+        "",
+        "## Research Questions",
+        "",
+        "1. Can a model recover the intended Lean proof or formalization from the public prompt and scaffold?",
+        "2. Which failures are diagnostic of formalization, theorem decomposition, proof debugging, codebase navigation, invariant design, or library/API search?",
+        "3. How do lookup and iterative compile/debug scaffolds change outcomes once real sweeps are run?",
+        "",
+        "The current artifact can evaluate local task/grader validity and prepare the scaffold sweep. It cannot yet answer the third question empirically because committed provider data cover only a tiny smoke sample.",
+        "",
+        "## Task Set",
+        "",
+        "Accepted core tasks are mixed across six families, with T2/T3 coverage but no accepted T4 task.",
+        "",
+        "Accepted families:",
+        "",
+        bullets(Counter(task.get("family", "unknown") for task in accepted)),
+        "",
+        "Release time buckets:",
+        "",
+        bullets(Counter(task.get("human_time_bucket", "unknown") for task in accepted + calibration)),
+        "",
+        "Accepted core rows:",
+        "",
+        task_table(accepted),
+        "",
+        "## Grading And Integrity",
+        "",
+        "The grader is Lean-first: submissions must pass forbidden-construct scanning, public compilation, hidden `PinCheck.lean`, and axiom auditing. Local QA rows validate reference solutions and wrong submissions; they are not model performance.",
+        "",
+        f"- run-integrity failures: `{integrity_failures}`",
+        f"- grader-hardening failures: `{grader_failures}`",
+        "- public export validator checks hidden/wrong files are absent from `public_tasks`.",
+        "- hidden pins are meaningful finite probes, not proof of full semantic equivalence.",
+        "",
+        "## Model Evidence",
+        "",
+        (
+            "Committed provider rows are smoke evidence only. They show the runner and transcript path can work, "
+            "but they do not characterize frontier performance, scaffold effects, family-level performance, "
+            "or failure distributions."
+        ),
+        "",
+        f"- planned accepted-core task/scaffold cells: `{primary_coverage.get('planned_cells', '0')}`",
+        f"- covered non-infra primary cells: `{primary_coverage.get('covered_cells_noninfra', '0')}`",
+        f"- accepted-core provider rows: `{accepted_provider.get('rows_total', '0')}` total, `{accepted_provider.get('rows_noninfra', '0')}` non-infra",
+        "",
+        "## Claim Boundaries",
+        "",
+        "The report now has explicit claim authorization and a prose conformance audit. Blocked claims may appear only as limitations or future work.",
+        "",
+        "- `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.",
+        "",
+        claim_table(claim_authorization),
+        "",
+        "## Remaining Blockers",
+        "",
+        requirement_gap_table,
+        "",
+        "## Validity Notes",
+        "",
+        f"- accepted tasks without independent timing observations: `{accepted_without_timing}/{len(accepted)}`",
+        "- task-count target remains 20-50 accepted tasks; v0.1 has 6 accepted core tasks.",
+        "- accepted human-time coverage is T2/T3 only; there is no T4 accepted stretch task.",
+        "- hosted Taiga/Env Linter QA artifacts are absent.",
+        "- the detailed evidence report remains appendix-heavy by design; this concise report is the reviewer-facing narrative.",
+        "",
+        "## Next Work",
+        "",
+        "1. Collect independent Lean-human timing observations for every accepted task.",
+        "2. Add a small number of hard-reviewed T3/T4 tasks only if they meet the existing diagnostic bar.",
+        "3. Run the accepted-core scaffold sweep across one-shot, lookup, and lookup_unlimited with documented provider versions.",
+        "4. Run hosted QA and commit Env Linter findings or rebuttals for exact public task versions.",
+        "5. Regenerate this report and keep blocked claims blocked until the corresponding evidence is committed.",
+        "",
+        "## Evidence Appendix",
+        "",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/report_claim_conformance_audit.md`, and the committed CSVs under `data/`.",
+        "",
+    ]
+
+    out = ROOT / "reports" / "concise_metr_report.md"
+    out.write_text("\n".join(lines), encoding="utf-8")
+    print(f"wrote {out.relative_to(ROOT)} with {len(lines)} generated lines")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

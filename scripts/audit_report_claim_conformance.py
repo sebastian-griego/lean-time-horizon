@@ -19,6 +19,7 @@ FIELDS = [
 ]
 
 MAIN_REPORT = ROOT / "reports" / "metr_style_report.md"
+CONCISE_REPORT = ROOT / "reports" / "concise_metr_report.md"
 README = ROOT / "README.md"
 
 NEGATIVE_MARKERS = [
@@ -161,6 +162,7 @@ def section(text: str, heading: str) -> str:
 def build_rows() -> list[dict[str, str]]:
     authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     main_report = read_text(MAIN_REPORT)
+    concise_report = read_text(CONCISE_REPORT)
     readme = read_text(README)
     status_counts = Counter(row_data.get("authorization_status", "") for row_data in authorization)
     claim_ids = {row_data.get("claim_id", "") for row_data in authorization}
@@ -265,15 +267,37 @@ def build_rows() -> list[dict[str, str]]:
         ["reports/metr_style_report.md", "reports/claim_evidence_audit.md"],
     ))
 
-    unsafe_examples = unsafe_blocked_phrase_examples([MAIN_REPORT, README])
+    concise_ok, concise_missing = contains_all(
+        concise_report,
+        [
+            "not a locked benchmark",
+            "Claim Boundaries",
+            "Remaining Blockers",
+            "Next Work",
+            "Evidence Appendix",
+        ],
+    )
+    concise_line_count = len(concise_report.splitlines())
+    concise_status = "pass" if concise_ok and concise_line_count <= 220 else "fail"
+    rows.append(row(
+        "concise_report_scope_and_length",
+        "concise_report",
+        concise_status,
+        f"concise report exists={CONCISE_REPORT.exists()}; line_count={concise_line_count}; missing_scope_phrases={compact_json(concise_missing)}",
+        concise_missing + ([f"line_count={concise_line_count}"] if concise_line_count > 220 else []),
+        "Regenerate scripts/generate_concise_report.py and keep the reviewer-facing report concise and claim-bounded.",
+        ["reports/concise_metr_report.md", "scripts/generate_concise_report.py"],
+    ))
+
+    unsafe_examples = unsafe_blocked_phrase_examples([MAIN_REPORT, CONCISE_REPORT, README])
     rows.append(row(
         "blocked_phrase_context_scan",
-        "main_report_and_readme",
+        "reports_and_readme",
         "pass" if not unsafe_examples else "fail",
-        f"blocked-claim phrase contexts scanned across {MAIN_REPORT.relative_to(ROOT)} and {README.relative_to(ROOT)}; unsafe_contexts={len(unsafe_examples)}",
+        f"blocked-claim phrase contexts scanned across {MAIN_REPORT.relative_to(ROOT)}, {CONCISE_REPORT.relative_to(ROOT)}, and {README.relative_to(ROOT)}; unsafe_contexts={len(unsafe_examples)}",
         unsafe_examples,
         "Rewrite any blocked-claim phrase so the local context clearly says it is unsupported, blocked, missing, or future work.",
-        ["reports/metr_style_report.md", "README.md", "data/claim_authorization_matrix.csv"],
+        ["reports/metr_style_report.md", "reports/concise_metr_report.md", "README.md", "data/claim_authorization_matrix.csv"],
     ))
 
     readme_ok, readme_missing = contains_all(

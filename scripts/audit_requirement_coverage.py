@@ -639,6 +639,37 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if report_ok else "Restore report generation from data CSVs.",
     ))
 
+    concise_report_path = ROOT / "reports" / "concise_metr_report.md"
+    concise_report = read_text(concise_report_path)
+    concise_lines = concise_report.splitlines()
+    concise_required_phrases = [
+        "not a locked benchmark",
+        "accepted core tasks",
+        "calibration-only tasks",
+        "Claim Boundaries",
+        "Remaining Blockers",
+        "Next Work",
+        "Evidence Appendix",
+    ]
+    missing_concise_phrases = [
+        phrase for phrase in concise_required_phrases
+        if phrase.lower() not in concise_report.lower()
+    ]
+    concise_ok = (
+        concise_report_path.exists()
+        and "read_csv" in read_text(ROOT / "scripts" / "generate_concise_report.py")
+        and len(concise_lines) <= 220
+        and not missing_concise_phrases
+    )
+    requirement_rows.append(row(
+        "concise_metr_report",
+        "reporting",
+        "Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs.",
+        status_from_bool(concise_ok, partial=concise_report_path.exists()),
+        f"concise report exists: {concise_report_path.exists()}; line_count: {len(concise_lines)}; missing required phrases: {compact_json(missing_concise_phrases)}; generator reads CSV: {'read_csv' in read_text(ROOT / 'scripts' / 'generate_concise_report.py')}.",
+        "No gap." if concise_ok else "Regenerate scripts/generate_concise_report.py and keep the concise report under 220 lines with claim boundaries and next-work sections.",
+    ))
+
     requirement_rows.append(row(
         "difficulty_audit_report",
         "reporting",
@@ -1288,6 +1319,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "abstract_scope_boundaries",
         "run_result_boundary_wording",
         "claim_ledger_blocks_overclaims",
+        "concise_report_scope_and_length",
         "blocked_phrase_context_scan",
         "readme_scope_boundaries",
         "limitations_cover_blockers",

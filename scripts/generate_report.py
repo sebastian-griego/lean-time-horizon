@@ -634,7 +634,7 @@ def report_claim_conformance_section(rows: list[dict[str, str]]) -> str:
             f"| `{row.get('check_id', '')}` | {row.get('scope', '')} | {row.get('status', '')} | "
             f"{evidence} | {action} |"
         )
-    return f"""`reports/report_claim_conformance_audit.md` and `data/report_claim_conformance_audit.csv` check that the main report and README obey the claim-authorization matrix. The audit scans for missing caveats, blocked-claim phrase contexts, and report-shape drift.
+    return f"""`reports/report_claim_conformance_audit.md` and `data/report_claim_conformance_audit.csv` check that the concise report, detailed report, and README obey the claim-authorization matrix. The audit scans for missing caveats, blocked-claim phrase contexts, and report-shape drift.
 
 - checks: `{len(rows)}`
 - statuses: `{compact_json(dict(sorted(status_counts.items())))}`
@@ -1230,6 +1230,10 @@ This repository is a v0.1 Lean time-horizon evaluation artifact for studying how
 
 The accepted core set is intentionally smaller than the original target of 20. The original task batch was downgraded because many rows were dominated by `rfl`, `simp`, `omega`, `cases`, or one obvious library lemma. A stricter accepted-task review is maintained in `reports/accepted_task_review.md`; v0.1 keeps downgraded rows out of benchmark statistics unless they serve a calibration role.
 
+## Reader Guide
+
+`reports/concise_metr_report.md` is the reviewer-facing concise narrative. This file is the detailed generated evidence appendix: it intentionally includes long tables, hashes, and audit rows that should not be read as a locked-benchmark claim.
+
 ## Research Questions
 
 This artifact is designed to support three narrow evaluation questions:
@@ -1488,6 +1492,7 @@ python scripts/generate_threats_to_validity.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
@@ -1495,6 +1500,7 @@ python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
@@ -1502,6 +1508,7 @@ python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_claim_authorization_matrix.py
+python scripts/generate_concise_report.py
 python scripts/audit_report_claim_conformance.py
 python scripts/generate_release_decision_log.py
 python scripts/generate_freeze_readiness_roadmap.py
