@@ -209,6 +209,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     diagnostic_coverage = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
+    construct_validity = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
     human_time_audit = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     human_timing_plan = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
@@ -732,6 +733,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "calibration_tasks",
         "portfolio_counts",
         "capabilities",
+        "construct_validity_trace",
         "human_time",
         "grading_integrity",
         "public_export",
@@ -949,6 +951,47 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(diagnostic_ok, partial=bool(diagnostic_coverage)),
         f"diagnostic coverage rows: {len(diagnostic_coverage)}; required checks covered: {len(required_diagnostic_checks & diagnostic_check_ids)}/{len(required_diagnostic_checks)}; failures: {len(diagnostic_failures)}; cautions: {len(diagnostic_cautions)}; blocks: {len(diagnostic_blocks)}; report exists: {(ROOT / 'reports' / 'diagnostic_coverage_audit.md').exists()}.",
         "No gap." if diagnostic_ok else "Regenerate scripts/audit_diagnostic_coverage.py and fix failed diagnostic data checks.",
+    ))
+
+    construct_fields = set(construct_validity[0].keys()) if construct_validity else set()
+    required_construct_fields = {
+        "task_id",
+        "capabilities_claimed",
+        "singleton_capabilities",
+        "construct_evidence",
+        "claim_support_level",
+        "claim_limit",
+        "next_evidence_needed",
+    }
+    accepted_ids = {row_data.get("task_id", "") for row_data in accepted}
+    construct_ids = {row_data.get("task_id", "") for row_data in construct_validity}
+    missing_construct_ids = sorted(accepted_ids - construct_ids)
+    extra_construct_ids = sorted(construct_ids - accepted_ids)
+    construct_singleton_rows = [
+        row_data for row_data in construct_validity
+        if row_data.get("singleton_capabilities", "")
+    ]
+    construct_limit_rows = [
+        row_data for row_data in construct_validity
+        if "singleton" in row_data.get("claim_limit", "")
+        or "task-level evidence only" in row_data.get("claim_limit", "")
+        or "caveat" in row_data.get("claim_limit", "")
+    ]
+    construct_ok = (
+        bool(construct_validity)
+        and required_construct_fields.issubset(construct_fields)
+        and not missing_construct_ids
+        and not extra_construct_ids
+        and len(construct_limit_rows) == len(construct_validity)
+        and (ROOT / "reports" / "construct_validity_matrix.md").exists()
+    )
+    requirement_rows.append(row(
+        "construct_validity_matrix",
+        "reporting",
+        "Construct-validity matrix should trace each accepted task to claimed capabilities evidence singleton limits and task-level claim boundaries.",
+        status_from_bool(construct_ok, partial=bool(construct_validity)),
+        f"construct rows: {len(construct_validity)}; accepted rows: {len(accepted)}; missing accepted ids: {len(missing_construct_ids)}; extra ids: {len(extra_construct_ids)}; singleton-limit rows: {len(construct_singleton_rows)}; claim-limit rows: {len(construct_limit_rows)}; report exists: {(ROOT / 'reports' / 'construct_validity_matrix.md').exists()}.",
+        "No gap." if construct_ok else "Regenerate scripts/generate_construct_validity_matrix.py after diagnostic coverage and inspect missing task or claim-limit rows.",
     ))
 
     human_time_fields = set(human_time_audit[0].keys()) if human_time_audit else set()

@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 50}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 51}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -63,6 +63,13 @@ The accepted set is meant to test diagnostic capabilities, not just theorem-prov
 | `codebase_navigation` | caution | 1 | Capability is represented by a singleton accepted task, so task-specific quirks can dominate. |
 | `invariant_design` | pass | 2 | Capability is represented by more than one accepted task. |
 | `long_horizon_construction` | pass | 3 | Capability is represented by more than one accepted task. |
+
+Construct-validity matrix:
+
+- accepted task rows traced: `6`
+- support levels: `{"task_level_internal_review": 2, "task_level_internal_review_singleton_capability": 1, "task_level_with_caveat": 3}`
+- rows with singleton-covered capabilities: `3/6`
+- this is task-level construct evidence, not capability-level performance evidence.
 
 Most common accepted-task skills:
 

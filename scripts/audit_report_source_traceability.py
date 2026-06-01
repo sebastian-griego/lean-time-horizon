@@ -167,6 +167,7 @@ SECTION_SPECS = [
         "heading": "What The Tasks Measure",
         "source_artifacts": [
             "data/diagnostic_coverage_audit.csv",
+            "data/construct_validity_matrix.csv",
             "data/task_quality_matrix.csv",
             "reports/accepted_task_review.md",
         ],
@@ -175,9 +176,27 @@ SECTION_SPECS = [
             "theorem decomposition",
             "semantic formalization",
             "Capability-level claims are weak",
+            "construct-validity",
         ],
         "limitation": "Capability coverage is singleton-heavy in the accepted core.",
         "next_action": "Use diagnostic-coverage rows before making capability-level claims.",
+    },
+    {
+        "section_id": "construct_validity_trace",
+        "heading": "Construct Validity Trace",
+        "source_artifacts": [
+            "data/construct_validity_matrix.csv",
+            "reports/construct_validity_matrix.md",
+            "data/diagnostic_coverage_audit.csv",
+            "data/task_quality_matrix.csv",
+        ],
+        "required_phrases": [
+            "accepted construct rows",
+            "singleton-covered capabilities",
+            "task-level claim boundary",
+        ],
+        "limitation": "The construct-validity trace supports task-level review only, not capability-level performance claims.",
+        "next_action": "Keep singleton and caveat boundaries visible until more accepted tasks and model evidence exist.",
     },
     {
         "section_id": "human_time",

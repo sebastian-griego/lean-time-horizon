@@ -118,6 +118,7 @@ def main() -> int:
         [
             "reports/concise_metr_report.md",
             "reports/diagnostic_coverage_audit.md",
+            "reports/construct_validity_matrix.md",
             "data/diagnostic_coverage_audit.csv",
         ],
     ))

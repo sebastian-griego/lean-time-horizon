@@ -75,7 +75,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 50}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 51}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -84,7 +84,29 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 
 The accepted core tasks are intended to test library/API search, theorem decomposition, semantic formalization, proof debugging, codebase navigation, invariant design, and small library construction. The calibration-only rows are retained to verify the harness, establish lower time-bucket behavior, and catch regressions in simple Lean proof generation.
 
-Capability-level claims are weak where a capability is represented by only one accepted task. The diagnostic-coverage and task-quality appendices are the row-level evidence for this claim boundary.
+Capability-level claims are weak where a capability is represented by only one accepted task. The diagnostic-coverage, construct-validity, and task-quality appendices are the row-level evidence for this claim boundary.
+
+## Construct Validity Trace
+
+`reports/construct_validity_matrix.md` and `data/construct_validity_matrix.csv` link each accepted_v0 task to its claimed diagnostic capabilities, mechanical proof/pin/wrong evidence, singleton-coverage limits, and task-level claim boundary.
+
+- accepted construct rows: `6`
+- support levels: `{"task_level_internal_review": 2, "task_level_internal_review_singleton_capability": 1, "task_level_with_caveat": 3}`
+- rows with singleton-covered capabilities: `3/6`
+- automation-dominated accepted rows: `2/6`
+- caveated accepted rows: `3/6`
+
+Construct-validity rows:
+
+| task | support level | capabilities | singleton capabilities | claim limit |
+| --- | --- | --- | --- | --- |
+| `lt-201` | task_level_with_caveat | `theorem_decomposition`, `proof_debugging`, `codebase_navigation` | `codebase_navigation` | singleton capabilities cannot support capability-level generalization; accepted row carries a task-quality caveat; reference proof is automation-dominated |
+| `lt-203` | task_level_internal_review_singleton_capability | `theorem_decomposition`, `semantic_formalization`, `proof_debugging` | `semantic_formalization` | singleton capabilities cannot support capability-level generalization |
+| `lt-202` | task_level_with_caveat | `library_search`, `theorem_decomposition` | `library_search` | singleton capabilities cannot support capability-level generalization; accepted row carries a task-quality caveat |
+| `lt-204` | task_level_internal_review | `theorem_decomposition`, `invariant_design`, `long_horizon_construction` | _none_ | task-level evidence only; aggregate claims still require more accepted tasks and model data |
+| `lt-205` | task_level_internal_review | `theorem_decomposition`, `long_horizon_construction` | _none_ | task-level evidence only; aggregate claims still require more accepted tasks and model data |
+| `lt-206` | task_level_with_caveat | `theorem_decomposition`, `invariant_design`, `long_horizon_construction` | _none_ | accepted row carries a task-quality caveat; reference proof is automation-dominated |
+
 
 ## Human-Time Estimates
 
@@ -195,6 +217,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
+- `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.

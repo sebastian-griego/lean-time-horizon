@@ -937,6 +937,43 @@ Diagnostic coverage checks:
 """
 
 
+def construct_validity_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/construct_validity_matrix.md` has not been generated yet. Run "
+            "`python scripts/generate_construct_validity_matrix.py` after the diagnostic "
+            "coverage audit, then regenerate this report."
+        )
+    support_counts = Counter(row.get("claim_support_level", "unknown") for row in rows)
+    singleton_rows = [row for row in rows if row.get("singleton_capabilities")]
+    automation_rows = [row for row in rows if row.get("automation_dominated") == "true"]
+    caveat_rows = [row for row in rows if "caveat" in row.get("benchmark_grade_status", "")]
+    lines = [
+        "| task | support level | capabilities | singleton capabilities | claim limit |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        caps = ", ".join(f"`{cap}`" for cap in row.get("capabilities_claimed", "").split(";") if cap)
+        singletons = ", ".join(f"`{cap}`" for cap in row.get("singleton_capabilities", "").split(";") if cap) or "_none_"
+        limit = row.get("claim_limit", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('claim_support_level', '')} | "
+            f"{caps} | {singletons} | {limit} |"
+        )
+    return f"""`reports/construct_validity_matrix.md` and `data/construct_validity_matrix.csv` link each accepted_v0 task to its claimed diagnostic capabilities, mechanical proof/pin/wrong evidence, singleton-coverage limits, and task-level claim boundary.
+
+- accepted construct rows: `{len(rows)}`
+- support levels: `{compact_json(dict(sorted(support_counts.items())))}`
+- rows with singleton-covered capabilities: `{len(singleton_rows)}/{len(rows)}`
+- automation-dominated accepted rows: `{len(automation_rows)}/{len(rows)}`
+- caveated accepted rows: `{len(caveat_rows)}/{len(rows)}`
+
+Construct-validity rows:
+
+{chr(10).join(lines)}
+"""
+
+
 def human_time_calibration_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1272,6 +1309,7 @@ def main() -> int:
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     diagnostic_coverage_rows = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
+    construct_validity_rows = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_timing_plan_rows = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
     transcript_review_queue_rows = read_csv(ROOT / "data" / "transcript_review_queue.csv")
@@ -1436,6 +1474,10 @@ Scaffold-sensitive tasks are marked in metadata. Lookup-sensitive rows include M
 ## Diagnostic Coverage Audit
 
 {diagnostic_coverage_section(diagnostic_coverage_rows)}
+
+## Construct Validity Matrix
+
+{construct_validity_section(construct_validity_rows)}
 
 ## Human-Time Estimates
 
@@ -1611,6 +1653,7 @@ python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
 python scripts/audit_diagnostic_coverage.py
+python scripts/generate_construct_validity_matrix.py
 python scripts/audit_human_time_calibration.py
 python scripts/generate_human_timing_packet.py
 python scripts/record_local_qa_results.py
@@ -1800,7 +1843,11 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 
 The accepted core tasks are intended to test library/API search, theorem decomposition, semantic formalization, proof debugging, codebase navigation, invariant design, and small library construction. The calibration-only rows are retained to verify the harness, establish lower time-bucket behavior, and catch regressions in simple Lean proof generation.
 
-Capability-level claims are weak where a capability is represented by only one accepted task. The diagnostic-coverage and task-quality appendices are the row-level evidence for this claim boundary.
+Capability-level claims are weak where a capability is represented by only one accepted task. The diagnostic-coverage, construct-validity, and task-quality appendices are the row-level evidence for this claim boundary.
+
+## Construct Validity Trace
+
+{construct_validity_section(construct_validity_rows)}
 
 ## Human-Time Estimates
 
@@ -1865,6 +1912,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/concise_metr_report.md`: shortest reviewer-facing METR-style narrative.
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
+- `reports/construct_validity_matrix.md`: task-level construct-validity trace for accepted rows.
 - `reports/claim_authorization_matrix.md`: allowed, caveated, and blocked claim wording.
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.

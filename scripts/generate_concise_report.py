@@ -130,6 +130,7 @@ def main() -> int:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     requirements = read_csv(ROOT / "data" / "requirement_coverage.csv")
     diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
+    construct = read_csv(ROOT / "data" / "construct_validity_matrix.csv")
     claim_authorization = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
@@ -164,6 +165,8 @@ def main() -> int:
         and row.get("model", "")
         and row.get("model_version", "")
     })
+    construct_support_counts = Counter(row.get("claim_support_level", "unknown") for row in construct)
+    construct_singleton_rows = sum(1 for row in construct if row.get("singleton_capabilities"))
     skill_counts: Counter[str] = Counter()
     failure_mode_counts: Counter[str] = Counter()
     for task in accepted:
@@ -220,6 +223,13 @@ def main() -> int:
         "The accepted set is meant to test diagnostic capabilities, not just theorem-proving difficulty. Singleton capability rows are visible limitations rather than hidden assumptions.",
         "",
         capability_table(diagnostic),
+        "",
+        "Construct-validity matrix:",
+        "",
+        f"- accepted task rows traced: `{len(construct)}`",
+        f"- support levels: `{compact_json(dict(sorted(construct_support_counts.items())))}`",
+        f"- rows with singleton-covered capabilities: `{construct_singleton_rows}/{len(construct)}`",
+        "- this is task-level construct evidence, not capability-level performance evidence.",
         "",
         "Most common accepted-task skills:",
         "",

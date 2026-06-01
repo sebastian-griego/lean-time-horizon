@@ -152,6 +152,7 @@ def build_rows() -> list[dict[str, str]]:
         "manual_accepted_task_review",
         "task_quality_matrix",
         "diagnostic_coverage_audit",
+        "construct_validity_matrix",
         "human_time_calibration_audit",
         "human_timing_collection_packet",
         "transcript_review_packet",
@@ -197,7 +198,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes a concise reviewer-facing METR-style report, a main-report/evidence-appendix boundary, a source-traceability audit mapping report sections to committed artifacts, a report-shape audit that checks the narrative against the playbook questions, research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, a human-timing collection packet, a transcript-review packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, model-evidence provenance checks for sample sizes and model versions, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, a claim-authorization matrix with forbidden overclaim wording, a research claim gap matrix that maps stronger claims to missing evidence packages, a report claim-conformance audit that checks prose against those authorizations, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes a concise reviewer-facing METR-style report, a main-report/evidence-appendix boundary, a source-traceability audit mapping report sections to committed artifacts, a report-shape audit that checks the narrative against the playbook questions, research-quality caveats, task quality matrices, diagnostic-coverage checks, a construct-validity matrix, human-time calibration checks, a human-timing collection packet, a transcript-review packet, task-asset hashes, prompt-contract checks, pin coverage, run integrity, grader-hardening checks, statistical reporting checks, model-evidence provenance checks for sample sizes and model versions, provider-readiness checks, a model-sweep execution packet, hosted-QA readiness checks, a generated threats-to-validity register, a claim-authorization matrix with forbidden overclaim wording, a research claim gap matrix that maps stronger claims to missing evidence packages, a report claim-conformance audit that checks prose against those authorizations, scaffold-support checks, release-decision gates, a freeze-readiness roadmap, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
@@ -211,7 +212,7 @@ def build_rows() -> list[dict[str, str]]:
         "task_validity",
         "supported",
         "medium",
-        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}; {evidence(reqs, 'diagnostic_coverage_audit')}",
+        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}; {evidence(reqs, 'diagnostic_coverage_audit')}; {evidence(reqs, 'construct_validity_matrix')}",
         "This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size.",
         "Independent Lean-human review and more accepted high-quality T2/T3/T4 rows.",
     ))
