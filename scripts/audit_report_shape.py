@@ -140,15 +140,18 @@ def main() -> int:
 
     scaffold_req = requirement_by_id.get("scaffold_result_comparison", {})
     time_req = requirement_by_id.get("time_horizon_spread", {})
+    statistical_plan_req = requirement_by_id.get("statistical_analysis_plan", {})
     rows.append(row(
         "success_changes_by_scaffold_and_bucket",
         "How does success change with scaffold and human-time bucket?",
         "blocked_by_evidence",
-        f"scaffold_result_comparison={scaffold_req.get('status', 'missing')}; time_horizon_spread={time_req.get('status', 'missing')}; primary_covered_noninfra={primary_coverage.get('covered_cells_noninfra', '0')}",
+        f"scaffold_result_comparison={scaffold_req.get('status', 'missing')}; time_horizon_spread={time_req.get('status', 'missing')}; statistical_analysis_plan={statistical_plan_req.get('status', 'missing')}; primary_covered_noninfra={primary_coverage.get('covered_cells_noninfra', '0')}",
         "Real scaffold/time-horizon performance summaries are not supported by committed data.",
-        "Run pass@k sweeps across accepted_v0 x scaffold cells and add independently timed T3/T4 tasks.",
+        "Run pass@k sweeps across accepted_v0 x scaffold cells, meet the statistical threshold rows, and add independently timed T3/T4 tasks.",
         [
             "data/model_result_summary.csv",
+            "data/statistical_design_thresholds.csv",
+            "reports/statistical_analysis_plan.md",
             "reports/statistical_reporting_audit.md",
             "reports/human_time_calibration_audit.md",
         ],

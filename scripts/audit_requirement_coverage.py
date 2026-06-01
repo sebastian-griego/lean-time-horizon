@@ -217,6 +217,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     grader_hardening = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
+    statistical_design = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
+    wilson_precision = read_csv(ROOT / "data" / "wilson_precision_table.csv")
     statistical_audit = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
@@ -1284,6 +1286,67 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(statistical_ok, partial=bool(statistical_audit)),
         f"statistical audit rows: {len(statistical_audit)}; required checks covered: {len(required_statistical_checks & statistical_check_ids)}/{len(required_statistical_checks)}; failures: {len(statistical_failures)}; blocked performance outputs: {len(statistical_blocks)}; report exists: {(ROOT / 'reports' / 'statistical_reporting_audit.md').exists()}.",
         "No gap." if statistical_ok else "Regenerate scripts/audit_statistical_reporting.py and fix failing statistical hygiene checks.",
+    ))
+
+    required_statistical_tiers = {
+        "smoke_run_provenance",
+        "v0_1_primary_descriptive_performance",
+        "scaffold_effect_comparison",
+        "time_horizon_bucket_trend",
+        "family_or_skill_summary",
+        "failure_taxonomy_distribution",
+        "locked_benchmark_population_claims",
+    }
+    statistical_tier_ids = {row_data.get("tier_id", "") for row_data in statistical_design}
+    statistical_design_fields = set(statistical_design[0].keys()) if statistical_design else set()
+    required_statistical_design_fields = {
+        "tier_id",
+        "claim_type",
+        "current_status",
+        "minimum_accepted_tasks",
+        "minimum_noninfra_primary_cells",
+        "minimum_k",
+        "minimum_scaffold_count",
+        "minimum_group_n",
+        "minimum_independent_timing",
+        "minimum_failure_reviews",
+        "hosted_qa_required",
+        "current_evidence",
+        "allowed_output_now",
+        "blocked_overclaim",
+        "stronger_claim_requires",
+    }
+    precision_fields = set(wilson_precision[0].keys()) if wilson_precision else set()
+    required_precision_fields = {
+        "n",
+        "assumed_p",
+        "successes",
+        "wilson_low",
+        "wilson_high",
+        "interval_width",
+        "interpretation",
+    }
+    blocked_tiers = [row_data for row_data in statistical_design if row_data.get("current_status") == "blocked"]
+    supported_tiers = [row_data for row_data in statistical_design if row_data.get("current_status") == "supported"]
+    precision_n_values = {row_data.get("n", "") for row_data in wilson_precision}
+    statistical_plan_ok = (
+        bool(statistical_design)
+        and bool(wilson_precision)
+        and required_statistical_tiers.issubset(statistical_tier_ids)
+        and required_statistical_design_fields.issubset(statistical_design_fields)
+        and required_precision_fields.issubset(precision_fields)
+        and len(blocked_tiers) >= 4
+        and len(supported_tiers) >= 1
+        and {"1", "20", "50"}.issubset(precision_n_values)
+        and (ROOT / "reports" / "statistical_analysis_plan.md").exists()
+    )
+    requirement_rows.append(row(
+        "statistical_analysis_plan",
+        "reporting",
+        "Statistical analysis plan should define claim-tier evidence thresholds and Wilson precision limits before broad model runs.",
+        status_from_bool(statistical_plan_ok, partial=bool(statistical_design) or bool(wilson_precision)),
+        f"statistical tiers: {len(statistical_design)}; required tiers covered: {len(required_statistical_tiers & statistical_tier_ids)}/{len(required_statistical_tiers)}; blocked tiers: {len(blocked_tiers)}; supported tiers: {len(supported_tiers)}; precision rows: {len(wilson_precision)}; precision n values: {compact_json(sorted(precision_n_values))}; report exists: {(ROOT / 'reports' / 'statistical_analysis_plan.md').exists()}.",
+        "No gap." if statistical_plan_ok else "Run scripts/generate_statistical_analysis_plan.py and inspect missing claim-tier or precision rows.",
     ))
 
     required_provider_checks = {

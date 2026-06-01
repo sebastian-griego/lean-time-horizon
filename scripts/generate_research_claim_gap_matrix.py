@@ -163,9 +163,12 @@ GAP_PLAN: dict[str, dict[str, object]] = {
             "frontier_model_evidence",
             "portfolio_accepted_count",
         ],
-        "package": "Sufficiently covered accepted-core sweeps, raw task-row numerators, Wilson intervals, and regenerated statistical reporting checks.",
+        "package": "Sufficiently covered accepted-core sweeps, raw task-row numerators, Wilson intervals, claim-tier threshold checks, and regenerated statistical reporting checks.",
         "exit": "Performance plots should stay blocked until scaffold/provider coverage and accepted-task scale support the plotted comparisons.",
         "artifacts": [
+            "reports/statistical_analysis_plan.md",
+            "data/statistical_design_thresholds.csv",
+            "data/wilson_precision_table.csv",
             "reports/statistical_reporting_audit.md",
             "data/statistical_reporting_audit.csv",
             "reports/model_run_analysis.md",

@@ -142,6 +142,8 @@ def main() -> int:
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
+    statistical_design = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
+    wilson_precision = read_csv(ROOT / "data" / "wilson_precision_table.csv")
 
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
     calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
@@ -170,6 +172,8 @@ def main() -> int:
     })
     construct_support_counts = Counter(row.get("claim_support_level", "unknown") for row in construct)
     construct_singleton_rows = sum(1 for row in construct if row.get("singleton_capabilities"))
+    statistical_status_counts = Counter(row.get("current_status", "unknown") for row in statistical_design)
+    precision_half_rows = [row for row in wilson_precision if row.get("assumed_p") == "0.5"]
     skill_counts: Counter[str] = Counter()
     failure_mode_counts: Counter[str] = Counter()
     for task in accepted:
@@ -265,6 +269,9 @@ def main() -> int:
         f"- covered non-infra primary cells: `{primary_coverage.get('covered_cells_noninfra', '0')}`",
         f"- accepted-core provider rows: `{accepted_provider.get('rows_total', '0')}` total, `{accepted_provider.get('rows_noninfra', '0')}` non-infra",
         f"- provider/model versions in committed smoke rows: `{compact_json(provider_versions)}`",
+        f"- statistical claim-tier statuses: `{compact_json(dict(sorted(statistical_status_counts.items())))}`",
+        f"- Wilson precision ledger rows for assumed p=0.5: `{len(precision_half_rows)}`",
+        "- the statistical analysis plan treats current provider rows as smoke provenance only; performance estimates and scaffold effects stay blocked by threshold rows.",
         "",
         "## Claim Boundaries",
         "",
@@ -273,6 +280,7 @@ def main() -> int:
         "- `reports/report_claim_conformance_audit.md` checks this narrative, the detailed report, and README for blocked-claim wording.",
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
         "- `reports/research_claim_gap_matrix.md` records the evidence packages needed before stronger claims are allowed.",
+        "- `reports/statistical_analysis_plan.md` records minimum evidence thresholds, blocked overclaim wording, and Wilson precision limits before broader model sweeps.",
         "",
         claim_table(claim_authorization),
         "",
@@ -305,7 +313,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/requirement_coverage.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/statistical_analysis_plan.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

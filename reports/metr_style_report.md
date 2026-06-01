@@ -75,7 +75,7 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 53}`
+- requirement statuses: `{"not_met": 2, "partial": 4, "supported": 54}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -148,6 +148,40 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 
 - provider/model versions in committed smoke rows: `["anthropic:claude-sonnet-4-6"]`
 - provenance audit statuses: `{"pass": 7}`
+
+## Statistical Analysis Plan
+
+`reports/statistical_analysis_plan.md`, `data/statistical_design_thresholds.csv`, and `data/wilson_precision_table.csv` define minimum evidence thresholds before stronger model-result claims are allowed. This is a precision and claim-tier ledger, not new model evidence.
+
+- claim tiers: `7`
+- tier statuses: `{"blocked": 6, "supported": 1}`
+- claim types: `{"benchmark_status": 1, "descriptive_performance": 1, "failure_analysis": 1, "performance_comparison": 1, "run_provenance": 1, "subgroup_performance": 1, "time_horizon_performance": 1}`
+- blocked tiers: `6`
+- Wilson precision rows: `18`
+
+Claim-tier thresholds:
+
+| tier | status | allowed output now | blocked overclaim |
+| --- | --- | --- | --- |
+| `smoke_run_provenance` | supported | Adapter, transcript, and run-result provenance only. | Do not treat smoke rows as benchmark performance. |
+| `v0_1_primary_descriptive_performance` | blocked | Coverage table and blocked performance statement. | Do not report aggregate pass@k estimates or intervals for accepted-core performance until every planned cell is covered. |
+| `scaffold_effect_comparison` | blocked | Planned scaffold comparison only. | Do not claim lookup or iterative compile/debug effects from the current smoke rows. |
+| `time_horizon_bucket_trend` | blocked | Task-set time-bucket composition only. | Do not claim calibrated time-horizon scaling from author estimates or singleton T3 coverage. |
+| `family_or_skill_summary` | blocked | Family/skill coverage table only. | Do not interpret singleton family or skill rows as stable estimates. |
+| `failure_taxonomy_distribution` | blocked | Failure-label workflow and smoke transcript review only. | Do not claim dominant failure modes or failure distributions. |
+| `locked_benchmark_population_claims` | blocked | Local v0.1 research artifact only. | Do not call v0.1 locked, final, population-valid, or frontier-performance-characterizing. |
+
+Wilson precision ledger for assumed `p=0.5`:
+
+| n | Wilson low | Wilson high | width | interpretation |
+| ---: | ---: | ---: | ---: | --- |
+| 1 | 0.0000 | 0.7935 | 0.7935 | very_wide |
+| 6 | 0.1876 | 0.8124 | 0.6248 | very_wide |
+| 18 | 0.2903 | 0.7097 | 0.4194 | wide |
+| 20 | 0.2993 | 0.7007 | 0.4014 | wide |
+| 30 | 0.3315 | 0.6685 | 0.3369 | moderate |
+| 50 | 0.3664 | 0.6336 | 0.2671 | moderate |
+
 
 ## Committed Run Results
 
@@ -222,6 +256,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
+- `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 
 ## Reproducibility Checklist
 

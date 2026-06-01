@@ -364,6 +364,53 @@ Model-evidence provenance checks:
 """
 
 
+def statistical_analysis_plan_section(threshold_rows: list[dict[str, str]], precision_rows: list[dict[str, str]]) -> str:
+    if not threshold_rows or not precision_rows:
+        return (
+            "`reports/statistical_analysis_plan.md` has not been generated yet. Run "
+            "`python scripts/generate_statistical_analysis_plan.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("current_status", "unknown") for row in threshold_rows)
+    claim_type_counts = Counter(row.get("claim_type", "unknown") for row in threshold_rows)
+    blocked = [row for row in threshold_rows if row.get("current_status") == "blocked"]
+    precision_half = [row for row in precision_rows if row.get("assumed_p") == "0.5"]
+    threshold_lines = [
+        "| tier | status | allowed output now | blocked overclaim |",
+        "| --- | --- | --- | --- |",
+    ]
+    for row in threshold_rows:
+        threshold_lines.append(
+            f"| `{row.get('tier_id', '')}` | {row.get('current_status', '')} | "
+            f"{row.get('allowed_output_now', '').replace('|', '/')} | "
+            f"{row.get('blocked_overclaim', '').replace('|', '/')} |"
+        )
+    precision_lines = [
+        "| n | Wilson low | Wilson high | width | interpretation |",
+        "| ---: | ---: | ---: | ---: | --- |",
+    ]
+    for row in precision_half:
+        precision_lines.append(
+            f"| {row.get('n', '')} | {row.get('wilson_low', '')} | {row.get('wilson_high', '')} | "
+            f"{row.get('interval_width', '')} | {row.get('interpretation', '')} |"
+        )
+    return f"""`reports/statistical_analysis_plan.md`, `data/statistical_design_thresholds.csv`, and `data/wilson_precision_table.csv` define minimum evidence thresholds before stronger model-result claims are allowed. This is a precision and claim-tier ledger, not new model evidence.
+
+- claim tiers: `{len(threshold_rows)}`
+- tier statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- claim types: `{compact_json(dict(sorted(claim_type_counts.items())))}`
+- blocked tiers: `{len(blocked)}`
+- Wilson precision rows: `{len(precision_rows)}`
+
+Claim-tier thresholds:
+
+{chr(10).join(threshold_lines)}
+
+Wilson precision ledger for assumed `p=0.5`:
+
+{chr(10).join(precision_lines)}
+"""
+
+
 def statistical_reporting_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1400,6 +1447,8 @@ def main() -> int:
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     model_evidence_provenance_rows = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
+    statistical_design_rows = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
+    wilson_precision_rows = read_csv(ROOT / "data" / "wilson_precision_table.csv")
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
@@ -1620,6 +1669,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {model_evidence_provenance_section(model_evidence_provenance_rows)}
 
+## Statistical Analysis Plan
+
+{statistical_analysis_plan_section(statistical_design_rows, wilson_precision_rows)}
+
 ## Statistical Reporting Audit
 
 {statistical_reporting_section(statistical_reporting_rows)}
@@ -1736,6 +1789,7 @@ python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py
 python scripts/audit_grader_hardening.py
 python scripts/generate_evaluation_protocol.py
+python scripts/generate_statistical_analysis_plan.py
 python scripts/generate_model_sweep_packet.py
 python scripts/analyze_model_results.py
 python scripts/audit_model_evidence_provenance.py
@@ -1960,6 +2014,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 - provider/model versions in committed smoke rows: `{compact_json(provider_versions)}`
 - provenance audit statuses: `{compact_json(dict(sorted(Counter(row.get("status", "unknown") for row in model_evidence_provenance_rows).items())))}`
 
+## Statistical Analysis Plan
+
+{statistical_analysis_plan_section(statistical_design_rows, wilson_precision_rows)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -1997,6 +2055,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
+- `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 
 ## Reproducibility Checklist
 

@@ -296,6 +296,24 @@ SECTION_SPECS = [
         "next_action": "Rerun provenance audit after every model sweep.",
     },
     {
+        "section_id": "statistical_analysis_plan",
+        "heading": "Statistical Analysis Plan",
+        "source_artifacts": [
+            "reports/statistical_analysis_plan.md",
+            "data/statistical_design_thresholds.csv",
+            "data/wilson_precision_table.csv",
+            "reports/statistical_reporting_audit.md",
+        ],
+        "required_phrases": [
+            "minimum evidence thresholds",
+            "precision and claim-tier ledger",
+            "Wilson",
+            "blocked overclaim",
+        ],
+        "limitation": "The statistical plan defines evidence thresholds; it does not create model-performance evidence.",
+        "next_action": "Keep blocked claim tiers blocked until committed sweeps meet the threshold rows.",
+    },
+    {
         "section_id": "committed_runs",
         "heading": "Committed Run Results",
         "source_artifacts": [
@@ -352,12 +370,14 @@ SECTION_SPECS = [
             "reports/requirement_coverage.md",
             "reports/report_source_traceability.md",
             "reports/failure_label_review_audit.md",
+            "reports/statistical_analysis_plan.md",
         ],
         "required_phrases": [
             "evidence_appendix.md",
             "concise_metr_report.md",
             "requirement_coverage.md",
             "failure_label_review_audit.md",
+            "statistical_analysis_plan.md",
         ],
         "limitation": "The source map improves traceability but does not create new model evidence.",
         "next_action": "Keep new report artifacts listed in README, manifest, and source traceability.",
