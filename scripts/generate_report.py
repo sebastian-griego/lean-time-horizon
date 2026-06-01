@@ -727,6 +727,44 @@ Accepted-core human-time rows:
 """
 
 
+def human_timing_packet_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/human_timing_collection_packet.md` has not been generated yet. Run "
+            "`python scripts/generate_human_timing_packet.py`, then regenerate this report."
+        )
+    bucket_counts = Counter(row.get("human_time_bucket", "unknown") for row in rows)
+    family_counts = Counter(row.get("family", "unknown") for row in rows)
+    hidden_leaks = [
+        row for row in rows
+        if "hidden" in row.get("validation_command", "").lower()
+        or "Reference.lean" in row.get("validation_command", "")
+    ]
+    table_lines = [
+        "| task | bucket | p50/p90 | condition | validation command |",
+        "| --- | --- | ---: | --- | --- |",
+    ]
+    for row in rows:
+        condition = row.get("recommended_timing_condition", "").replace("|", "/")
+        command = row.get("validation_command", "").replace("|", "/")
+        table_lines.append(
+            f"| `{row.get('task_id', '')}` | {row.get('human_time_bucket', '')} | "
+            f"{row.get('human_minutes_p50', '')}/{row.get('human_minutes_p90', '')} | "
+            f"{condition} | `{command}` |"
+        )
+    return f"""`reports/human_timing_collection_packet.md`, `data/human_timing_collection_plan.csv`, and `data/human_time_observations_template.csv` make independent timing collection operational without fabricating observations.
+
+- accepted tasks in timing plan: `{len(rows)}`
+- bucket counts: `{compact_json(dict(sorted(bucket_counts.items())))}`
+- family counts: `{compact_json(dict(sorted(family_counts.items())))}`
+- validation commands containing hidden-reference paths: `{len(hidden_leaks)}`
+
+Accepted-task timing collection plan:
+
+{chr(10).join(table_lines)}
+"""
+
+
 def task_asset_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -944,6 +982,7 @@ def main() -> int:
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
     diagnostic_coverage_rows = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
+    human_timing_plan_rows = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
     task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract_rows = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
@@ -1092,6 +1131,10 @@ The p50/p90 estimates in metadata are reviewer estimates, not measured independe
 
 {human_time_calibration_section(human_time_rows)}
 
+## Human Timing Collection Packet
+
+{human_timing_packet_section(human_timing_plan_rows)}
+
 ## Grader And Integrity Controls
 
 The grader is Lean-first. For each submission it copies the public files listed in `metadata.json`, replaces the submission file, scans forbidden constructs, compiles public Lean files, compiles hidden semantic pins, and audits axioms on declared targets. Accepted and calibration tasks must have at least two wrong submissions.
@@ -1215,6 +1258,7 @@ python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
 python scripts/audit_diagnostic_coverage.py
 python scripts/audit_human_time_calibration.py
+python scripts/generate_human_timing_packet.py
 python scripts/record_local_qa_results.py
 python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py

@@ -211,6 +211,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     diagnostic_coverage = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     human_time_audit = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
+    human_timing_plan = read_csv(ROOT / "data" / "human_timing_collection_plan.csv")
+    human_timing_template = read_csv(ROOT / "data" / "human_time_observations_template.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     grader_hardening = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
@@ -696,6 +698,56 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(human_time_audit_ok, partial=bool(human_time_audit)),
         f"human-time audit rows: {len(human_time_audit)}; metadata rows: {len(metadata)}; failures: {len(human_time_failures)}; accepted without independent timing: {len(accepted_without_timing)}/{len(accepted_human_time_rows)}; observation rows: {len(human_time_observations)}; report exists: {(ROOT / 'reports' / 'human_time_calibration_audit.md').exists()}.",
         "No gap." if human_time_audit_ok else "Regenerate scripts/audit_human_time_calibration.py and fix failed bucket or estimate rows.",
+    ))
+
+    human_plan_fields = set(human_timing_plan[0].keys()) if human_timing_plan else set()
+    human_template_fields = set(human_timing_template[0].keys()) if human_timing_template else set()
+    required_human_plan_fields = {
+        "task_id",
+        "minimum_reviewer_count_before_freeze",
+        "recommended_reviewer_profile",
+        "recommended_timing_condition",
+        "validation_command",
+        "ambiguity_review_prompt",
+    }
+    required_human_template_fields = {
+        "task_id",
+        "reviewer_id_hash",
+        "reviewer_role",
+        "observed_minutes",
+        "outcome",
+        "date_utc",
+        "notes",
+        "scaffold_used",
+        "lookup_used",
+        "compile_feedback_used",
+        "prompt_ambiguity",
+        "validation_passed",
+    }
+    accepted_ids = {task.get("task_id", "") for task in accepted}
+    human_plan_ids = {row_data.get("task_id", "") for row_data in human_timing_plan}
+    human_template_ids = {row_data.get("task_id", "") for row_data in human_timing_template}
+    human_plan_hidden_leak = any(
+        "hidden" in row_data.get("validation_command", "").lower()
+        or "Reference.lean" in row_data.get("validation_command", "")
+        for row_data in human_timing_plan
+    )
+    human_timing_packet_ok = (
+        bool(human_timing_plan)
+        and accepted_ids.issubset(human_plan_ids)
+        and accepted_ids.issubset(human_template_ids)
+        and required_human_plan_fields.issubset(human_plan_fields)
+        and required_human_template_fields.issubset(human_template_fields)
+        and not human_plan_hidden_leak
+        and (ROOT / "reports" / "human_timing_collection_packet.md").exists()
+    )
+    requirement_rows.append(row(
+        "human_timing_collection_packet",
+        "calibration",
+        "Human timing collection packet should give independent reviewers per-task timing instructions validation commands and a blank observation template without containing fabricated observations.",
+        status_from_bool(human_timing_packet_ok, partial=bool(human_timing_plan)),
+        f"timing plan rows: {len(human_timing_plan)}; accepted tasks covered: {len(accepted_ids & human_plan_ids)}/{len(accepted_ids)}; template rows: {len(human_timing_template)}; hidden-reference command leaks: {human_plan_hidden_leak}; report exists: {(ROOT / 'reports' / 'human_timing_collection_packet.md').exists()}.",
+        "No gap." if human_timing_packet_ok else "Regenerate scripts/generate_human_timing_packet.py and inspect timing plan/template coverage.",
     ))
 
     accepted_pin_rows = [row_data for row_data in pin_coverage if row_data.get("acceptance_status") == "accepted_v0"]

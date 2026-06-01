@@ -1,0 +1,7 @@
+task_id,reviewer_id_hash,reviewer_role,observed_minutes,outcome,date_utc,notes,scaffold_used,lookup_used,compile_feedback_used,prompt_ambiguity,validation_passed
+lt-201,,,,,,,,,,,
+lt-203,,,,,,,,,,,
+lt-202,,,,,,,,,,,
+lt-204,,,,,,,,,,,
+lt-205,,,,,,,,,,,
+lt-206,,,,,,,,,,,

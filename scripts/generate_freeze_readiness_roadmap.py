@@ -182,11 +182,16 @@ def build_rows() -> list[dict[str, str]]:
         "calibration",
         "block",
         f"human observation rows={len(human_observations)}; accepted tasks={len(accepted)}.",
-        requirement(requirements, "independent_human_time_review"),
+        f"{requirement(requirements, 'independent_human_time_review')}; {requirement(requirements, 'human_timing_collection_packet')}",
         "Every accepted task should have at least one independent Lean-human solve or second-review timing note; T3/T4 rows should get extra scrutiny.",
         "Run timed solves with non-authors and append rows to data/human_time_observations.csv before freeze.",
         ["time_horizon_measurement", "locked_benchmark"],
-        ["data/human_time_observations.csv", "reports/human_time_calibration_audit.md"],
+        [
+            "data/human_time_observations.csv",
+            "data/human_timing_collection_plan.csv",
+            "reports/human_time_calibration_audit.md",
+            "reports/human_timing_collection_packet.md",
+        ],
     ))
     rows.append(row(
         "scaffold_sweep_coverage",
