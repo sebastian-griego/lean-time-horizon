@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 27
+- `supported`: 29
 - `partial`: 4
 - `not_met`: 2
 
@@ -13,8 +13,8 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `supported`: 2
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
-- `required_for_release_artifact` / `supported`: 14
-- `required_for_research_report` / `supported`: 11
+- `required_for_release_artifact` / `supported`: 15
+- `required_for_research_report` / `supported`: 12
 
 ## Coverage Table
 
@@ -33,7 +33,8 @@ This generated audit maps the local repository state to the committed checklist 
 | `metadata_completeness` | data | required_for_release_artifact | supported | Task metadata should include family, domain, human-time, skills, scaffold sensitivity, and failure modes. | 26 task metadata rows checked; missing fields sample: []. | No gap. |
 | `schemas_present` | data | required_for_release_artifact | supported | Task metadata, run results, and failure labels should have schemas. | Schema files present: run=True, failure=True, metadata=True. | No gap. |
 | `run_result_semantics` | data | required_for_release_artifact | supported | run_results should represent successes_out_of_k and pass@k consistently. | 69 run-result rows checked; semantic errors sample: []. | No gap. |
-| `scaffold_support` | scaffolds | required_for_release_artifact | supported | The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants. | 3 scaffold variants configured; runner exposes lookup command: True; runner preserves requested k attempts: True. | No gap. |
+| `scaffold_support` | scaffolds | required_for_release_artifact | supported | The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants. | 3 scaffold variants configured; runner exposes lookup command: True; runner preserves requested k attempts: True; scaffold audit rows: 11; scaffold audit failures: 0. | No gap. |
+| `lookup_scaffold_no_hidden_leak` | integrity | required_for_release_artifact | supported | Lookup scaffold must not expose hidden references or wrong submissions. | lookup_roots_public_only=pass; lookup_hidden_leak_scan=pass. | No gap. |
 | `evaluation_protocol_plan` | runs | required_for_research_report | supported | A prospective evaluation protocol should define the primary accepted-task scaffold sweep before broad model runs. | evaluation_protocol.md exists: True; model_sweep_plan rows: 18; planned scaffolds: ["lookup", "lookup_unlimited", "one-shot"]. | No gap. |
 | `model_result_analysis` | runs | required_for_research_report | supported | Committed provider rows should be analyzed separately from local QA and against the planned primary sweep. | model_run_analysis.md exists: True; model_result_summary rows: 10; primary coverage rows: 1. | No gap. |
 | `scaffold_result_comparison` | scaffolds | required_for_locked_benchmark | partial | The report should compare real model performance across scaffolds, ideally pass@10. | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
@@ -48,6 +49,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `run_integrity_audit` | reporting | required_for_research_report | supported | Run-result integrity audit should verify transcripts, score vectors, failure labels, and pass@k arithmetic. | run_integrity rows: 69; run_results rows: 69; failing rows: 0; report exists: True. | No gap. |
 | `claim_evidence_audit` | reporting | required_for_research_report | supported | Claim-evidence audit should map artifact, report, performance, and benchmark-status claims to evidence strength and limits. | claim_evidence rows: 9; required claims covered: 9/9; unsupported overclaim rows: 3; report exists: True. | No gap. |
 | `release_decision_log` | reporting | required_for_research_report | supported | Release decision log should translate evidence audits into explicit pass/caution/block gates and next actions. | release_decision rows: 8; required gates covered: 8/8; block gates: 4; pass gates: 2; report exists: True. | No gap. |
+| `scaffold_support_audit` | reporting | required_for_research_report | supported | Scaffold support audit should verify prompt contracts runner semantics lookup safety planned coverage and observed coverage limits. | scaffold audit rows: 11; required checks covered: 11/11; failures: 0; cautions: 1; report exists: True. | No gap. |
 | `independent_human_time_review` | calibration | required_for_locked_benchmark | partial | Human-time estimates should be separately reviewed or measured, not inferred from model pass rates. | Accepted tasks with manual_review_complete: 6/6; no independent timed solves detected in metadata. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted Taiga/Env Linter QA should be run before delivery/freeze. | Hosted QA artifacts present: 0/2. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 | `reproducibility_manifest` | reproducibility | required_for_research_report | supported | A clean regeneration trail should record toolchain, commands, counts, and artifact hashes. | validation_manifest.json exists: True. | No gap. |

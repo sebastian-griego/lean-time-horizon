@@ -116,6 +116,7 @@ def build_rows() -> list[dict[str, str]]:
         "schemas_present",
         "run_result_semantics",
         "scaffold_support",
+        "lookup_scaffold_no_hidden_leak",
         "transcript_failure_workflow",
         "public_export_no_hidden_leak",
         "candidate_pruning_audit",
@@ -131,6 +132,7 @@ def build_rows() -> list[dict[str, str]]:
         "pin_coverage_audit",
         "run_integrity_audit",
         "release_decision_log",
+        "scaffold_support_audit",
         "reproducibility_manifest",
     ]
     locked_ids = [
@@ -157,7 +159,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, pin coverage, run integrity, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",

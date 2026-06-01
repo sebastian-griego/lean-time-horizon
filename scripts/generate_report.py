@@ -392,6 +392,41 @@ Decision table:
 """
 
 
+def scaffold_support_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/scaffold_support_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_scaffold_support.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    cautions = [row for row in rows if row.get("status") == "caution"]
+    lines = [
+        "| check | area | status | evidence | next action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        evidence = row.get("evidence", "").replace("|", "/")
+        action = row.get("required_next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{evidence} | {action} |"
+        )
+    return f"""`reports/scaffold_support_audit.md` and `data/scaffold_support_audit.csv` audit the scaffold ladder itself: prompt affordances, runner environment contract, attempt-count semantics, lookup safety, planned sweep coverage, observed provider coverage, and the boundary around scaffold-effect claims.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failing checks: `{len(failures)}`
+- caution checks: `{len(cautions)}`
+
+Scaffold audit table:
+
+{chr(10).join(lines)}
+"""
+
+
 def task_quality_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -556,6 +591,7 @@ def main() -> int:
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
+    scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -698,7 +734,11 @@ The axiom policy allows only the standard Lean axioms documented in `docs/axiom_
 
 ## Scaffold And Model-Run Support
 
-The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches local Lean task files and installed Std/Mathlib files when available. External model runners receive `PROMPT_PATH`, `MODEL`, `TASK_ID`, `ATTEMPT_INDEX`, `SCAFFOLD`, `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES`.
+The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches metadata-listed public Lean task files and installed Std/Mathlib files when available. External model runners receive `PROMPT_PATH`, `MODEL`, `TASK_ID`, `ATTEMPT_INDEX`, `SCAFFOLD`, `LEAN_LOOKUP_COMMAND`, `TASK_PUBLIC_DIR`, and `TASK_PUBLIC_FILES`.
+
+## Scaffold Support Audit
+
+{scaffold_support_section(scaffold_support_rows)}
 
 ## Evaluation Protocol
 
@@ -781,9 +821,15 @@ python scripts/analyze_model_results.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
+python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py
+python scripts/audit_scaffold_support.py
+python scripts/audit_requirement_coverage.py --public-export public_tasks
+python scripts/audit_claim_evidence.py
+python scripts/generate_release_decision_log.py
+python scripts/audit_scaffold_support.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
 python scripts/generate_release_decision_log.py

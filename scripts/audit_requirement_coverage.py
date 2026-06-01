@@ -212,6 +212,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
+    scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -233,6 +234,8 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     generate_report = read_text(ROOT / "scripts" / "generate_report.py")
     run_model_sweep = read_text(ROOT / "scripts" / "run_model_sweep.py")
     scaffold_rows = read_csv(ROOT / "data" / "scaffold_variants.csv")
+    scaffold_audit_by_id = {row_data.get("check_id", ""): row_data for row_data in scaffold_audit}
+    scaffold_audit_failures = [row_data for row_data in scaffold_audit if row_data.get("status") == "fail"]
     model_rows = [row_data for row_data in run_results if row_data.get("qa_stage") != "local_qa"]
     non_infra_model_rows = [row_data for row_data in model_rows if row_data.get("infra_fail_count") in {"", "0", 0}]
     local_rows = [row_data for row_data in run_results if row_data.get("qa_stage") == "local_qa"]
@@ -369,14 +372,35 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if semantics_ok else "Fix successes_out_of_k, k, or pass_at_k rows.",
     ))
 
-    scaffold_support_ok = len(scaffold_rows) >= 3 and "LEAN_LOOKUP_COMMAND" in run_model_sweep and "lookup_unlimited" in read_text(ROOT / "data" / "scaffold_variants.csv") and "attempts_allowed = args.attempts" in run_model_sweep
+    scaffold_support_ok = (
+        len(scaffold_rows) >= 3
+        and "LEAN_LOOKUP_COMMAND" in run_model_sweep
+        and "lookup_unlimited" in read_text(ROOT / "data" / "scaffold_variants.csv")
+        and "attempts_allowed = args.attempts" in run_model_sweep
+        and bool(scaffold_audit)
+        and not scaffold_audit_failures
+    )
     requirement_rows.append(row(
         "scaffold_support",
         "scaffolds",
         "The repo should support one-shot, lookup, and lookup plus iterative compile/debug scaffold variants.",
         status_from_bool(scaffold_support_ok),
-        f"{len(scaffold_rows)} scaffold variants configured; runner exposes lookup command: {'LEAN_LOOKUP_COMMAND' in run_model_sweep}; runner preserves requested k attempts: {'attempts_allowed = args.attempts' in run_model_sweep}.",
-        "No gap." if scaffold_support_ok else "Complete scaffold CSV and runner adapter support.",
+        f"{len(scaffold_rows)} scaffold variants configured; runner exposes lookup command: {'LEAN_LOOKUP_COMMAND' in run_model_sweep}; runner preserves requested k attempts: {'attempts_allowed = args.attempts' in run_model_sweep}; scaffold audit rows: {len(scaffold_audit)}; scaffold audit failures: {len(scaffold_audit_failures)}.",
+        "No gap." if scaffold_support_ok else "Complete scaffold CSV, runner adapter support, and scaffold_support_audit pass checks.",
+    ))
+
+    lookup_leak_rows = [
+        scaffold_audit_by_id.get("lookup_roots_public_only", {}),
+        scaffold_audit_by_id.get("lookup_hidden_leak_scan", {}),
+    ]
+    lookup_leak_ok = bool(scaffold_audit) and all(row_data.get("status") == "pass" for row_data in lookup_leak_rows)
+    requirement_rows.append(row(
+        "lookup_scaffold_no_hidden_leak",
+        "integrity",
+        "Lookup scaffold must not expose hidden references or wrong submissions.",
+        status_from_bool(lookup_leak_ok, partial=bool(scaffold_audit)),
+        f"lookup_roots_public_only={scaffold_audit_by_id.get('lookup_roots_public_only', {}).get('status', 'missing')}; lookup_hidden_leak_scan={scaffold_audit_by_id.get('lookup_hidden_leak_scan', {}).get('status', 'missing')}.",
+        "No gap." if lookup_leak_ok else "Fix scripts/lean_lookup.py roots and rerun scaffold support audit.",
     ))
 
     planned_scaffolds = {row_data.get("scaffold") for row_data in model_sweep_plan}
@@ -629,6 +653,47 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(release_decision_ok, partial=bool(release_decision)),
         f"release_decision rows: {len(release_decision)}; required gates covered: {len(required_gate_ids & gate_ids)}/{len(required_gate_ids)}; block gates: {len(block_gates)}; pass gates: {len(pass_gates)}; report exists: {(ROOT / 'reports' / 'release_decision_log.md').exists()}.",
         "No gap." if release_decision_ok else "Regenerate scripts/generate_release_decision_log.py after claim and requirement audits, then inspect missing gates.",
+    ))
+
+    required_scaffold_checks = {
+        "scaffold_catalog_complete",
+        "prompt_affordance_contract",
+        "runner_env_contract",
+        "iterative_feedback_gate",
+        "attempt_count_semantics",
+        "lookup_roots_public_only",
+        "lookup_command_smoke",
+        "lookup_hidden_leak_scan",
+        "planned_sweep_coverage",
+        "observed_scaffold_data_coverage",
+        "scaffold_claim_boundary",
+    }
+    scaffold_check_ids = {row_data.get("check_id", "") for row_data in scaffold_audit}
+    scaffold_audit_fields = set(scaffold_audit[0].keys()) if scaffold_audit else set()
+    required_scaffold_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "risk_or_limit",
+        "required_next_action",
+    }
+    scaffold_cautions = [row_data for row_data in scaffold_audit if row_data.get("status") == "caution"]
+    scaffold_audit_ok = (
+        bool(scaffold_audit)
+        and required_scaffold_checks.issubset(scaffold_check_ids)
+        and required_scaffold_fields.issubset(scaffold_audit_fields)
+        and not scaffold_audit_failures
+        and scaffold_audit_by_id.get("lookup_hidden_leak_scan", {}).get("status") == "pass"
+        and (ROOT / "reports" / "scaffold_support_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "scaffold_support_audit",
+        "reporting",
+        "Scaffold support audit should verify prompt contracts runner semantics lookup safety planned coverage and observed coverage limits.",
+        status_from_bool(scaffold_audit_ok, partial=bool(scaffold_audit)),
+        f"scaffold audit rows: {len(scaffold_audit)}; required checks covered: {len(required_scaffold_checks & scaffold_check_ids)}/{len(required_scaffold_checks)}; failures: {len(scaffold_audit_failures)}; cautions: {len(scaffold_cautions)}; report exists: {(ROOT / 'reports' / 'scaffold_support_audit.md').exists()}.",
+        "No gap." if scaffold_audit_ok else "Regenerate scripts/audit_scaffold_support.py and fix failed scaffold or lookup checks.",
     ))
 
     human_independent_ok = "independent" in " ".join(task.get("human_estimate_confidence", "").lower() for task in metadata)
