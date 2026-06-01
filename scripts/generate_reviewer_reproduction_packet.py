@@ -121,6 +121,17 @@ STEPS = [
         "next_action": "Run immediately before hosted packaging or release tagging.",
     },
     {
+        "step_id": "taiga_metadata_template",
+        "phase": "local_replay",
+        "command": "python scripts/generate_taiga_problem_metadata.py",
+        "expected_artifacts": "taiga/problems_metadata.template.json",
+        "claim_supported": "The public release task set can be rendered into a Taiga problems-metadata template.",
+        "evidence_basis": "Generated template row count and hosted-readiness audit checks.",
+        "failure_interpretation": "A generation failure blocks hosted-upload preparation but does not affect local Lean validation.",
+        "limitation": "The template uses placeholder image values; it is not a hosted problem-version record or QA result.",
+        "next_action": "Replace placeholders with immutable uploaded image digests only after building and uploading the container.",
+    },
+    {
         "step_id": "report_regeneration",
         "phase": "local_replay",
         "command": "python scripts/generate_report.py",

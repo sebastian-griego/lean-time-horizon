@@ -123,7 +123,7 @@ Accepted-task card summary:
 | `lt-202` | keep_with_caveat | 46 lines; automation=false; one-shot=maybe | pins_not_exercised_by_wrongs; stages `{"public_stage": 2}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence;... |
 | `lt-204` | keep | 36 lines; automation=false; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 1, "public_stage": 1}` | `{"expected_failure": 2, "passed": 1}` | Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence Mutable definitions have public-comp... |
 | `lt-205` | keep | 42 lines; automation=false; one-shot=unlikely | semantic_pins_exercised; stages `{"hidden_pin": 1, "public_stage": 1}` | `{"expected_failure": 2, "passed": 1}` | Independently time at least one human solve and run the planned scaffold sweep before using this as long-horizon evidence. independent human timing; accepted-core scaffold sweep; hosted QA evidence; extra timing revie... |
-| `lt-206` | keep_with_caveat | 60 lines; automation=true; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 2, "unknown": 2}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence M... |
+| `lt-206` | keep_with_caveat | 60 lines; automation=true; one-shot=maybe | semantic_pins_exercised; stages `{"hidden_pin": 1, "unknown": 1}` | `{"expected_failure": 2, "passed": 1}` | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence M... |
 
 
 ## Independent Task Review Packet
@@ -271,7 +271,7 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 - tier statuses: `{"blocked": 6, "supported": 1}`
 - claim types: `{"benchmark_status": 1, "descriptive_performance": 1, "failure_analysis": 1, "performance_comparison": 1, "run_provenance": 1, "subgroup_performance": 1, "time_horizon_performance": 1}`
 - blocked tiers: `6`
-- Wilson precision rows: `15`
+- Wilson precision rows: `18`
 
 Claim-tier thresholds:
 
@@ -291,6 +291,7 @@ Wilson precision ledger for assumed `p=0.5`:
 | ---: | ---: | ---: | ---: | --- |
 | 1 | 0.0000 | 0.7935 | 0.7935 | very_wide |
 | 6 | 0.1876 | 0.8124 | 0.6248 | very_wide |
+| 18 | 0.2903 | 0.7097 | 0.4194 | wide |
 | 20 | 0.2993 | 0.7007 | 0.4014 | wide |
 | 30 | 0.3315 | 0.6685 | 0.3369 | moderate |
 | 50 | 0.3664 | 0.6336 | 0.2671 | moderate |
@@ -401,7 +402,7 @@ Claim authorization table:
 | `frontier_model_evidence` | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
-| `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 9. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
+| `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 7. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 
 ## Report And Evidence Files
 
@@ -433,9 +434,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 `reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
 
-- reproduction steps: `15`
-- phase counts: `{"external_evidence": 3, "local_replay": 12}`
-- status counts: `{"blocked_external_evidence": 3, "ready": 12}`
+- reproduction steps: `16`
+- phase counts: `{"external_evidence": 3, "local_replay": 13}`
+- status counts: `{"blocked_external_evidence": 3, "ready": 13}`
 - local replay problem rows: `0`
 - external-evidence rows still blocked: `3`
 
@@ -452,6 +453,7 @@ Reviewer reproduction ledger:
 | `grader_hardening` | local_replay | ready | `python scripts/audit_grader_hardening.py` | The scanner remains lexical source scanning, not a complete Lean parser. |
 | `public_export` | local_replay | ready | `python scripts/export_public_tasks.py --out public_tasks` | The export is a local directory snapshot, not a hosted problem version. |
 | `public_export_validation` | local_replay | ready | `python scripts/validate_public_export.py --out public_tasks` | This does not run Taiga Full Env QA or Env Linter. |
+| `taiga_metadata_template` | local_replay | ready | `python scripts/generate_taiga_problem_metadata.py` | The template uses placeholder image values; it is not a hosted problem-version record or QA result. |
 | `report_regeneration` | local_replay | ready | `python scripts/generate_report.py` | Generated report text can still overclaim unless claim-conformance checks pass. |
 | `claim_and_shape_audits` | local_replay | ready | `python scripts/audit_report_claim_conformance.py; python scripts/audit_report_shape.py` | Text audits are guardrails, not substitutes for substantive external evidence. |
 | `validation_manifest` | local_replay | ready | `python scripts/write_validation_manifest.py --public-export public_tasks; python scripts/audit_validation_manifest.py` | The manifest intentionally omits self-referential report hashes and is not clean-checkout proof. |

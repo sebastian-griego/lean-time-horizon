@@ -1792,6 +1792,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "taiga_container_artifact",
         "taiga_problem_metadata",
         "mcp_hooks",
+        "hidden_material_isolation",
         "problem_version_evidence",
         "hosted_preflight_or_stage1",
         "transcript_health_or_full_env_qa",

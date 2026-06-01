@@ -1,0 +1,10 @@
+.git/
+.lake/
+tmp/
+temp/
+public_tasks/
+__pycache__/
+*.pyc
+.env
+.env.*
+*.log

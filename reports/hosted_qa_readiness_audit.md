@@ -4,9 +4,9 @@ This generated audit checks the local artifact against the Taiga/hosted QA flow 
 
 ## Summary
 
-- checks: `11`
-- statuses: `{"block": 9, "pass": 2}`
-- areas: `{"hosted_evidence": 6, "hosted_packaging": 3, "local_prerequisite": 2}`
+- checks: `12`
+- statuses: `{"block": 7, "caution": 2, "pass": 3}`
+- areas: `{"hosted_evidence": 6, "hosted_packaging": 4, "local_prerequisite": 2}`
 
 ## Check Table
 
@@ -14,9 +14,10 @@ This generated audit checks the local artifact against the Taiga/hosted QA flow 
 | --- | --- | --- | --- | --- | --- |
 | `local_validation_gate` | local_prerequisite | pass | run_integrity_audit_exists=True; validation_commands_exists=True; run_integrity_failures=0 | Local validation evidence is present and passing. | Keep local validation passing before any hosted upload. |
 | `public_export_ready` | local_prerequisite | pass | public_export={"exists": true, "hidden_or_wrong_path_count": 0, "task_count": 14}; expected_public_task_count=14 | Public export evidence is present in the validation manifest. | Regenerate and validate public export immediately before hosted packaging. |
-| `taiga_container_artifact` | hosted_packaging | block | container_artifacts=[] | No committed Taiga container artifact was found. | Create a Taiga-compatible container or document use of a managed preset before hosted QA. |
-| `taiga_problem_metadata` | hosted_packaging | block | problem_metadata_files=[] | No committed Taiga problems-metadata JSON was found. | Generate a Taiga problems-metadata file for the exact accepted/calibration public versions. |
-| `mcp_hooks` | hosted_packaging | block | mcp_hook_files=[] | No committed MCP hook implementation was found. | Implement or document the MCP wrapper that calls the Lean grader. |
+| `taiga_container_artifact` | hosted_packaging | caution | container_artifacts=["taiga/Dockerfile"] | A candidate Dockerfile is committed, but no uploaded immutable image digest or hosted preflight result is committed. | Build and upload the container, then record the immutable image digest and hosted preflight result before upgrading this to hosted evidence. |
+| `taiga_problem_metadata` | hosted_packaging | caution | problem_metadata={"expected_count": 14, "files": [{"first_ids": ["lt-001", "lt-002", "lt-003", "lt-004", "lt-201"], "path": "taiga/problems_metadata.template.json", "problem_count": 14, "valid_json": true}], "immutable_digest_images": 0, "latest_images": 0, "missing_required_fields": 0, "placeholder_images": 14, "startup_wrapper_count": 14, "total_problems": 14, "unique_problem_ids": 14} | Generated problems-metadata covers the public release task set but still uses placeholder image values. | Replace placeholder image values with immutable uploaded image digests and commit hosted problem-version IDs after upload. |
+| `mcp_hooks` | hosted_packaging | pass | mcp_hook_files=["taiga/mcp_server.py"]; py_compile_failures={} | A local wrapper with setup_problem and grade_problem is present and syntactically valid; Taiga preflight has not run it. | Run Taiga local tunnel/preflight against the wrapper and record exact failures or pass evidence. |
+| `hidden_material_isolation` | hosted_packaging | block | full_repo_copy=true; hidden_dirs_present=true; problem_metadata_files=1; isolation_documented=true | The scaffold documents the risk, but the candidate Dockerfile still copies the full repo and no hosted tool-isolation proof is committed. | Before upload, split public workdir material from grader-private files or enforce unreadable permissions, then verify with hosted preflight/Env Linter evidence. |
 | `problem_version_evidence` | hosted_evidence | block | hosted_result_rows=0; hosted_report_exists=False | No hosted problem-version evidence is committed. | After upload, record environment, problem, problem-version, image digest, and snapshot IDs. |
 | `hosted_preflight_or_stage1` | hosted_evidence | block | stage1_rows=0 | No hosted preflight or Stage 1 rows are committed. | Run Taiga preflight/Stage 1 checks and record warning/error/critical findings. |
 | `transcript_health_or_full_env_qa` | hosted_evidence | block | transcript_health_or_full_env_rows=0 | No Transcript Health or Full Env QA result rows are committed. | Run Full Env QA after hosted smoke runs and record result IDs and findings. |
@@ -26,4 +27,6 @@ This generated audit checks the local artifact against the Taiga/hosted QA flow 
 
 ## Interpretation
 
-The repo is locally validated, but it does not yet include Taiga container/problem metadata, hosted problem-version IDs, preflight/Stage 1 evidence, Full Env QA, Env Linter rows, or finding dispositions. The locked-benchmark hosted-QA gate must remain not met until those artifacts are real and committed.
+The repo is locally validated and now includes a Taiga packaging scaffold, but it does not yet include hidden-material isolation proof, immutable uploaded image digests, hosted problem-version IDs, preflight/Stage 1 evidence, Full Env QA, Env Linter rows, or finding dispositions. The locked-benchmark hosted-QA gate must remain not met until those artifacts are real and committed.
+
+Packaging `caution` means the repository contains a concrete local scaffold, such as a Dockerfile or generated problems-metadata template, but not immutable uploaded image digests or hosted preflight evidence. Hosted-evidence `block` rows are still the authoritative reason the benchmark is not hosted-QA-cleared.

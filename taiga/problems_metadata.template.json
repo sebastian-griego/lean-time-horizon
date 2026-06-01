@@ -1,0 +1,398 @@
+{
+  "problem_set": {
+    "created_at": "2026-06-01T00:00:00Z",
+    "description": "Lean time-horizon v0.1 public task export. This file is a generated Taiga problems-metadata template and is not hosted QA evidence until PLACEHOLDER image values are replaced by immutable uploaded image digests and Taiga problem-version IDs are committed separately.",
+    "metadata": {
+      "public_export": "public_tasks",
+      "repo_artifact": "lean-time-horizon",
+      "task_statuses": [
+        "accepted_v0",
+        "calibration_only"
+      ],
+      "template_status": "not_uploaded"
+    },
+    "name": "lean-time-horizon-v0-1",
+    "owner": "sebas",
+    "problems": [
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 2700,
+        "id": "lt-001",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "list_recursion_arithmetic",
+          "family": "algorithm_correctness",
+          "human_minutes_p50": "25",
+          "human_minutes_p90": "45",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/dev/lt-001",
+          "split": "dev",
+          "task_id": "lt-001"
+        },
+        "output_directory": "/workdir/out/lt-001",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 2400,
+        "id": "lt-002",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "list_recursion_boolean_counter",
+          "family": "algorithm_correctness",
+          "human_minutes_p50": "20",
+          "human_minutes_p90": "40",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/dev/lt-002",
+          "split": "dev",
+          "task_id": "lt-002"
+        },
+        "output_directory": "/workdir/out/lt-002",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 3600,
+        "id": "lt-003",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "small_queue_api_change",
+          "family": "proof_repair_codebase",
+          "human_minutes_p50": "35",
+          "human_minutes_p90": "60",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/dev/lt-003",
+          "split": "dev",
+          "task_id": "lt-003"
+        },
+        "output_directory": "/workdir/out/lt-003",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 3300,
+        "id": "lt-004",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "list_relation_specification",
+          "family": "informal_spec_to_formal",
+          "human_minutes_p50": "30",
+          "human_minutes_p90": "55",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/dev/lt-004",
+          "split": "dev",
+          "task_id": "lt-004"
+        },
+        "output_directory": "/workdir/out/lt-004",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 9000,
+        "id": "lt-201",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "accepted_v0",
+          "domain": "multi_file_cache_api_change",
+          "family": "proof_repair_codebase",
+          "human_minutes_p50": "75",
+          "human_minutes_p90": "150",
+          "human_time_bucket": "T2",
+          "public_export_path": "public_tasks/dev/lt-201",
+          "split": "dev",
+          "task_id": "lt-201"
+        },
+        "output_directory": "/workdir/out/lt-201",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 10800,
+        "id": "lt-203",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "accepted_v0",
+          "domain": "semantic_list_membership_relation",
+          "family": "informal_spec_to_formal",
+          "human_minutes_p50": "90",
+          "human_minutes_p90": "180",
+          "human_time_bucket": "T2",
+          "public_export_path": "public_tasks/dev/lt-203",
+          "split": "dev",
+          "task_id": "lt-203"
+        },
+        "output_directory": "/workdir/out/lt-203",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 4200,
+        "id": "lt-101",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "tail_recursion_list_reverse",
+          "family": "algorithm_correctness",
+          "human_minutes_p50": "35",
+          "human_minutes_p90": "70",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/test/lt-101",
+          "split": "test",
+          "task_id": "lt-101"
+        },
+        "output_directory": "/workdir/out/lt-101",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 4800,
+        "id": "lt-105",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "small_counter_api_change",
+          "family": "proof_repair_codebase",
+          "human_minutes_p50": "40",
+          "human_minutes_p90": "80",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/test/lt-105",
+          "split": "test",
+          "task_id": "lt-105"
+        },
+        "output_directory": "/workdir/out/lt-105",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 4200,
+        "id": "lt-107",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "list_membership_specification",
+          "family": "informal_spec_to_formal",
+          "human_minutes_p50": "35",
+          "human_minutes_p90": "70",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/test/lt-107",
+          "split": "test",
+          "task_id": "lt-107"
+        },
+        "output_directory": "/workdir/out/lt-107",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 4800,
+        "id": "lt-108",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "calibration_only",
+          "domain": "ordered_list_specification",
+          "family": "informal_spec_to_formal",
+          "human_minutes_p50": "40",
+          "human_minutes_p90": "80",
+          "human_time_bucket": "T1",
+          "public_export_path": "public_tasks/test/lt-108",
+          "split": "test",
+          "task_id": "lt-108"
+        },
+        "output_directory": "/workdir/out/lt-108",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 10800,
+        "id": "lt-202",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "accepted_v0",
+          "domain": "mathlib_set_image_preimage",
+          "family": "direct_theorem_proving",
+          "human_minutes_p50": "90",
+          "human_minutes_p90": "180",
+          "human_time_bucket": "T2",
+          "public_export_path": "public_tasks/test/lt-202",
+          "split": "test",
+          "task_id": "lt-202"
+        },
+        "output_directory": "/workdir/out/lt-202",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 12000,
+        "id": "lt-204",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "accepted_v0",
+          "domain": "toy_projected_optimizer_list_state",
+          "family": "invariant_verification_ml_optimization",
+          "human_minutes_p50": "100",
+          "human_minutes_p90": "200",
+          "human_time_bucket": "T2",
+          "public_export_path": "public_tasks/test/lt-204",
+          "split": "test",
+          "task_id": "lt-204"
+        },
+        "output_directory": "/workdir/out/lt-204",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 18000,
+        "id": "lt-205",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "accepted_v0",
+          "domain": "list_bag_count_interface",
+          "family": "small_formal_library_construction",
+          "human_minutes_p50": "150",
+          "human_minutes_p90": "300",
+          "human_time_bucket": "T3",
+          "public_export_path": "public_tasks/test/lt-205",
+          "split": "test",
+          "task_id": "lt-205"
+        },
+        "output_directory": "/workdir/out/lt-205",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      },
+      {
+        "enabled_package_managers": [],
+        "grading_timeout_seconds": 12600,
+        "id": "lt-206",
+        "image": "REPLACE_WITH_IMMUTABLE_TAIGA_IMAGE_DIGEST",
+        "metadata": {
+          "acceptance_status": "accepted_v0",
+          "domain": "list_partition_multiplicity_invariant",
+          "family": "algorithm_correctness",
+          "human_minutes_p50": "100",
+          "human_minutes_p90": "210",
+          "human_time_bucket": "T2",
+          "public_export_path": "public_tasks/test/lt-206",
+          "split": "test",
+          "task_id": "lt-206"
+        },
+        "output_directory": "/workdir/out/lt-206",
+        "required_tools": [
+          "bash",
+          "str_replace_editor"
+        ],
+        "scratchpad": "allowed",
+        "setup_timeout_seconds": 300,
+        "startup_command": "python -u /workspace/lean-time-horizon/taiga/mcp_server.py",
+        "startup_timeout_seconds": 1800,
+        "tool_timeout_seconds": 600
+      }
+    ],
+    "version": "0.1-template"
+  }
+}

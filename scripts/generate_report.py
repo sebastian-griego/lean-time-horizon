@@ -705,7 +705,7 @@ def hosted_qa_readiness_section(rows: list[dict[str, str]]) -> str:
             f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
             f"{current} | {action} |"
         )
-    return f"""`reports/hosted_qa_readiness_audit.md` and `data/hosted_qa_readiness_audit.csv` distinguish local readiness from missing Taiga/hosted QA evidence.
+    return f"""`reports/hosted_qa_readiness_audit.md` and `data/hosted_qa_readiness_audit.csv` distinguish local readiness, Taiga packaging-scaffold readiness, hidden-material isolation risk, and missing hosted QA evidence.
 
 - checks: `{len(rows)}`
 - statuses: `{compact_json(dict(sorted(status_counts.items())))}`
@@ -713,7 +713,7 @@ def hosted_qa_readiness_section(rows: list[dict[str, str]]) -> str:
 - blocked hosted-QA steps: `{len(blocks)}`
 - failing local readiness checks: `{len(failures)}`
 
-`block` rows are expected before upload and do not count as generated-script failures. They are evidence that hosted packaging, problem-version records, Full Env QA, Env Linter rows, and finding dispositions have not happened and must not be claimed.
+`caution` packaging rows mean a local scaffold exists but lacks immutable uploaded image digests or hosted preflight evidence. `block` rows are expected before upload and do not count as generated-script failures. They are evidence that problem-version records, Full Env QA, Env Linter rows, and finding dispositions have not happened and must not be claimed.
 
 Hosted QA readiness checks:
 

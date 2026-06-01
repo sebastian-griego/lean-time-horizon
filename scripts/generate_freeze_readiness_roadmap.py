@@ -293,8 +293,8 @@ def build_rows() -> list[dict[str, str]]:
         "block",
         f"hosted readiness blocks={len(hosted_blocks)}.",
         requirement(requirements, "hosted_qa_env_linter"),
-        "Taiga/hosted package, problem metadata, Full Env QA, Env Linter, and finding dispositions must be committed for exact problem versions.",
-        "Create hosted packaging artifacts, upload exact public versions, run hosted QA, and commit finding dispositions.",
+        "Taiga package templates exist, but hidden-material isolation proof, immutable image digests, problem-version mappings, Full Env QA, Env Linter, and finding dispositions must be committed for exact problem versions.",
+        "Prove hidden-material isolation, build/upload the package scaffold, replace template image placeholders with immutable digests, run hosted QA, and commit finding dispositions.",
         ["locked_benchmark"],
         ["reports/hosted_qa_readiness_audit.md"],
     ))

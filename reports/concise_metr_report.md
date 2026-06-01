@@ -112,7 +112,7 @@ The grader is Lean-first: submissions must pass forbidden-construct scanning, pu
 - run-integrity failures: `0`
 - data-schema manifest statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 3, "inventory_documented": 1, "schema_valid": 3}`
 - data-schema problem rows: `0`
-- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 12}`
+- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 13}`
 - reviewer reproduction local problem rows: `0`; external-evidence rows blocked: `3`
 - clean-workspace replay statuses: `{"pass": 7}`
 - clean-workspace replay failures: `0`
@@ -129,7 +129,7 @@ Committed provider rows are smoke evidence only. They show the runner and transc
 - accepted-core provider rows: `2` total, `1` non-infra
 - provider/model versions in committed smoke rows: `["anthropic:claude-sonnet-4-6"]`
 - statistical claim-tier statuses: `{"blocked": 6, "supported": 1}`
-- Wilson precision ledger rows for assumed p=0.5: `5`
+- Wilson precision ledger rows for assumed p=0.5: `6`
 - figure-manifest statuses: `{"blocked_by_evidence": 5, "generated_descriptive": 4, "generated_provenance": 1}`
 - blocked performance-plot rows in figure manifest: `5`
 - the statistical analysis plan treats current provider rows as smoke provenance only; performance estimates and scaffold effects stay blocked by threshold rows.
@@ -192,7 +192,7 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 | `frontier_model_evidence` | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
-| `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 9. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
+| `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 7. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 
 ## Validity Notes
 
