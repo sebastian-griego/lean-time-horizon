@@ -28,6 +28,8 @@ python scripts/audit_run_integrity.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
 python scripts/generate_report.py
+python scripts/audit_statistical_reporting.py
+python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
 python scripts/generate_task_asset_manifest.py --public-export public_tasks
@@ -163,6 +165,7 @@ Regenerated outputs:
 - `data/scaffold_support_audit.csv`
 - `data/model_sweep_plan.csv`
 - `data/model_result_summary.csv`
+- `data/statistical_reporting_audit.csv`
 - `data/requirement_coverage.csv`
 - `reports/difficulty_audit.md`
 - `reports/task_quality_matrix.md`
@@ -177,9 +180,10 @@ Regenerated outputs:
 - `reports/accepted_task_review.md`
 - `reports/evaluation_protocol.md`
 - `reports/model_run_analysis.md`
+- `reports/statistical_reporting_audit.md`
 - `reports/requirement_coverage.md`
 - `reports/validation_manifest.json`
 - `reports/metr_style_report.md`
 - `reports/figures/*.svg`
 
-`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/task_quality_matrix.md` is a generated one-row-per-task quality ledger that joins metadata and difficulty-audit fields for reviewer inspection. `reports/human_time_calibration_audit.md` checks p50/p90 bucket consistency and records that accepted tasks still lack independent timing observations. `reports/task_asset_manifest.md` records per-task public, hidden, and wrong asset hashes plus public-export mapping without copying hidden proof contents into the report. `reports/prompt_contract_audit.md` checks release prompts for edit scope, theorem/import policy, helper-lemma policy, forbidden-construct disclosure, runner-supplied scaffold fields, and hidden-material leak patterns. `reports/pin_coverage_audit.md` distinguishes public-stage wrong failures from wrong submissions that actually reach hidden pins. `reports/run_integrity_audit.md` checks committed run rows against transcripts, score vectors, failure labels, and metadata. `reports/claim_evidence_audit.md` maps report claims to evidence and marks unsupported overclaims explicitly. `reports/release_decision_log.md` turns the evidence audits into explicit pass/caution/block gates for local release, report use, and blocked benchmark claims. `reports/scaffold_support_audit.md` checks scaffold prompt contracts, runner attempt semantics, lookup safety, planned sweep coverage, and observed scaffold-data limits. `reports/evaluation_protocol.md` defines the planned primary model-sweep analysis before broad runs. `reports/model_run_analysis.md` summarizes committed provider rows against that plan without turning smoke rows into benchmark claims. `data/benchmark_requirements.csv` is the committed checklist used by `reports/requirement_coverage.md` for requirement-by-requirement evidence auditing. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.
+`reports/metr_style_report.md` is the main METR-style review memo. `reports/accepted_task_review.md` is the stricter per-task reviewer audit for the v0.1 accepted set. `reports/task_quality_matrix.md` is a generated one-row-per-task quality ledger that joins metadata and difficulty-audit fields for reviewer inspection. `reports/human_time_calibration_audit.md` checks p50/p90 bucket consistency and records that accepted tasks still lack independent timing observations. `reports/task_asset_manifest.md` records per-task public, hidden, and wrong asset hashes plus public-export mapping without copying hidden proof contents into the report. `reports/prompt_contract_audit.md` checks release prompts for edit scope, theorem/import policy, helper-lemma policy, forbidden-construct disclosure, runner-supplied scaffold fields, and hidden-material leak patterns. `reports/pin_coverage_audit.md` distinguishes public-stage wrong failures from wrong submissions that actually reach hidden pins. `reports/run_integrity_audit.md` checks committed run rows against transcripts, score vectors, failure labels, and metadata. `reports/statistical_reporting_audit.md` records which recommended performance plots and claims are blocked by current provider sample sizes. `reports/claim_evidence_audit.md` maps report claims to evidence and marks unsupported overclaims explicitly. `reports/release_decision_log.md` turns the evidence audits into explicit pass/caution/block gates for local release, report use, and blocked benchmark claims. `reports/scaffold_support_audit.md` checks scaffold prompt contracts, runner attempt semantics, lookup safety, planned sweep coverage, and observed scaffold-data limits. `reports/evaluation_protocol.md` defines the planned primary model-sweep analysis before broad runs. `reports/model_run_analysis.md` summarizes committed provider rows against that plan without turning smoke rows into benchmark claims. `data/benchmark_requirements.csv` is the committed checklist used by `reports/requirement_coverage.md` for requirement-by-requirement evidence auditing. `reports/validation_manifest.json` records the local toolchain, regeneration commands, task/run counts, public-export summary, and artifact hashes for reproducibility. `reports/overnight_progress.md` records implementation checkpoints and blockers.

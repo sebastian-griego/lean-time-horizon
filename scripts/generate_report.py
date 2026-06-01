@@ -287,6 +287,42 @@ The committed provider rows are smoke evidence only; the planned primary sweep r
 """
 
 
+def statistical_reporting_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/statistical_reporting_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_statistical_reporting.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    blocked = [row for row in rows if row.get("status") == "block"]
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | current sample | limitation | next action |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        current = row.get("current_sample", "").replace("|", "/")
+        limitation = row.get("limitation", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{current} | {limitation} | {action} |"
+        )
+    return f"""`reports/statistical_reporting_audit.md` and `data/statistical_reporting_audit.csv` check whether the committed provider rows can support the playbook's recommended performance plots and claims.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- blocked performance outputs: `{len(blocked)}`
+- failing statistical hygiene checks: `{len(failures)}`
+
+Statistical reporting checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def run_integrity_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -730,6 +766,7 @@ def main() -> int:
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     validation_manifest = read_json(ROOT / "reports" / "validation_manifest.json")
     audit_by_id = {row["task_id"]: row for row in difficulty_rows}
     metadata_by_id = {row["task_id"]: row for row in metadata}
@@ -891,6 +928,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {model_analysis_section(model_result_summary)}
 
+## Statistical Reporting Audit
+
+{statistical_reporting_section(statistical_reporting_rows)}
+
 ## Committed Run Results
 
 {local_md} These rows are not model performance and are excluded from benchmark pass-rate summaries.
@@ -966,6 +1007,8 @@ python scripts/audit_pin_coverage.py
 python scripts/audit_run_integrity.py
 python scripts/generate_evaluation_protocol.py
 python scripts/analyze_model_results.py
+python scripts/generate_report.py
+python scripts/audit_statistical_reporting.py
 python scripts/generate_report.py
 python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks

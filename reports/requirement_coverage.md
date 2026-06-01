@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 32
+- `supported`: 33
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 15
+- `required_for_research_report` / `supported`: 16
 
 ## Coverage Table
 
@@ -50,6 +50,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `human_time_calibration_audit` | reporting | required_for_research_report | supported | Human-time calibration audit should verify bucket and p50/p90 consistency and explicitly track missing independent timing evidence. | human-time audit rows: 26; metadata rows: 26; failures: 0; accepted without independent timing: 6/6; observation rows: 0; report exists: True. | No gap. |
 | `pin_coverage_audit` | reporting | required_for_research_report | supported | Hidden-pin audit should distinguish public-stage wrong failures from wrong submissions that reach semantic pins. | pin_coverage rows: 26; accepted rows: 6; accepted hidden-pin wrong failures: 5; report exists: True. | No gap. |
 | `run_integrity_audit` | reporting | required_for_research_report | supported | Run-result integrity audit should verify transcripts, score vectors, failure labels, and pass@k arithmetic. | run_integrity rows: 69; run_results rows: 69; failing rows: 0; report exists: True. | No gap. |
+| `statistical_reporting_audit` | reporting | required_for_research_report | supported | Statistical reporting audit should determine which recommended performance plots and claims are supported by committed provider sample sizes. | statistical audit rows: 8; required checks covered: 8/8; failures: 0; blocked performance outputs: 5; report exists: True. | No gap. |
 | `claim_evidence_audit` | reporting | required_for_research_report | supported | Claim-evidence audit should map artifact, report, performance, and benchmark-status claims to evidence strength and limits. | claim_evidence rows: 9; required claims covered: 9/9; unsupported overclaim rows: 3; report exists: True. | No gap. |
 | `release_decision_log` | reporting | required_for_research_report | supported | Release decision log should translate evidence audits into explicit pass/caution/block gates and next actions. | release_decision rows: 8; required gates covered: 8/8; block gates: 4; pass gates: 2; report exists: True. | No gap. |
 | `scaffold_support_audit` | reporting | required_for_research_report | supported | Scaffold support audit should verify prompt contracts runner semantics lookup safety planned coverage and observed coverage limits. | scaffold audit rows: 11; required checks covered: 11/11; failures: 0; cautions: 1; report exists: True. | No gap. |

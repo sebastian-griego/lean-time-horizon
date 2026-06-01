@@ -212,6 +212,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
+    statistical_audit = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     scaffold_audit = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
@@ -698,6 +699,47 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(integrity_ok, partial=bool(run_integrity)),
         f"run_integrity rows: {len(run_integrity)}; run_results rows: {len(run_results)}; failing rows: {len(integrity_failures)}; report exists: {(ROOT / 'reports' / 'run_integrity_audit.md').exists()}.",
         "No gap." if integrity_ok else "Regenerate scripts/audit_run_integrity.py after run_results and transcripts, then fix any failing rows.",
+    ))
+
+    required_statistical_checks = {
+        "primary_sweep_coverage",
+        "scaffold_pass_at_k_plot",
+        "bucket_success_plot",
+        "family_success_plot",
+        "failure_taxonomy_plot",
+        "wilson_interval_reporting",
+        "local_qa_exclusion",
+        "infra_failure_policy",
+    }
+    statistical_check_ids = {row_data.get("check_id", "") for row_data in statistical_audit}
+    statistical_fields = set(statistical_audit[0].keys()) if statistical_audit else set()
+    required_statistical_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "current_sample",
+        "minimum_for_claim",
+        "supported_output",
+        "limitation",
+        "next_action",
+    }
+    statistical_failures = [row_data for row_data in statistical_audit if row_data.get("status") == "fail"]
+    statistical_blocks = [row_data for row_data in statistical_audit if row_data.get("status") == "block"]
+    statistical_ok = (
+        bool(statistical_audit)
+        and required_statistical_checks.issubset(statistical_check_ids)
+        and required_statistical_fields.issubset(statistical_fields)
+        and not statistical_failures
+        and (ROOT / "reports" / "statistical_reporting_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "statistical_reporting_audit",
+        "reporting",
+        "Statistical reporting audit should determine which recommended performance plots and claims are supported by committed provider sample sizes.",
+        status_from_bool(statistical_ok, partial=bool(statistical_audit)),
+        f"statistical audit rows: {len(statistical_audit)}; required checks covered: {len(required_statistical_checks & statistical_check_ids)}/{len(required_statistical_checks)}; failures: {len(statistical_failures)}; blocked performance outputs: {len(statistical_blocks)}; report exists: {(ROOT / 'reports' / 'statistical_reporting_audit.md').exists()}.",
+        "No gap." if statistical_ok else "Regenerate scripts/audit_statistical_reporting.py and fix failing statistical hygiene checks.",
     ))
 
     required_claim_ids = {

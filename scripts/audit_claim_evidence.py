@@ -132,6 +132,7 @@ def build_rows() -> list[dict[str, str]]:
         "human_time_calibration_audit",
         "pin_coverage_audit",
         "run_integrity_audit",
+        "statistical_reporting_audit",
         "release_decision_log",
         "scaffold_support_audit",
         "prompt_contract_audit",
@@ -162,7 +163,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, statistical reporting checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
@@ -216,7 +217,7 @@ def build_rows() -> list[dict[str, str]]:
         "performance_claim",
         "unsupported" if status(reqs, "scaffold_result_comparison") != "supported" else "supported",
         "none" if status(reqs, "scaffold_result_comparison") != "supported" else "medium",
-        f"{evidence(reqs, 'evaluation_protocol_plan')}; {evidence(reqs, 'scaffold_result_comparison')}; primary plan coverage: {compact_json(primary_coverage)}",
+        f"{evidence(reqs, 'evaluation_protocol_plan')}; {evidence(reqs, 'scaffold_result_comparison')}; {evidence(reqs, 'statistical_reporting_audit')}; primary plan coverage: {compact_json(primary_coverage)}",
         "The scaffold ladder is implemented and planned, but real accepted-core provider data cover only one one-shot cell.",
         "Run accepted-core pass@10 or equivalent rows across one-shot, lookup, and lookup_unlimited.",
     ))
@@ -226,7 +227,7 @@ def build_rows() -> list[dict[str, str]]:
         "performance_claim",
         "unsupported",
         "none",
-        f"{evidence(reqs, 'frontier_model_evidence')}; {evidence(reqs, 'model_result_analysis')}",
+        f"{evidence(reqs, 'frontier_model_evidence')}; {evidence(reqs, 'model_result_analysis')}; {evidence(reqs, 'statistical_reporting_audit')}",
         "Only tiny smoke evidence is committed, including an infra failure; local QA rows are not model performance.",
         "Run the planned accepted-core scaffold sweep with documented provider versions and cost/infra notes.",
     ))
