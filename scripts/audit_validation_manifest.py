@@ -56,6 +56,16 @@ REQUIRED_COMMANDS = {
     "python scripts/audit_validation_manifest.py",
 }
 
+ALLOWED_UNHASHED_ARTIFACTS = {
+    # Written after the manifest or intentionally excluded to avoid circular hashes.
+    "data/validation_manifest_audit.csv",
+    "reports/validation_manifest_audit.md",
+    "reports/metr_style_report.md",
+    "reports/evidence_appendix.md",
+    # Human-readable progress log, not a source artifact for report claims.
+    "reports/overnight_progress.md",
+}
+
 
 def read_manifest() -> dict:
     if not MANIFEST.exists():
@@ -179,6 +189,32 @@ def build_rows() -> list[dict[str, str]]:
         ),
         "The manifest hashes generated local artifacts but intentionally avoids self-referential report hashes.",
         "Regenerate the full local gate if any hash mismatch appears.",
+    ))
+
+    recorded_paths = {
+        str(artifact.get("path", ""))
+        for artifact in artifacts
+        if isinstance(artifact, dict) and str(artifact.get("path", ""))
+    }
+    inventory_candidates = set()
+    inventory_candidates.update(path.relative_to(ROOT).as_posix() for path in (ROOT / "data").glob("*.csv"))
+    inventory_candidates.update(path.relative_to(ROOT).as_posix() for path in (ROOT / "reports").glob("*.md"))
+    inventory_candidates.update(path.relative_to(ROOT).as_posix() for path in (ROOT / "scripts").glob("*.py"))
+    missing_inventory = sorted(
+        path for path in inventory_candidates
+        if path not in recorded_paths and path not in ALLOWED_UNHASHED_ARTIFACTS
+    )
+    rows.append(row(
+        "artifact_inventory_coverage",
+        "artifact_hashes",
+        "pass" if not missing_inventory else "fail",
+        (
+            f"inventory_candidates={len(inventory_candidates)}; recorded_artifacts={len(recorded_paths)}; "
+            f"allowed_unhashed={len(ALLOWED_UNHASHED_ARTIFACTS)}; missing_inventory={len(missing_inventory)}; "
+            f"examples={compact_json(missing_inventory[:12])}"
+        ),
+        "The inventory check covers data CSVs, report markdown, and scripts. It intentionally excludes self-referential final reports, the validation-manifest audit output, and the progress log.",
+        "Add omitted evidence files to HASHED_ARTIFACTS or document them in ALLOWED_UNHASHED_ARTIFACTS.",
     ))
 
     omitted_report_hashes = (

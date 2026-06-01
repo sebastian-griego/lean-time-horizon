@@ -2313,6 +2313,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "schema_and_policy_note",
         "regeneration_command_coverage",
         "artifact_hash_integrity",
+        "artifact_inventory_coverage",
         "self_reference_boundary",
         "public_export_snapshot",
         "git_snapshot_policy",
