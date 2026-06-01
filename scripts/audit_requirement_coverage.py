@@ -211,6 +211,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
+    release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -588,6 +589,46 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(claim_audit_ok, partial=bool(claim_evidence)),
         f"claim_evidence rows: {len(claim_evidence)}; required claims covered: {len(required_claim_ids & claim_ids)}/{len(required_claim_ids)}; unsupported overclaim rows: {len(unsupported_claims)}; report exists: {(ROOT / 'reports' / 'claim_evidence_audit.md').exists()}.",
         "No gap." if claim_audit_ok else "Regenerate scripts/audit_claim_evidence.py after requirement coverage and inspect missing claim rows.",
+    ))
+
+    required_gate_ids = {
+        "local_release_artifact",
+        "research_report_readiness",
+        "accepted_core_stats_scope",
+        "hidden_pin_confidence",
+        "time_horizon_claim",
+        "scaffold_effect_claim",
+        "frontier_performance_claim",
+        "locked_benchmark_freeze",
+    }
+    gate_ids = {row_data.get("gate_id", "") for row_data in release_decision}
+    gate_fields = set(release_decision[0].keys()) if release_decision else set()
+    required_gate_fields = {
+        "gate_id",
+        "decision_scope",
+        "decision",
+        "status",
+        "evidence_basis",
+        "blocking_or_caution_items",
+        "required_next_action",
+    }
+    block_gates = [row_data for row_data in release_decision if row_data.get("status") == "block"]
+    pass_gates = [row_data for row_data in release_decision if row_data.get("status") == "pass"]
+    release_decision_ok = (
+        bool(release_decision)
+        and required_gate_ids.issubset(gate_ids)
+        and required_gate_fields.issubset(gate_fields)
+        and len(block_gates) >= 3
+        and len(pass_gates) >= 1
+        and (ROOT / "reports" / "release_decision_log.md").exists()
+    )
+    requirement_rows.append(row(
+        "release_decision_log",
+        "reporting",
+        "Release decision log should translate evidence audits into explicit pass/caution/block gates and next actions.",
+        status_from_bool(release_decision_ok, partial=bool(release_decision)),
+        f"release_decision rows: {len(release_decision)}; required gates covered: {len(required_gate_ids & gate_ids)}/{len(required_gate_ids)}; block gates: {len(block_gates)}; pass gates: {len(pass_gates)}; report exists: {(ROOT / 'reports' / 'release_decision_log.md').exists()}.",
+        "No gap." if release_decision_ok else "Regenerate scripts/generate_release_decision_log.py after claim and requirement audits, then inspect missing gates.",
     ))
 
     human_independent_ok = "independent" in " ".join(task.get("human_estimate_confidence", "").lower() for task in metadata)

@@ -130,6 +130,7 @@ def build_rows() -> list[dict[str, str]]:
         "task_quality_matrix",
         "pin_coverage_audit",
         "run_integrity_audit",
+        "release_decision_log",
         "reproducibility_manifest",
     ]
     locked_ids = [
@@ -156,7 +157,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, pin coverage, run integrity, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, pin coverage, run integrity, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",

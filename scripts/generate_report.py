@@ -358,6 +358,40 @@ Claim support table:
 """
 
 
+def release_decision_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/release_decision_log.md` has not been generated yet. Run "
+            "`python scripts/generate_release_decision_log.py` after requirement and claim audits, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    block_rows = [row for row in rows if row.get("status") == "block"]
+    caution_rows = [row for row in rows if row.get("status") == "caution"]
+    lines = [
+        "| gate | scope | status | decision | next action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        decision = row.get("decision", "").replace("|", "/")
+        action = row.get("required_next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('gate_id', '')}` | {row.get('decision_scope', '')} | {row.get('status', '')} | "
+            f"{decision} | {action} |"
+        )
+    return f"""`reports/release_decision_log.md` and `data/release_decision_log.csv` translate the evidence audits into explicit gate decisions. This is the report's operational conclusion: what can be used now, what requires caveats, and what is blocked.
+
+- gates: `{len(rows)}`
+- gate statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- blocked stronger claims: `{len(block_rows)}`
+- caution gates: `{len(caution_rows)}`
+
+Decision table:
+
+{chr(10).join(lines)}
+"""
+
+
 def task_quality_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -521,6 +555,7 @@ def main() -> int:
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
+    release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -705,6 +740,10 @@ Observed model-sweep failure labels:
 
 {claim_evidence_section(claim_evidence_rows)}
 
+## Release Decision Log
+
+{release_decision_section(release_decision_rows)}
+
 ## Difficulty Audit Summary
 
 The regenerated difficulty audit separates mechanical signals from manual judgments. Mechanical signals include reference proof lines, declaration count, public file count, public lemma count, tactic profile, automation dominance, Mathlib use, multi-file context, hidden pin strength, and wrong-submission count. Manual fields include frontier one-shot solvability estimates, p50/p90 human time, scaffold sensitivity, diagnostic value, and final accept/reject rationale.
@@ -744,7 +783,10 @@ python scripts/export_public_tasks.py --out public_tasks
 python scripts/validate_public_export.py --out public_tasks
 python scripts/audit_requirement_coverage.py --public-export public_tasks
 python scripts/audit_claim_evidence.py
+python scripts/generate_release_decision_log.py
 python scripts/audit_requirement_coverage.py --public-export public_tasks
+python scripts/audit_claim_evidence.py
+python scripts/generate_release_decision_log.py
 python scripts/write_validation_manifest.py --public-export public_tasks
 python scripts/generate_report.py
 ```
