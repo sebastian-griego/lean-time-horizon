@@ -150,7 +150,8 @@ def build_rows() -> list[dict[str, str]]:
         "caution",
         (
             f"accepted-core rows={len(accepted_quality)}; caveat rows={caveat_count}; automation-dominated rows={automation_count}; "
-            f"{evidence(reqs, 'portfolio_accepted_count')}; {evidence(reqs, 'task_quality_matrix')}"
+            f"{evidence(reqs, 'portfolio_accepted_count')}; {evidence(reqs, 'task_quality_matrix')}; "
+            f"{evidence(reqs, 'diagnostic_coverage_audit')}"
         ),
         "The core is intentionally small and several rows retain caveats.",
         "Add independently reviewed T2/T3/T4 rows before treating accepted-core aggregates as benchmark estimates.",

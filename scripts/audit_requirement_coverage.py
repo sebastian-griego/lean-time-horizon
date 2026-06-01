@@ -208,6 +208,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     difficulty = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    diagnostic_coverage = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     human_time_audit = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     human_time_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
@@ -606,6 +607,55 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(quality_ok),
         f"task_quality_matrix rows: {len(task_quality)}; metadata rows: {len(metadata)}; report exists: {(ROOT / 'reports' / 'task_quality_matrix.md').exists()}.",
         "No gap." if quality_ok else "Regenerate scripts/generate_task_quality_matrix.py after difficulty audit.",
+    ))
+
+    required_diagnostic_checks = {
+        "family_mix",
+        "direct_theorem_balance",
+        "capability_library_search",
+        "capability_theorem_decomposition",
+        "capability_semantic_formalization",
+        "capability_proof_debugging",
+        "capability_codebase_navigation",
+        "capability_invariant_design",
+        "capability_long_horizon_construction",
+        "failure_mode_metadata_density",
+        "capability_failure_label_alignment",
+        "automation_caveat_coverage",
+        "one_shot_solvability_balance",
+        "time_horizon_construct_limit",
+        "quality_matrix_join_integrity",
+    }
+    diagnostic_check_ids = {row_data.get("check_id", "") for row_data in diagnostic_coverage}
+    diagnostic_fields = set(diagnostic_coverage[0].keys()) if diagnostic_coverage else set()
+    required_diagnostic_fields = {
+        "check_id",
+        "area",
+        "status",
+        "accepted_task_count",
+        "accepted_task_ids",
+        "release_task_count",
+        "evidence",
+        "diagnostic_limit",
+        "next_action",
+    }
+    diagnostic_failures = [row_data for row_data in diagnostic_coverage if row_data.get("status") == "fail"]
+    diagnostic_blocks = [row_data for row_data in diagnostic_coverage if row_data.get("status") == "block"]
+    diagnostic_cautions = [row_data for row_data in diagnostic_coverage if row_data.get("status") == "caution"]
+    diagnostic_ok = (
+        bool(diagnostic_coverage)
+        and required_diagnostic_checks.issubset(diagnostic_check_ids)
+        and required_diagnostic_fields.issubset(diagnostic_fields)
+        and not diagnostic_failures
+        and (ROOT / "reports" / "diagnostic_coverage_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "diagnostic_coverage_audit",
+        "reporting",
+        "Diagnostic coverage audit should map accepted tasks to playbook capabilities families failure labels and construct-validity gaps.",
+        status_from_bool(diagnostic_ok, partial=bool(diagnostic_coverage)),
+        f"diagnostic coverage rows: {len(diagnostic_coverage)}; required checks covered: {len(required_diagnostic_checks & diagnostic_check_ids)}/{len(required_diagnostic_checks)}; failures: {len(diagnostic_failures)}; cautions: {len(diagnostic_cautions)}; blocks: {len(diagnostic_blocks)}; report exists: {(ROOT / 'reports' / 'diagnostic_coverage_audit.md').exists()}.",
+        "No gap." if diagnostic_ok else "Regenerate scripts/audit_diagnostic_coverage.py and fix failed diagnostic data checks.",
     ))
 
     human_time_fields = set(human_time_audit[0].keys()) if human_time_audit else set()

@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 34
+- `supported`: 35
 - `partial`: 4
 - `not_met`: 2
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 2
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 17
+- `required_for_research_report` / `supported`: 18
 
 ## Coverage Table
 
@@ -47,6 +47,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `difficulty_audit_report` | reporting | required_for_research_report | supported | Difficulty audit should include proof length, tactic profile, automation dominance, hidden-pin strength, and model-solvability estimates. | difficulty_audit rows: 26; report exists: True. | No gap. |
 | `manual_accepted_task_review` | reporting | required_for_research_report | supported | Accepted tasks should have hard reviewer-style notes and benchmark-grade caveats. | accepted_task_review.md exists: True. | No gap. |
 | `task_quality_matrix` | reporting | required_for_research_report | supported | Reviewer-facing task quality matrix should join metadata, difficulty signals, caveats, and next-review actions. | task_quality_matrix rows: 26; metadata rows: 26; report exists: True. | No gap. |
+| `diagnostic_coverage_audit` | reporting | required_for_research_report | supported | Diagnostic coverage audit should map accepted tasks to playbook capabilities families failure labels and construct-validity gaps. | diagnostic coverage rows: 15; required checks covered: 15/15; failures: 0; cautions: 3; blocks: 1; report exists: True. | No gap. |
 | `human_time_calibration_audit` | reporting | required_for_research_report | supported | Human-time calibration audit should verify bucket and p50/p90 consistency and explicitly track missing independent timing evidence. | human-time audit rows: 26; metadata rows: 26; failures: 0; accepted without independent timing: 6/6; observation rows: 0; report exists: True. | No gap. |
 | `pin_coverage_audit` | reporting | required_for_research_report | supported | Hidden-pin audit should distinguish public-stage wrong failures from wrong submissions that reach semantic pins. | pin_coverage rows: 26; accepted rows: 6; accepted hidden-pin wrong failures: 5; report exists: True. | No gap. |
 | `run_integrity_audit` | reporting | required_for_research_report | supported | Run-result integrity audit should verify transcripts, score vectors, failure labels, and pass@k arithmetic. | run_integrity rows: 69; run_results rows: 69; failing rows: 0; report exists: True. | No gap. |

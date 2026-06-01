@@ -540,6 +540,44 @@ Accepted-core quality rows:
 """
 
 
+def diagnostic_coverage_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/diagnostic_coverage_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_diagnostic_coverage.py` after the task quality matrix, "
+            "then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    cautions = [row for row in rows if row.get("status") == "caution"]
+    blocks = [row for row in rows if row.get("status") == "block"]
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | accepted tasks | diagnostic limit | next action |",
+        "| --- | --- | --- | ---: | --- | --- |",
+    ]
+    for row in rows:
+        limit = row.get("diagnostic_limit", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{row.get('accepted_task_count', '')} | {limit} | {action} |"
+        )
+    return f"""`reports/diagnostic_coverage_audit.md` and `data/diagnostic_coverage_audit.csv` map accepted_v0 tasks to playbook task families, diagnostic capabilities, failure-label coverage, automation caveats, one-shot solvability balance, and construct-validity gaps.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- caution rows: `{len(cautions)}`
+- blocked construct-validity rows: `{len(blocks)}`
+- failing data-integrity rows: `{len(failures)}`
+
+Diagnostic coverage checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def human_time_calibration_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -793,6 +831,7 @@ def main() -> int:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     difficulty_rows = read_csv(ROOT / "data" / "difficulty_audit.csv")
     task_quality_rows = read_csv(ROOT / "data" / "task_quality_matrix.csv")
+    diagnostic_coverage_rows = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     human_time_rows = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     task_asset_rows = read_csv(ROOT / "data" / "task_asset_manifest.csv")
     prompt_contract_rows = read_csv(ROOT / "data" / "prompt_contract_audit.csv")
@@ -919,6 +958,10 @@ The accepted core tasks are intended to test library/API search, theorem decompo
 
 Scaffold-sensitive tasks are marked in metadata. Lookup-sensitive rows include Mathlib image/preimage reasoning and semantic-list formalization. Iterative compile/debug sensitivity is expected for multi-file proof repair, invariant packages, and library-construction rows.
 
+## Diagnostic Coverage Audit
+
+{diagnostic_coverage_section(diagnostic_coverage_rows)}
+
 ## Human-Time Estimates
 
 Human-time buckets follow the project playbook:
@@ -1044,6 +1087,7 @@ lake build
 python scripts/validate_all.py
 python scripts/audit_difficulty.py
 python scripts/generate_task_quality_matrix.py
+python scripts/audit_diagnostic_coverage.py
 python scripts/audit_human_time_calibration.py
 python scripts/record_local_qa_results.py
 python scripts/audit_pin_coverage.py

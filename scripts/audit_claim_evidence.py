@@ -129,6 +129,7 @@ def build_rows() -> list[dict[str, str]]:
         "difficulty_audit_report",
         "manual_accepted_task_review",
         "task_quality_matrix",
+        "diagnostic_coverage_audit",
         "human_time_calibration_audit",
         "pin_coverage_audit",
         "run_integrity_audit",
@@ -164,7 +165,7 @@ def build_rows() -> list[dict[str, str]]:
     ))
     rows.append(row(
         "research_report_evidence",
-        "The report is generated from committed data and includes research-quality caveats, task quality matrices, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, statistical reporting checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
+        "The report is generated from committed data and includes research-quality caveats, task quality matrices, diagnostic-coverage checks, human-time calibration checks, task-asset hashes, prompt-contract checks, pin coverage, run integrity, statistical reporting checks, hosted-QA readiness checks, scaffold-support checks, release-decision gates, and a prospective evaluation protocol.",
         "report_validity",
         "supported" if all_status(reqs, research_ids) else "partial",
         "high" if all_status(reqs, research_ids) else "medium",
@@ -178,7 +179,7 @@ def build_rows() -> list[dict[str, str]]:
         "task_validity",
         "supported",
         "medium",
-        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}",
+        f"{len(accepted)} accepted_v0 tasks, {len(calibration)} calibration-only tasks, {len(rejected)} rejected archive tasks; {evidence(reqs, 'manual_accepted_task_review')}; {evidence(reqs, 'difficulty_audit_report')}; {evidence(reqs, 'task_quality_matrix')}; {evidence(reqs, 'diagnostic_coverage_audit')}",
         "This is an internal-review claim. Several accepted rows retain caveats and the core size is below the target benchmark size.",
         "Independent Lean-human review and more accepted high-quality T2/T3/T4 rows.",
     ))
@@ -208,7 +209,7 @@ def build_rows() -> list[dict[str, str]]:
         "construct_validity",
         "partial",
         "low",
-        f"{evidence(reqs, 'time_horizon_spread')}; {evidence(reqs, 'human_time_calibration_audit')}; accepted buckets: {compact_json(dict(Counter(task.get('human_time_bucket') for task in accepted)))}",
+        f"{evidence(reqs, 'time_horizon_spread')}; {evidence(reqs, 'diagnostic_coverage_audit')}; {evidence(reqs, 'human_time_calibration_audit')}; accepted buckets: {compact_json(dict(Counter(task.get('human_time_bucket') for task in accepted)))}",
         "Accepted core has only T2/T3 coverage and no T4; human times are author/reviewer estimates rather than independent solves.",
         "Add independently timed T3/T4 tasks before claiming strong time-horizon measurement.",
     ))
