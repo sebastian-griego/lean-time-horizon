@@ -228,6 +228,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     statistical_audit = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
+    taiga_wrapper_isolation = read_csv(ROOT / "data" / "taiga_wrapper_isolation_audit.csv")
     threats_to_validity = read_csv(ROOT / "data" / "threats_to_validity.csv")
     threat_coverage = read_csv(ROOT / "data" / "threat_coverage_audit.csv")
     claim_evidence = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
@@ -1827,6 +1828,38 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(hosted_qa_readiness_ok, partial=bool(hosted_qa_readiness)),
         f"hosted QA readiness rows: {len(hosted_qa_readiness)}; required checks covered: {len(required_hosted_qa_checks & hosted_qa_check_ids)}/{len(required_hosted_qa_checks)}; failures: {len(hosted_qa_failures)}; blocked hosted-QA steps: {len(hosted_qa_blocks)}; report exists: {(ROOT / 'reports' / 'hosted_qa_readiness_audit.md').exists()}.",
         "No gap." if hosted_qa_readiness_ok else "Regenerate scripts/audit_hosted_qa_readiness.py and fix failing local readiness checks.",
+    ))
+
+    required_taiga_wrapper_checks = {
+        "hidden_bundle_generation",
+        "bundle_runtime_grading_smoke",
+        "docker_static_isolation_controls",
+    }
+    taiga_wrapper_check_ids = {row_data.get("check_id", "") for row_data in taiga_wrapper_isolation}
+    taiga_wrapper_fields = set(taiga_wrapper_isolation[0].keys()) if taiga_wrapper_isolation else set()
+    required_taiga_wrapper_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "limitation",
+        "next_action",
+    }
+    taiga_wrapper_failures = [row_data for row_data in taiga_wrapper_isolation if row_data.get("status") == "fail"]
+    taiga_wrapper_ok = (
+        bool(taiga_wrapper_isolation)
+        and required_taiga_wrapper_checks.issubset(taiga_wrapper_check_ids)
+        and required_taiga_wrapper_fields.issubset(taiga_wrapper_fields)
+        and not taiga_wrapper_failures
+        and (ROOT / "reports" / "taiga_wrapper_isolation_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "taiga_wrapper_isolation_audit",
+        "reporting",
+        "Taiga wrapper isolation audit should exercise the local hidden-bundle grading path without source-task fallback while keeping hosted isolation claims blocked.",
+        status_from_bool(taiga_wrapper_ok, partial=bool(taiga_wrapper_isolation)),
+        f"taiga wrapper isolation rows: {len(taiga_wrapper_isolation)}; required checks covered: {len(required_taiga_wrapper_checks & taiga_wrapper_check_ids)}/{len(required_taiga_wrapper_checks)}; failures: {len(taiga_wrapper_failures)}; report exists: {(ROOT / 'reports' / 'taiga_wrapper_isolation_audit.md').exists()}.",
+        "No gap." if taiga_wrapper_ok else "Regenerate scripts/audit_taiga_wrapper_isolation.py and fix failing local wrapper mitigation checks.",
     ))
 
     required_threat_ids = {

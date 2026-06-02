@@ -721,6 +721,35 @@ Hosted QA readiness checks:
 """
 
 
+def taiga_wrapper_isolation_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/taiga_wrapper_isolation_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_taiga_wrapper_isolation.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | limitation |",
+        "| --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        limitation = row.get("limitation", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | {limitation} |"
+        )
+    return f"""`reports/taiga_wrapper_isolation_audit.md` and `data/taiga_wrapper_isolation_audit.csv` locally exercise the hosted wrapper's hidden-bundle grading path. This is mitigation evidence only; hosted filesystem-tool isolation still requires Taiga preflight and Env Linter evidence on uploaded problem versions.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- failing local wrapper-isolation checks: `{len(failures)}`
+
+Taiga wrapper isolation checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def threats_to_validity_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1852,6 +1881,7 @@ def main() -> int:
     statistical_reporting_rows = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider_readiness_rows = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted_qa_readiness_rows = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
+    taiga_wrapper_isolation_rows = read_csv(ROOT / "data" / "taiga_wrapper_isolation_audit.csv")
     threats_to_validity_rows = read_csv(ROOT / "data" / "threats_to_validity.csv")
     threat_coverage_rows = read_csv(ROOT / "data" / "threat_coverage_audit.csv")
     validation_manifest_audit_rows = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
@@ -2116,6 +2146,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 ## Hosted QA Readiness Audit
 
 {hosted_qa_readiness_section(hosted_qa_readiness_rows)}
+
+## Taiga Wrapper Isolation Audit
+
+{taiga_wrapper_isolation_section(taiga_wrapper_isolation_rows)}
 
 ## Threats To Validity Register
 
@@ -2460,6 +2494,10 @@ No provider API credentials or runner commands are committed. To run a real smok
 
 {chr(10).join(gap_lines) if gap_rows else "_No partial or unmet requirements recorded._"}
 
+## Taiga Wrapper Isolation Audit
+
+{taiga_wrapper_isolation_section(taiga_wrapper_isolation_rows)}
+
 ## Report And Evidence Files
 
 The long generated evidence tables are intentionally outside this main report:
@@ -2470,6 +2508,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
+- `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.

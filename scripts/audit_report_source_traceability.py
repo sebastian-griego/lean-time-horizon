@@ -498,6 +498,25 @@ SECTION_SPECS = [
         "next_action": "Use this table as the upgrade path, not as a completion claim.",
     },
     {
+        "section_id": "taiga_wrapper_isolation",
+        "heading": "Taiga Wrapper Isolation Audit",
+        "source_artifacts": [
+            "data/taiga_wrapper_isolation_audit.csv",
+            "reports/taiga_wrapper_isolation_audit.md",
+            "scripts/audit_taiga_wrapper_isolation.py",
+            "scripts/generate_taiga_hidden_bundle.py",
+            "taiga/mcp_server.py",
+            "taiga/Dockerfile",
+        ],
+        "required_phrases": [
+            "hidden-bundle grading path",
+            "mitigation evidence only",
+            "hosted filesystem-tool isolation still requires Taiga preflight and Env Linter",
+        ],
+        "limitation": "The wrapper-isolation audit is a local mitigation smoke test, not hosted filesystem-tool isolation evidence.",
+        "next_action": "Run Taiga hosted preflight and Env Linter on uploaded problem versions before upgrading hosted-QA claims.",
+    },
+    {
         "section_id": "evidence_files",
         "heading": "Report And Evidence Files",
         "source_artifacts": [
@@ -518,6 +537,7 @@ SECTION_SPECS = [
             "reports/figure_manifest.md",
             "reports/threat_coverage_audit.md",
             "reports/regeneration_command_consistency.md",
+            "reports/taiga_wrapper_isolation_audit.md",
         ],
         "required_phrases": [
             "evidence_appendix.md",
@@ -536,6 +556,7 @@ SECTION_SPECS = [
             "figure_manifest.md",
             "threat_coverage_audit.md",
             "regeneration_command_consistency.md",
+            "taiga_wrapper_isolation_audit.md",
         ],
         "limitation": "The source map improves traceability but does not create new model evidence.",
         "next_action": "Keep new report artifacts listed in README, manifest, and source traceability.",
