@@ -145,6 +145,7 @@ def main() -> int:
     reviewer_reproduction = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
     clean_workspace = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
     grader = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
+    security_leakage = read_csv(ROOT / "data" / "security_leakage_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     independent_review_status = read_csv(ROOT / "data" / "independent_review_status_audit.csv")
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
@@ -175,6 +176,8 @@ def main() -> int:
     clean_workspace_status_counts = Counter(row.get("status", "unknown") for row in clean_workspace)
     clean_workspace_failures = sum(1 for row in clean_workspace if row.get("status") != "pass")
     grader_failures = sum(1 for row in grader if row.get("status") == "fail")
+    security_status_counts = Counter(row.get("status", "unknown") for row in security_leakage)
+    security_failures = sum(1 for row in security_leakage if row.get("status") == "fail")
     failure_review_failures = sum(1 for row in failure_label_review_audit if row.get("status") == "fail")
     accepted_without_timing = sum(
         1 for row in human_time
@@ -302,7 +305,7 @@ def main() -> int:
         f"- clean-workspace replay statuses: `{compact_json(dict(sorted(clean_workspace_status_counts.items())))}`",
         f"- clean-workspace replay failures: `{clean_workspace_failures}`",
         f"- grader-hardening failures: `{grader_failures}`",
-        "- public export validator checks hidden/wrong files are absent from `public_tasks`.",
+        f"- security/leakage audit statuses: `{compact_json(dict(sorted(security_status_counts.items())))}`; failures: `{security_failures}`; public export/security checks cover hidden/wrong files, key patterns, and hidden-content fingerprints without printing sensitive matches.",
         "- hidden pins are meaningful finite probes, not proof of full semantic equivalence.",
         "",
         "## Model Evidence",
@@ -332,6 +335,7 @@ def main() -> int:
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
         "- `reports/report_count_consistency_audit.md` checks that repeated top-line counts agree with committed CSV/JSON sources.",
         "- `reports/peer_review_matrix.md` summarizes skeptical reviewer questions, defensible answers, residual risks, and upgrade evidence.",
+        "- `reports/security_leakage_audit.md` checks committed/exported credential and hidden-material leakage without printing sensitive matches.",
         "- `reports/regeneration_command_consistency.md` checks that README, manifest, and reviewer local-replay commands stay synchronized.",
         "- `reports/passk_claim_boundary_audit.md` checks that smoke-covered cells are not reported as exact-k pass@k-ready evidence.",
         "- `reports/candidate_pruning_audit.md` makes the aggressive pruning decision reviewable for every tracked task.",

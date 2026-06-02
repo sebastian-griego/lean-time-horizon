@@ -1,0 +1,23 @@
+# Security And Leakage Audit
+
+This generated audit checks the committed artifact for credential hygiene and hidden-material leakage. It scans tracked repository text plus the generated public task export, reports counts and fingerprints only, and never prints matched secret values or hidden Lean snippets.
+
+## Summary
+
+- checks: `5`
+- statuses: `{"pass": 5}`
+- areas: `{"credential_hygiene": 3, "hidden_material": 2}`
+
+## Check Table
+
+| check | area | status | findings | evidence | scanned scope | limitation | next action |
+| --- | --- | --- | ---: | --- | --- | --- | --- |
+| `tracked_secret_pattern_scan` | credential_hygiene | pass | 0 | pattern_counts={}; matched_values_are_not_reported=true | tracked_text_files=420; public_export_text_files=43 | Pattern scanning can miss novel credential formats and may flag only committed/exported text, not private local environment files. | Keep provider keys in environment variables and rerun after adding provider adapters or reports. |
+| `tracked_sensitive_filename_scan` | credential_hygiene | pass | 0 | sensitive_tracked_paths=0 | repo_artifact_files=420 | This checks filenames in tracked git files plus the audit's own generated artifacts; arbitrary untracked local developer files are intentionally outside the report artifact. | Do not commit .env files, private keys, or provider credential JSON. |
+| `public_export_hidden_path_scan` | hidden_material | pass | 0 | hidden_or_wrong_public_paths=0 | public_export_files=43 | This verifies exported file paths, not hosted problem-version filesystem isolation. | Rerun export and hosted QA before treating public tasks as deployed problem versions. |
+| `hidden_content_fingerprint_scan` | hidden_material | pass | 0 | verbatim_hidden_window_matches=0; hidden_windows_are_fingerprinted_not_printed=true | tracked public/report/data/script text outside hidden/wrong plus public_tasks | Fingerprint windows catch verbatim multi-line leaks, not paraphrases or single-line theorem statements. | Rerun after report, task, public export, or hidden-check edits. |
+| `provider_credential_policy_scan` | credential_hygiene | pass | 0 | env_mentions={"ANTHROPIC_LEAN_RUNNER": true, "GEMINI_LEAN_RUNNER": true, "LEAN_MODEL_RUNNER": true, "OPENAI_LEAN_RUNNER": true}; provider_secret_pattern_findings=0 | provider runner scripts and model-sweep execution packet | Environment-variable policy evidence does not prove provider runs were executed or that external secrets are valid. | Keep runner commands environment-variable based and do not commit provider API keys. |
+
+## Interpretation
+
+`pass` means this local committed/exported artifact has no findings for the corresponding scan. It does not prove that private untracked developer files are secret-free, and it does not replace hosted environment QA.

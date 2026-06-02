@@ -198,6 +198,7 @@ def build_rows() -> list[dict[str, str]]:
             f"{evidence(reqs, 'report_source_traceability')}; "
             f"{evidence(reqs, 'report_shape_audit')}; "
             f"{evidence(reqs, 'peer_review_matrix')}; "
+            f"{evidence(reqs, 'security_leakage_audit')}; "
             f"{evidence(reqs, 'model_evidence_provenance_audit')}; "
             f"{evidence(reqs, 'independent_task_review_packet')}; "
             f"{evidence(reqs, 'independent_task_review_status_audit')}; "

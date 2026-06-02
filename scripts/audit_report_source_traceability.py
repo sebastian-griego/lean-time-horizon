@@ -366,6 +366,24 @@ SECTION_SPECS = [
         "next_action": "Rerun public export validation after task or prompt changes.",
     },
     {
+        "section_id": "security_leakage",
+        "heading": "Security And Leakage Audit",
+        "source_artifacts": [
+            "data/security_leakage_audit.csv",
+            "reports/security_leakage_audit.md",
+            "scripts/audit_security_leakage.py",
+            "public_tasks",
+        ],
+        "required_phrases": [
+            "credential hygiene",
+            "hidden-material leakage",
+            "matched secret values",
+            "hidden Lean snippets",
+        ],
+        "limitation": "The security/leakage audit scans committed and exported artifacts; it does not inspect private untracked local files or replace hosted QA.",
+        "next_action": "Run after public export and before report/manifest regeneration.",
+    },
+    {
         "section_id": "scaffold_support",
         "heading": "Scaffold And Model-Run Support",
         "source_artifacts": [
@@ -572,6 +590,7 @@ SECTION_SPECS = [
             "reports/report_source_traceability.md",
             "reports/report_count_consistency_audit.md",
             "reports/peer_review_matrix.md",
+            "reports/security_leakage_audit.md",
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
@@ -595,6 +614,7 @@ SECTION_SPECS = [
             "requirement_coverage.md",
             "report_count_consistency_audit.md",
             "peer_review_matrix.md",
+            "security_leakage_audit.md",
             "data_schema_manifest.md",
             "reviewer_reproduction_packet.md",
             "clean_workspace_replay.md",

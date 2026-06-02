@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 69}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 70}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -112,12 +112,12 @@ The grader is Lean-first: submissions must pass forbidden-construct scanning, pu
 - run-integrity failures: `0`
 - data-schema manifest statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 3, "inventory_documented": 1, "schema_valid": 3}`
 - data-schema problem rows: `0`
-- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 16}`
+- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 17}`
 - reviewer reproduction local problem rows: `0`; external-evidence rows blocked: `3`
 - clean-workspace replay statuses: `{"pass": 7}`
 - clean-workspace replay failures: `0`
 - grader-hardening failures: `0`
-- public export validator checks hidden/wrong files are absent from `public_tasks`.
+- security/leakage audit statuses: `{"pass": 5}`; failures: `0`; public export/security checks cover hidden/wrong files, key patterns, and hidden-content fingerprints without printing sensitive matches.
 - hidden pins are meaningful finite probes, not proof of full semantic equivalence.
 
 ## Model Evidence
@@ -143,6 +143,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 - `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.
 - `reports/report_count_consistency_audit.md` checks that repeated top-line counts agree with committed CSV/JSON sources.
 - `reports/peer_review_matrix.md` summarizes skeptical reviewer questions, defensible answers, residual risks, and upgrade evidence.
+- `reports/security_leakage_audit.md` checks committed/exported credential and hidden-material leakage without printing sensitive matches.
 - `reports/regeneration_command_consistency.md` checks that README, manifest, and reviewer local-replay commands stay synchronized.
 - `reports/passk_claim_boundary_audit.md` checks that smoke-covered cells are not reported as exact-k pass@k-ready evidence.
 - `reports/candidate_pruning_audit.md` makes the aggressive pruning decision reviewable for every tracked task.

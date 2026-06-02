@@ -99,6 +99,7 @@ def build_rows() -> list[dict[str, str]]:
     model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
+    security = read_csv(ROOT / "data" / "security_leakage_audit.csv")
     hosted = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     command_rows = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
 
@@ -161,6 +162,8 @@ def build_rows() -> list[dict[str, str]]:
     statistical_blocks = [row_data for row_data in statistical if row_data.get("status") == "block"]
     hosted_blocks = [row_data for row_data in hosted if row_data.get("status") == "block"]
     provider_failures = [row_data for row_data in provider if row_data.get("status") == "fail"]
+    security_failures = [row_data for row_data in security if row_data.get("status") == "fail"]
+    security_by_id = {row_data.get("check_id", ""): row_data for row_data in security}
     command_key_leaks = [
         row_data for row_data in command_rows
         if "API_KEY=" in row_data.get("full_sweep_command", "")
@@ -329,23 +332,31 @@ def build_rows() -> list[dict[str, str]]:
             "secret_and_runner_boundary",
             "operational_security",
             "medium",
-            "controlled" if not provider_failures and not command_key_leaks else "caution",
-            f"provider readiness failures={len(provider_failures)}; model-sweep command key-assignment leaks={len(command_key_leaks)}",
-            "Provider commands require external runner env vars and keep provider keys out of committed commands.",
-            "Repeat secret scans before every commit that touches runner or transcript files.",
+            "controlled" if not provider_failures and not command_key_leaks and not security_failures else "caution",
+            (
+                f"provider readiness failures={len(provider_failures)}; "
+                f"model-sweep command key-assignment leaks={len(command_key_leaks)}; "
+                f"security/leakage failures={len(security_failures)}"
+            ),
+            "Provider commands require external runner env vars, and the security/leakage audit scans committed/exported artifacts for credential patterns without printing matched values.",
+            "Repeat security/leakage scans before every commit that touches runner, transcript, public export, or report files.",
             ["artifact_security", "provider_run_reproducibility"],
-            ["data/provider_readiness_audit.csv", "data/model_sweep_execution_commands.csv"],
+            ["data/provider_readiness_audit.csv", "data/model_sweep_execution_commands.csv", "reports/security_leakage_audit.md"],
         ),
         row(
             "public_export_hidden_leakage",
             "operational_security",
             "high",
-            "controlled" if (ROOT / "public_tasks").exists() and not public_export_hidden_paths else "caution",
-            f"public_tasks exists={(ROOT / 'public_tasks').exists()}; hidden/wrong paths in export={len(public_export_hidden_paths)}",
-            "Public-export validation checks that hidden references and wrong submissions are absent.",
-            "Validate the public export after every task-asset or export-script change.",
+            "controlled" if (ROOT / "public_tasks").exists() and not public_export_hidden_paths and not security_failures else "caution",
+            (
+                f"public_tasks exists={(ROOT / 'public_tasks').exists()}; "
+                f"hidden/wrong paths in export={len(public_export_hidden_paths)}; "
+                f"fingerprint findings={security_by_id.get('hidden_content_fingerprint_scan', {}).get('finding_count', 'missing')}"
+            ),
+            "Public-export validation checks that hidden references and wrong submissions are absent; the security/leakage audit also fingerprints hidden-only Lean windows and scans public/report artifacts for verbatim leaks.",
+            "Validate public export and rerun security/leakage scans after every task-asset, export-script, hidden-check, or report change.",
             ["public_release_safety", "locked_benchmark"],
-            ["public_tasks", "reports/task_asset_manifest.md", "reports/validation_manifest.json"],
+            ["public_tasks", "reports/task_asset_manifest.md", "reports/validation_manifest.json", "reports/security_leakage_audit.md"],
         ),
     ]
     return rows

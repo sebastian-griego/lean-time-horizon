@@ -44,7 +44,7 @@ Data schema ledger:
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
 | `independent_task_reviews` | empty_ready | 0 | `data/independent_task_review_schema.json` | Empty review data cannot support independent acceptance, time-bucket, hidden-pin, or wrong-submission adequacy claims. | Collect non-author review rows for every accepted_v0 task before strengthening benchmark-grade task-quality claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 66 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 67 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -167,7 +167,7 @@ Independent review status:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 69}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 70}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -214,7 +214,7 @@ Peer-review matrix:
 | `model_performance_evidence` | model_results | block | No. The provider rows are smoke provenance only; there are zero exact-k pass@k-ready accepted-core scaffold cells. | Any pass-rate, ranking, scaffold-effect, family, or time-bucket performance interpretation would overclaim. |
 | `statistical_reporting` | statistics | block | No. The statistical plan exists and correctly blocks performance plots under current coverage. | Descriptive task-count figures are supported, but performance figures would imply nonexistent coverage. |
 | `human_time_evidence` | calibration | block | No. Accepted tasks have manual review fields but no independent timed solve observations. | Time-horizon claims remain author/reviewer-estimate-only. |
-| `hosted_qa_and_public_export` | operational_validity | caution | Local public export is clean, but hosted QA, Env Linter, problem-version mapping, and uploaded-image evidence are absent. | Local wrapper and export checks do not prove hosted filesystem-tool isolation or final problem-version behavior. |
+| `hosted_qa_and_public_export` | operational_validity | caution | Local public export and committed/exported leakage scans are clean, but hosted QA, Env Linter, problem-version mapping, and uploaded-image evidence are absent. | Local wrapper, export, and leakage checks do not prove hosted filesystem-tool isolation or final problem-version behavior. |
 | `local_reproducibility` | reproducibility | pass | Yes for the local role. The README gate, reviewer packet, clean-workspace replay, regeneration-command audit, and manifest audit are synchronized and passing. | This is local reproducibility, not hosted QA or clean remote CI proof. |
 | `claim_control_system` | claims | pass | Yes. Claim authorization, claim conformance, count consistency, source traceability, and pass@k boundary audits are present and passing. | Text audits are guardrails; they do not create missing provider, timing, task-review, or hosted evidence. |
 | `upgrade_path` | roadmap | pass | Yes. The gap matrix, release decision log, freeze roadmap, and final-delivery checklist name the missing evidence and exit criteria. | The roadmap is not evidence that the blocked gates have been completed. |
@@ -263,6 +263,26 @@ Hidden pins check more than type signatures where possible, but they remain fini
 ## Public Export
 
 `scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+## Security And Leakage Audit
+
+`reports/security_leakage_audit.md` and `data/security_leakage_audit.csv` scan committed/exported artifacts for credential hygiene and hidden-material leakage. The audit reports counts and fingerprints only: matched secret values and hidden Lean snippets are not printed into generated reports.
+
+- checks: `5`
+- statuses: `{"pass": 5}`
+- areas: `{"credential_hygiene": 3, "hidden_material": 2}`
+- failing leakage checks: `0`
+
+Security and leakage checks:
+
+| check | area | status | findings | limitation |
+| --- | --- | --- | ---: | --- |
+| `tracked_secret_pattern_scan` | credential_hygiene | pass | 0 | Pattern scanning can miss novel credential formats and may flag only committed/exported text, not private local environment files. |
+| `tracked_sensitive_filename_scan` | credential_hygiene | pass | 0 | This checks filenames in tracked git files plus the audit's own generated artifacts; arbitrary untracked local developer files are intentionally outside the report artifact. |
+| `public_export_hidden_path_scan` | hidden_material | pass | 0 | This verifies exported file paths, not hosted problem-version filesystem isolation. |
+| `hidden_content_fingerprint_scan` | hidden_material | pass | 0 | Fingerprint windows catch verbatim multi-line leaks, not paraphrases or single-line theorem statements. |
+| `provider_credential_policy_scan` | credential_hygiene | pass | 0 | Environment-variable policy evidence does not prove provider runs were executed or that external secrets are valid. |
+
 
 ## Scaffold And Model-Run Support
 
@@ -486,6 +506,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
 - `reports/peer_review_matrix.md`: skeptical reviewer question matrix with current defensible answers, residual risks, and upgrade evidence.
+- `reports/security_leakage_audit.md`: committed/exported credential and hidden-material leakage scan that reports counts/fingerprints without printing matched secrets or hidden Lean snippets.
 - `reports/final_delivery_checklist_audit.md`: strict playbook final-delivery checklist mapped to committed evidence, with pass@k, hosted QA, and version-freeze blockers kept visible.
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.
@@ -511,9 +532,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 `reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
 
-- reproduction steps: `19`
-- phase counts: `{"external_evidence": 3, "local_replay": 16}`
-- status counts: `{"blocked_external_evidence": 3, "ready": 16}`
+- reproduction steps: `20`
+- phase counts: `{"external_evidence": 3, "local_replay": 17}`
+- status counts: `{"blocked_external_evidence": 3, "ready": 17}`
 - local replay problem rows: `0`
 - external-evidence rows still blocked: `3`
 
@@ -533,6 +554,7 @@ Reviewer reproduction ledger:
 | `grader_hardening` | local_replay | ready | `python scripts/audit_grader_hardening.py` | The scanner remains lexical source scanning, not a complete Lean parser. |
 | `public_export` | local_replay | ready | `python scripts/export_public_tasks.py --out public_tasks` | The export is a local directory snapshot, not a hosted problem version. |
 | `public_export_validation` | local_replay | ready | `python scripts/validate_public_export.py --out public_tasks` | This does not run Taiga Full Env QA or Env Linter. |
+| `security_leakage` | local_replay | ready | `python scripts/audit_security_leakage.py` | This scans committed/exported artifacts only; it does not inspect private untracked local environment files or replace hosted QA. |
 | `taiga_metadata_template` | local_replay | ready | `python scripts/generate_taiga_problem_metadata.py` | The template uses placeholder image values; it is not a hosted problem-version record or QA result. |
 | `report_regeneration` | local_replay | ready | `python scripts/generate_report.py` | Generated report text can still overclaim unless claim-conformance checks pass. |
 | `claim_and_shape_audits` | local_replay | ready | `python scripts/audit_report_claim_conformance.py; python scripts/audit_report_shape.py` | Text audits are guardrails, not substitutes for substantive external evidence. |

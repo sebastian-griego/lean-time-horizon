@@ -245,6 +245,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_count_consistency = read_csv(ROOT / "data" / "report_count_consistency_audit.csv")
     peer_review_matrix = read_csv(ROOT / "data" / "peer_review_matrix.csv")
+    security_leakage = read_csv(ROOT / "data" / "security_leakage_audit.csv")
     final_delivery_checklist = read_csv(ROOT / "data" / "final_delivery_checklist_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     regeneration_command_consistency = read_csv(ROOT / "data" / "regeneration_command_consistency.csv")
@@ -828,6 +829,45 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(public_export_ok),
         f"Public export exists: {public_counts.get('exists')}; exported tasks: {public_counts.get('task_count')}; hidden/wrong paths: {public_counts.get('hidden_or_wrong_paths')}.",
         "No gap." if public_export_ok else "Run export_public_tasks.py and validate_public_export.py, then inspect leaks.",
+    ))
+
+    required_security_checks = {
+        "tracked_secret_pattern_scan",
+        "tracked_sensitive_filename_scan",
+        "public_export_hidden_path_scan",
+        "hidden_content_fingerprint_scan",
+        "provider_credential_policy_scan",
+    }
+    security_check_ids = {row_data.get("check_id", "") for row_data in security_leakage}
+    security_fields = set(security_leakage[0].keys()) if security_leakage else set()
+    required_security_fields = {
+        "check_id",
+        "area",
+        "status",
+        "finding_count",
+        "evidence",
+        "scanned_scope",
+        "limitation",
+        "next_action",
+    }
+    security_failures = [
+        row_data for row_data in security_leakage
+        if row_data.get("status") == "fail"
+    ]
+    security_ok = (
+        bool(security_leakage)
+        and required_security_checks.issubset(security_check_ids)
+        and required_security_fields.issubset(security_fields)
+        and not security_failures
+        and (ROOT / "reports" / "security_leakage_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "security_leakage_audit",
+        "integrity",
+        "Security and leakage audit should scan committed/exported artifacts for hard-coded credential patterns hidden public-export paths and verbatim hidden Lean content leaks without printing secrets or hidden snippets.",
+        status_from_bool(security_ok, partial=bool(security_leakage)),
+        f"security checks: {len(security_leakage)}; required checks covered: {len(required_security_checks & security_check_ids)}/{len(required_security_checks)}; failures: {len(security_failures)}; report exists: {(ROOT / 'reports' / 'security_leakage_audit.md').exists()}.",
+        "No gap." if security_ok else "Run scripts/audit_security_leakage.py after public export, then inspect failed scan rows without exposing matched values.",
     ))
 
     task_asset_fields = set(task_assets[0].keys()) if task_assets else set()
@@ -2573,6 +2613,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "local_qa_rows",
         "run_integrity",
         "peer_review_matrix",
+        "security_leakage",
         "passk_claim_boundaries",
         "grader_hardening",
         "public_export",

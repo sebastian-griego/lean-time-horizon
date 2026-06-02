@@ -155,6 +155,17 @@ STEPS = [
         "next_action": "Run immediately before hosted packaging or release tagging.",
     },
     {
+        "step_id": "security_leakage",
+        "phase": "local_replay",
+        "command": "python scripts/audit_security_leakage.py",
+        "expected_artifacts": "data/security_leakage_audit.csv;reports/security_leakage_audit.md",
+        "claim_supported": "Committed/exported artifacts can be checked for credential patterns, hidden public-export paths, and verbatim hidden Lean content leakage.",
+        "evidence_basis": "Tracked-file secret-pattern scan, sensitive filename scan, public export path scan, and hidden-content fingerprint scan.",
+        "failure_interpretation": "Any failure blocks public/research-report hygiene claims until the finding is removed or the scanner is corrected with a documented reason.",
+        "limitation": "This scans committed/exported artifacts only; it does not inspect private untracked local environment files or replace hosted QA.",
+        "next_action": "Run after public export and before regenerating report/manifest evidence.",
+    },
+    {
         "step_id": "taiga_metadata_template",
         "phase": "local_replay",
         "command": "python scripts/generate_taiga_problem_metadata.py",

@@ -940,6 +940,38 @@ Grader hardening checks:
 """
 
 
+def security_leakage_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/security_leakage_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_security_leakage.py` after public export, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    area_counts = Counter(row.get("area", "unknown") for row in rows)
+    failures = [row for row in rows if row.get("status") == "fail"]
+    lines = [
+        "| check | area | status | findings | limitation |",
+        "| --- | --- | --- | ---: | --- |",
+    ]
+    for row in rows:
+        limitation = row.get("limitation", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('area', '')} | {row.get('status', '')} | "
+            f"{row.get('finding_count', '')} | {limitation} |"
+        )
+    return f"""`reports/security_leakage_audit.md` and `data/security_leakage_audit.csv` scan committed/exported artifacts for credential hygiene and hidden-material leakage. The audit reports counts and fingerprints only: matched secret values and hidden Lean snippets are not printed into generated reports.
+
+- checks: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- failing leakage checks: `{len(failures)}`
+
+Security and leakage checks:
+
+{chr(10).join(lines)}
+"""
+
+
 def claim_evidence_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1934,6 +1966,7 @@ def main() -> int:
     pin_coverage_rows = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity_rows = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     grader_hardening_rows = read_csv(ROOT / "data" / "grader_hardening_audit.csv")
+    security_leakage_rows = read_csv(ROOT / "data" / "security_leakage_audit.csv")
     claim_evidence_rows = read_csv(ROOT / "data" / "claim_evidence_audit.csv")
     claim_authorization_rows = read_csv(ROOT / "data" / "claim_authorization_matrix.csv")
     research_claim_gap_rows = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
@@ -2187,6 +2220,10 @@ The axiom policy allows only the standard Lean axioms documented in `docs/axiom_
 ## Public Export
 
 `scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. It copies every file listed in metadata `public_files` plus `Prompt.md` and `metadata.json`. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
+
+## Security And Leakage Audit
+
+{security_leakage_section(security_leakage_rows)}
 
 ## Prompt Contract Audit
 
@@ -2540,6 +2577,10 @@ Hidden pins check more than type signatures where possible, but they remain fini
 
 `scripts/export_public_tasks.py` exports the release set by default: `accepted_v0`, `calibration_only`, and pending candidates if any. `scripts/validate_public_export.py` checks that hidden and wrong directories are absent, all public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.
 
+## Security And Leakage Audit
+
+{security_leakage_section(security_leakage_rows)}
+
 ## Scaffold And Model-Run Support
 
 The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. Lookup is a real read-only command, `python scripts/lean_lookup.py QUERY`, which searches metadata-listed public Lean task files and installed Std/Mathlib files when available.
@@ -2609,6 +2650,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
 - `reports/peer_review_matrix.md`: skeptical reviewer question matrix with current defensible answers, residual risks, and upgrade evidence.
+- `reports/security_leakage_audit.md`: committed/exported credential and hidden-material leakage scan that reports counts/fingerprints without printing matched secrets or hidden Lean snippets.
 - `reports/final_delivery_checklist_audit.md`: strict playbook final-delivery checklist mapped to committed evidence, with pass@k, hosted QA, and version-freeze blockers kept visible.
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.

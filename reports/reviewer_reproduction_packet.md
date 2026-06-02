@@ -4,10 +4,10 @@ This generated packet converts the local validation and report-generation surfac
 
 ## Summary
 
-- steps: `19`
-- phases: `{"external_evidence": 3, "local_replay": 16}`
-- statuses: `{"blocked_external_evidence": 3, "ready": 16}`
-- local replay steps ready: `16/16`
+- steps: `20`
+- phases: `{"external_evidence": 3, "local_replay": 17}`
+- statuses: `{"blocked_external_evidence": 3, "ready": 17}`
+- local replay steps ready: `17/17`
 - local replay problem rows: `0`
 - external evidence rows still blocked: `3`
 
@@ -31,6 +31,7 @@ Run the local replay steps in order after dependency setup. Treat any nonzero ex
 | `grader_hardening` | local_replay | ready | `python scripts/audit_grader_hardening.py` | Forbidden-construct scanning, axiom allowlists, grader ordering, and validation-command coverage are reviewable. | The scanner remains lexical source scanning, not a complete Lean parser. |
 | `public_export` | local_replay | ready | `python scripts/export_public_tasks.py --out public_tasks` | Public release assets can be exported without hidden references or wrong submissions. | The export is a local directory snapshot, not a hosted problem version. |
 | `public_export_validation` | local_replay | ready | `python scripts/validate_public_export.py --out public_tasks` | The public export omits hidden/wrong directories and exported Lean files compile. | This does not run Taiga Full Env QA or Env Linter. |
+| `security_leakage` | local_replay | ready | `python scripts/audit_security_leakage.py` | Committed/exported artifacts can be checked for credential patterns, hidden public-export paths, and verbatim hidden Lean content leakage. | This scans committed/exported artifacts only; it does not inspect private untracked local environment files or replace hosted QA. |
 | `taiga_metadata_template` | local_replay | ready | `python scripts/generate_taiga_problem_metadata.py` | The public release task set can be rendered into a Taiga problems-metadata template. | The template uses placeholder image values; it is not a hosted problem-version record or QA result. |
 | `report_regeneration` | local_replay | ready | `python scripts/generate_report.py` | The main report, appendix, and descriptive figures regenerate from committed CSV inputs. | Generated report text can still overclaim unless claim-conformance checks pass. |
 | `claim_and_shape_audits` | local_replay | ready | `python scripts/audit_report_claim_conformance.py; python scripts/audit_report_shape.py` | The report keeps blocked claims blocked and answers the playbook report-shape questions where evidence allows. | Text audits are guardrails, not substitutes for substantive external evidence. |

@@ -245,16 +245,17 @@ def build_rows() -> list[dict[str, str]]:
             "operational_validity",
             "caution",
             "Are public assets clean, and has hosted QA proven runtime isolation?",
-            "Local public export is clean, but hosted QA, Env Linter, problem-version mapping, and uploaded-image evidence are absent.",
+            "Local public export and committed/exported leakage scans are clean, but hosted QA, Env Linter, problem-version mapping, and uploaded-image evidence are absent.",
             (
                 f"{req_text(reqs, 'public_export_no_hidden_leak')}; {req_text(reqs, 'hosted_qa_readiness_audit')}; "
-                f"{req_text(reqs, 'hosted_qa_env_linter')}; {claim_text(claims, 'hosted_qa_status')}"
+                f"{req_text(reqs, 'security_leakage_audit')}; {req_text(reqs, 'hosted_qa_env_linter')}; {claim_text(claims, 'hosted_qa_status')}"
             ),
-            "Local wrapper and export checks do not prove hosted filesystem-tool isolation or final problem-version behavior.",
+            "Local wrapper, export, and leakage checks do not prove hosted filesystem-tool isolation or final problem-version behavior.",
             "Run hosted preflight, Full Env QA, Env Linter, and record exact problem versions plus finding dispositions.",
             [
                 "reports/hosted_qa_readiness_audit.md",
                 "reports/taiga_wrapper_isolation_audit.md",
+                "reports/security_leakage_audit.md",
                 "public_tasks",
             ],
         ),
