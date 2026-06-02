@@ -7,9 +7,9 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 65}`
+- requirement statuses: `{"not_met": 3, "partial": 5, "supported": 64}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
-- release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
+- release-decision gates: `{"block": 4, "caution": 3, "pass": 1}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
 
 ## Research Questions
@@ -193,6 +193,7 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
 | `hosted_qa_env_linter` | not_met | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 6. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
+| `validation_manifest_audit` | partial | manifest audit rows: 8; required checks covered: 8/8; failures: 1; report exists: True. | Run scripts/audit_validation_manifest.py after writing the validation manifest and inspect failed manifest checks. |
 
 ## Validity Notes
 

@@ -18,8 +18,8 @@ This audit separates mechanical signals from manual benchmark judgments. Mechani
 | lt-201 | accepted_v0 | T2 | 25 | semantic | 2 | true | high | accepted_v0_keep_with_caveat: reference proof is automation-dominated, but the task is retained for multi-file navigation, fixed API semantics, and generalized batch repair; needs independent review before any locked benchmark claim. |
 | lt-203 | accepted_v0 | T2 | 30 | semantic | 2 | false | high | accepted_v0: spec-to-formal task with hidden pins rejecting vacuous, equality-only, and duplicate-sensitive interpretations. |
 | lt-202 | accepted_v0 | T2 | 46 | mixed | 2 | false | medium_high | accepted_v0_keep_with_caveat: Mathlib-adjacent theorem package requiring image/preimage API lookup, premise selection, and witness decomposition; hidden checks mostly protect fixed theorem signatures rather than semantic formalization choices. |
-| lt-204 | accepted_v0 | T2 | 36 | semantic | 2 | false | high | accepted_v0: optimizer-style invariant package with helper lemmas for cap bounds, list preservation, and sum monotonicity. |
-| lt-205 | accepted_v0 | T3 | 42 | semantic | 2 | false | high | accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot. |
+| lt-204 | accepted_v0 | T2 | 36 | semantic | 3 | false | high | accepted_v0: optimizer-style invariant package with helper lemmas for cap bounds, list preservation, and sum monotonicity. |
+| lt-205 | accepted_v0 | T3 | 42 | semantic | 3 | false | high | accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot. |
 | lt-206 | accepted_v0 | T2 | 60 | semantic | 2 | true | high | accepted_v0_keep_with_caveat: reference proof uses substantial simp/omega automation, but the task is retained for the multi-lemma partition invariant, side predicates, and duplicate-sensitive count preservation; needs independent review before any locked benchmark claim. |
 
 ## Calibration-Only Release Tasks

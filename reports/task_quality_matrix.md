@@ -17,8 +17,8 @@ This generated matrix joins task metadata with the difficulty audit so reviewers
 | `lt-201` | accepted_core_with_caveat | proof_repair_codebase | T2 | 25 | yes | semantic | 2 | maybe | high | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. |
 | `lt-203` | accepted_core_retained | informal_spec_to_formal | T2 | 30 | no | semantic | 2 | maybe | high | Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. |
 | `lt-202` | accepted_core_with_caveat | direct_theorem_proving | T2 | 46 | no | mixed | 2 | maybe | medium_high | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. |
-| `lt-204` | accepted_core_retained | invariant_verification_ml_optimization | T2 | 36 | no | semantic | 2 | maybe | high | Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. |
-| `lt-205` | accepted_core_retained | small_formal_library_construction | T3 | 42 | no | semantic | 2 | unlikely | high | Independently time at least one human solve and run the planned scaffold sweep before using this as long-horizon evidence. |
+| `lt-204` | accepted_core_retained | invariant_verification_ml_optimization | T2 | 36 | no | semantic | 3 | maybe | high | Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. |
+| `lt-205` | accepted_core_retained | small_formal_library_construction | T3 | 42 | no | semantic | 3 | unlikely | high | Independently time at least one human solve and run the planned scaffold sweep before using this as long-horizon evidence. |
 | `lt-206` | accepted_core_with_caveat | algorithm_correctness | T2 | 60 | yes | semantic | 2 | maybe | high | Retain in v0.1 only with the recorded caveat; collect independent human timing, full scaffold sweep evidence, and external QA before freeze. |
 
 ## Calibration Matrix

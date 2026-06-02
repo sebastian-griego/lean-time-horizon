@@ -19,8 +19,8 @@ The cards intentionally describe hidden checks by role, counts, and stage outcom
 | `lt-201` | keep_with_caveat | T2 | true | pins_not_exercised_by_wrongs | `{"public_stage": 2}` | task_level_with_caveat | maybe |
 | `lt-203` | keep | T2 | false | semantic_pins_exercised | `{"hidden_pin": 2}` | task_level_internal_review_singleton_capability | maybe |
 | `lt-202` | keep_with_caveat | T2 | false | pins_not_exercised_by_wrongs | `{"public_stage": 2}` | task_level_with_caveat | maybe |
-| `lt-204` | keep | T2 | false | semantic_pins_exercised | `{"hidden_pin": 1, "public_stage": 1}` | task_level_internal_review | maybe |
-| `lt-205` | keep | T3 | false | semantic_pins_exercised | `{"hidden_pin": 1, "public_stage": 1}` | task_level_internal_review | unlikely |
+| `lt-204` | keep | T2 | false | semantic_pins_exercised | `{"hidden_pin": 2, "public_stage": 1}` | task_level_internal_review | maybe |
+| `lt-205` | keep | T3 | false | semantic_pins_exercised | `{"hidden_pin": 2, "public_stage": 1}` | task_level_internal_review | unlikely |
 | `lt-206` | keep_with_caveat | T2 | true | semantic_pins_exercised | `{"hidden_pin": 1, "unknown": 1}` | task_level_with_caveat | maybe |
 
 ## Cards
@@ -79,9 +79,9 @@ The cards intentionally describe hidden checks by role, counts, and stage outcom
 - one-shot likelihood and diagnostic value: `maybe` / `high`
 - claimed capabilities: `theorem_decomposition`, `invariant_design`, `long_horizon_construction`
 - construct support: `task_level_internal_review`; limit: task-level evidence only; aggregate claims still require more accepted tasks and model data
-- hidden-pin evidence: `semantic` pins; role `semantic_positive_negative_guard`; coverage `semantic_pins_exercised`; wrong stages `{"hidden_pin": 1, "public_stage": 1}`
-- validation evidence: local QA `{"expected_failure": 2, "passed": 1}`; validation command kinds `reference_pass;wrong_fail:LengthAsSum;wrong_fail:LengthOnly`
-- asset evidence: prompt=1; public=1; metadata=1; hidden_reference=1; hidden_pincheck=1; wrong_submission=2
+- hidden-pin evidence: `semantic` pins; role `semantic_positive_negative_guard`; coverage `semantic_pins_exercised`; wrong stages `{"hidden_pin": 2, "public_stage": 1}`
+- validation evidence: local QA `{"expected_failure": 3, "passed": 1}`; validation command kinds `reference_pass;wrong_fail:AllLeVacuous;wrong_fail:LengthAsSum;wrong_fail:LengthOnly`
+- asset evidence: prompt=1; public=1; metadata=1; hidden_reference=1; hidden_pincheck=1; wrong_submission=3
 - reviewer note: accepted_v0: optimizer-style invariant package with helper lemmas for cap bounds, list preservation, and sum monotonicity.
 - benchmark-grade blocker: Collect independent timing, hosted QA, and accepted-core scaffold/model evidence before benchmark freeze. independent human timing; accepted-core scaffold sweep; hosted QA evidence Mutable definitions have public-compiling wrong controls that exercise semantic hidden pins.
 
@@ -94,9 +94,9 @@ The cards intentionally describe hidden checks by role, counts, and stage outcom
 - one-shot likelihood and diagnostic value: `unlikely` / `high`
 - claimed capabilities: `theorem_decomposition`, `long_horizon_construction`
 - construct support: `task_level_internal_review`; limit: task-level evidence only; aggregate claims still require more accepted tasks and model data
-- hidden-pin evidence: `semantic` pins; role `semantic_positive_negative_guard`; coverage `semantic_pins_exercised`; wrong stages `{"hidden_pin": 1, "public_stage": 1}`
-- validation evidence: local QA `{"expected_failure": 2, "passed": 1}`; validation command kinds `reference_pass;wrong_fail:LengthBagEq;wrong_fail:SetMembershipOnly`
-- asset evidence: prompt=1; public=1; metadata=1; hidden_reference=1; hidden_pincheck=1; wrong_submission=2
+- hidden-pin evidence: `semantic` pins; role `semantic_positive_negative_guard`; coverage `semantic_pins_exercised`; wrong stages `{"hidden_pin": 2, "public_stage": 1}`
+- validation evidence: local QA `{"expected_failure": 3, "passed": 1}`; validation command kinds `reference_pass;wrong_fail:BagEqTrivial;wrong_fail:LengthBagEq;wrong_fail:SetMembershipOnly`
+- asset evidence: prompt=1; public=1; metadata=1; hidden_reference=1; hidden_pincheck=1; wrong_submission=3
 - reviewer note: accepted_v0: T3 small library construction with dependent count lemmas and downstream BagEq reuse; expected to be hard one-shot.
 - benchmark-grade blocker: Independently time at least one human solve and run the planned scaffold sweep before using this as long-horizon evidence. independent human timing; accepted-core scaffold sweep; hosted QA evidence; extra timing review for long-horizon bucket Mutable definitions have public-compiling wrong controls that exercise semantic hidden pins.
 

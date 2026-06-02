@@ -51,8 +51,8 @@ The audit is not a new acceptance decision. `metadata.json`, `reports/accepted_t
 | `lt-114` | rejected_too_easy | T1 | 13 | true | very_likely | mixed | 1 | Excluded from release/core claims because the proof surface is too short, too local, automation dominated, or likely one-shot solvable. |
 | `lt-115` | rejected_too_easy | T1 | 6 | false | very_likely | mixed | 1 | Excluded from release/core claims because the proof surface is too short, too local, automation dominated, or likely one-shot solvable. |
 | `lt-202` | accepted_v0 | T2 | 46 | false | maybe | mixed | 2 | Counts toward accepted-core v0.1 task set, with any caveat recorded in the review note. |
-| `lt-204` | accepted_v0 | T2 | 36 | false | maybe | semantic | 2 | Counts toward accepted-core v0.1 task set, with any caveat recorded in the review note. |
-| `lt-205` | accepted_v0 | T3 | 42 | false | unlikely | semantic | 2 | Counts toward accepted-core v0.1 task set, with any caveat recorded in the review note. |
+| `lt-204` | accepted_v0 | T2 | 36 | false | maybe | semantic | 3 | Counts toward accepted-core v0.1 task set, with any caveat recorded in the review note. |
+| `lt-205` | accepted_v0 | T3 | 42 | false | unlikely | semantic | 3 | Counts toward accepted-core v0.1 task set, with any caveat recorded in the review note. |
 | `lt-206` | accepted_v0 | T2 | 60 | true | maybe | semantic | 2 | Counts toward accepted-core v0.1 task set, with any caveat recorded in the review note. |
 
 ## Interpretation
