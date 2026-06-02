@@ -499,6 +499,43 @@ Wilson precision ledger for assumed `p=0.5`:
 """
 
 
+def analysis_decision_register_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/analysis_decision_register.md` has not been generated yet. Run "
+            "`python scripts/generate_analysis_decision_register.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("current_evidence_status", "unknown") for row in rows)
+    area_counts = Counter(row.get("analysis_area", "unknown") for row in rows)
+    blocked_rows = [
+        row for row in rows
+        if row.get("current_evidence_status", "").startswith("blocked_")
+        or row.get("current_evidence_status") == "workflow_ready_data_blocked"
+    ]
+    lines = [
+        "| decision | area | status | permitted now | blocked output |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        permitted = row.get("permitted_current_output", "").replace("|", "/")
+        blocked = row.get("blocked_output", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('decision_id', '')}` | {row.get('analysis_area', '')} | "
+            f"{row.get('current_evidence_status', '')} | {permitted} | {blocked} |"
+        )
+    return f"""`reports/analysis_decision_register.md` and `data/analysis_decision_register.csv` are preregistered analysis-decision artifacts for broad provider sweeps. They fix inclusion/exclusion rules, the primary endpoint, exact-k coverage, infra handling, subgroup thresholds, scaffold-delta rules, failure-label requirements, human-time requirements, and freeze boundaries. This is plan-control evidence, not model-result evidence.
+
+- decisions: `{len(rows)}`
+- evidence statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- analysis areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- blocked or data-limited decisions: `{len(blocked_rows)}`
+
+Analysis decision register:
+
+{chr(10).join(lines)}
+"""
+
+
 def data_schema_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1988,6 +2025,7 @@ def main() -> int:
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     model_sweep_coverage_rows = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     model_evidence_provenance_rows = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
+    analysis_decision_rows = read_csv(ROOT / "data" / "analysis_decision_register.csv")
     statistical_design_rows = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
     wilson_precision_rows = read_csv(ROOT / "data" / "wilson_precision_table.csv")
     figure_manifest_rows = read_csv(ROOT / "data" / "figure_manifest.csv")
@@ -2252,6 +2290,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 ## Model Evidence Provenance Audit
 
 {model_evidence_provenance_section(model_evidence_provenance_rows)}
+
+## Analysis Decision Register
+
+{analysis_decision_register_section(analysis_decision_rows)}
 
 ## Statistical Analysis Plan
 
@@ -2596,6 +2638,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 - provider/model versions in committed smoke rows: `{compact_json(provider_versions)}`
 - provenance audit statuses: `{compact_json(dict(sorted(Counter(row.get("status", "unknown") for row in model_evidence_provenance_rows).items())))}`
 
+## Analysis Decision Register
+
+{analysis_decision_register_section(analysis_decision_rows)}
+
 ## Statistical Analysis Plan
 
 {statistical_analysis_plan_section(statistical_design_rows, wilson_precision_rows)}
@@ -2668,6 +2714,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
+- `reports/analysis_decision_register.md`: preregistered inclusion, endpoint, exact-k, subgroup, scaffold-delta, failure-label, timing, and freeze decisions for future sweeps.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 - `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
 - `reports/threat_coverage_audit.md`: mapping from open blockers and non-allowed claims to threats-to-validity rows.

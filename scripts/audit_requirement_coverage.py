@@ -258,6 +258,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
+    analysis_decision_register = read_csv(ROOT / "data" / "analysis_decision_register.csv")
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -546,6 +547,55 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(protocol_ok),
         f"evaluation_protocol.md exists: {(ROOT / 'reports' / 'evaluation_protocol.md').exists()}; model_sweep_plan rows: {len(model_sweep_plan)}; planned scaffolds: {compact_json(sorted(planned_scaffolds))}.",
         "No gap." if protocol_ok else "Generate an accepted_v0 x scaffold sweep plan and protocol before broad model runs.",
+    ))
+
+    required_analysis_decisions = {
+        "analysis_unit",
+        "primary_endpoint",
+        "primary_task_set",
+        "scaffold_ladder",
+        "exact_k_coverage",
+        "infra_timeout_handling",
+        "wilson_interval_rule",
+        "subgroup_threshold_rule",
+        "scaffold_delta_rule",
+        "failure_label_rule",
+        "human_time_rule",
+        "hosted_freeze_rule",
+    }
+    analysis_decision_ids = {row_data.get("decision_id", "") for row_data in analysis_decision_register}
+    analysis_decision_fields = set(analysis_decision_register[0].keys()) if analysis_decision_register else set()
+    required_analysis_decision_fields = {
+        "decision_id",
+        "analysis_area",
+        "decision_type",
+        "preregistered_decision",
+        "current_evidence_status",
+        "evidence",
+        "permitted_current_output",
+        "blocked_output",
+        "upgrade_condition",
+        "source_artifacts",
+    }
+    analysis_decision_status_counts = Counter(
+        row_data.get("current_evidence_status", "unknown")
+        for row_data in analysis_decision_register
+    )
+    analysis_decision_ok = (
+        bool(analysis_decision_register)
+        and required_analysis_decisions.issubset(analysis_decision_ids)
+        and required_analysis_decision_fields.issubset(analysis_decision_fields)
+        and analysis_decision_status_counts.get("ready_for_future_rows", 0) >= 1
+        and sum(count for status_name, count in analysis_decision_status_counts.items() if status_name.startswith("blocked_")) >= 1
+        and (ROOT / "reports" / "analysis_decision_register.md").exists()
+    )
+    requirement_rows.append(row(
+        "analysis_decision_register",
+        "reporting",
+        "Analysis decision register should preregister inclusion exclusion endpoint exact-k subgroup scaffold-delta failure-label human-time and freeze rules before broad provider sweeps.",
+        status_from_bool(analysis_decision_ok, partial=bool(analysis_decision_register)),
+        f"analysis decisions: {len(analysis_decision_register)}; required decisions covered: {len(required_analysis_decisions & analysis_decision_ids)}/{len(required_analysis_decisions)}; statuses: {compact_json(dict(sorted(analysis_decision_status_counts.items())))}; report exists: {(ROOT / 'reports' / 'analysis_decision_register.md').exists()}.",
+        "No gap." if analysis_decision_ok else "Run scripts/generate_analysis_decision_register.py and inspect missing preregistered analysis decisions.",
     ))
 
     analysis_ok = (ROOT / "reports" / "model_run_analysis.md").exists() and bool(model_result_summary)

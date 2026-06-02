@@ -216,11 +216,12 @@ def build_rows() -> list[dict[str, str]]:
             "block",
             "Are statistical plots and intervals publishable as performance results?",
             "No. The statistical plan exists and correctly blocks performance plots under current coverage.",
-            f"{req_text(reqs, 'statistical_analysis_plan')}; {req_text(reqs, 'statistical_reporting_audit')}; {req_text(reqs, 'figure_manifest_audit')}",
+            f"{req_text(reqs, 'analysis_decision_register')}; {req_text(reqs, 'statistical_analysis_plan')}; {req_text(reqs, 'statistical_reporting_audit')}; {req_text(reqs, 'figure_manifest_audit')}",
             "Descriptive task-count figures are supported, but performance figures would imply nonexistent coverage.",
             "Generate performance plots only after planned cells are covered and raw n plus Wilson intervals can be reported.",
             [
                 "reports/statistical_analysis_plan.md",
+                "reports/analysis_decision_register.md",
                 "reports/statistical_reporting_audit.md",
                 "reports/figure_manifest.md",
             ],

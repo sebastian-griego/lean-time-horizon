@@ -150,6 +150,7 @@ def main() -> int:
     independent_review_status = read_csv(ROOT / "data" / "independent_review_status_audit.csv")
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
+    analysis_decisions = read_csv(ROOT / "data" / "analysis_decision_register.csv")
     statistical_design = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
 
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
@@ -179,6 +180,7 @@ def main() -> int:
     security_status_counts = Counter(row.get("status", "unknown") for row in security_leakage)
     security_failures = sum(1 for row in security_leakage if row.get("status") == "fail")
     failure_review_failures = sum(1 for row in failure_label_review_audit if row.get("status") == "fail")
+    analysis_decision_status_counts = Counter(row.get("current_evidence_status", "unknown") for row in analysis_decisions)
     accepted_without_timing = sum(
         1 for row in human_time
         if row.get("acceptance_status") == "accepted_v0"
@@ -346,7 +348,7 @@ def main() -> int:
         "- `reports/clean_workspace_replay.md` records a bounded temporary-workspace replay outside the dirty working directory.",
         "- `reports/research_claim_gap_matrix.md` records the evidence packages needed before stronger claims are allowed.",
         "- `reports/threat_coverage_audit.md` checks that open blockers and non-allowed claims are represented in threats-to-validity rows.",
-        "- `reports/statistical_analysis_plan.md` records minimum evidence thresholds, blocked overclaim wording, and Wilson precision limits before broader model sweeps.",
+        f"- `reports/analysis_decision_register.md` and `reports/statistical_analysis_plan.md` preregister analysis rules, evidence thresholds, blocked overclaim wording, and Wilson precision limits before broader model sweeps; decision statuses: `{compact_json(dict(sorted(analysis_decision_status_counts.items())))}`.",
         "- `reports/figure_manifest.md` maps generated figures to source data and records blocked performance plots.",
         "",
         claim_table(claim_authorization),
@@ -381,7 +383,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/report_count_consistency_audit.md`, `reports/peer_review_matrix.md`, `reports/regeneration_command_consistency.md`, `reports/passk_claim_boundary_audit.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/threat_coverage_audit.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/report_count_consistency_audit.md`, `reports/peer_review_matrix.md`, `reports/regeneration_command_consistency.md`, `reports/passk_claim_boundary_audit.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/threat_coverage_audit.md`, `reports/analysis_decision_register.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 

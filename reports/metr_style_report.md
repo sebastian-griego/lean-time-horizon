@@ -167,7 +167,7 @@ Independent review status:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 70}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 71}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -311,6 +311,33 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 - provider/model versions in committed smoke rows: `["anthropic:claude-sonnet-4-6"]`
 - provenance audit statuses: `{"pass": 7}`
+
+## Analysis Decision Register
+
+`reports/analysis_decision_register.md` and `data/analysis_decision_register.csv` are preregistered analysis-decision artifacts for broad provider sweeps. They fix inclusion/exclusion rules, the primary endpoint, exact-k coverage, infra handling, subgroup thresholds, scaffold-delta rules, failure-label requirements, human-time requirements, and freeze boundaries. This is plan-control evidence, not model-result evidence.
+
+- decisions: `12`
+- evidence statuses: `{"blocked_by_hosted_qa": 1, "blocked_by_missing_timing": 1, "blocked_by_small_groups": 1, "blocked_by_undercoverage": 3, "planned_not_empirical": 1, "ready_for_future_rows": 3, "ready_with_small_n_caveat": 1, "workflow_ready_data_blocked": 1}`
+- analysis areas: `{"analysis_set": 1, "calibration": 1, "coverage": 1, "endpoint": 2, "failure_analysis": 1, "operational_validity": 1, "run_accounting": 1, "scaffolds": 2, "statistics": 2}`
+- blocked or data-limited decisions: `7`
+
+Analysis decision register:
+
+| decision | area | status | permitted now | blocked output |
+| --- | --- | --- | --- | --- |
+| `analysis_unit` | endpoint | ready_for_future_rows | State the analysis unit and exclude local QA from model-performance summaries. | Do not aggregate reference/wrong local QA rows into model capability estimates. |
+| `primary_endpoint` | endpoint | ready_for_future_rows | Report pass@k arithmetic and keep smoke rows separated from exact-k evidence. | Do not treat successes_out_of_k as pass@k or report k=1 smoke rows as pass@10 evidence. |
+| `primary_task_set` | analysis_set | ready_with_small_n_caveat | Use accepted-core rows for local task-quality summaries and report calibration rows separately. | Do not mix calibration or rejected rows into accepted-core pass-rate claims. |
+| `scaffold_ladder` | scaffolds | planned_not_empirical | Describe the planned scaffold ladder and current coverage status. | Do not claim lookup or iterative-debug effects until every reported scaffold cell is covered for the same task/model set. |
+| `exact_k_coverage` | coverage | blocked_by_undercoverage | Report coverage and blocked-performance status only. | Do not report aggregate accepted-core pass@k estimates or intervals from incomplete planned cells. |
+| `infra_timeout_handling` | run_accounting | ready_for_future_rows | Report infra rows as provenance/reliability evidence only. | Do not silently drop infra failures from raw data or count them as solved capability rows. |
+| `wilson_interval_rule` | statistics | blocked_by_undercoverage | Show precision planning and blocked claim tiers. | Do not display performance intervals for the accepted core while planned coverage is missing. |
+| `subgroup_threshold_rule` | statistics | blocked_by_small_groups | Report family and bucket composition with singleton caveats. | Do not interpret singleton family, skill, or T3 rows as stable subgroup performance estimates. |
+| `scaffold_delta_rule` | scaffolds | blocked_by_undercoverage | State scaffold deltas as planned analyses only. | Do not infer lookup or iterative-debug gains from one-shot-only smoke rows. |
+| `failure_label_rule` | failure_analysis | workflow_ready_data_blocked | Report the transcript-review workflow and smoke labels as provenance only. | Do not claim dominant failure modes from single-review smoke rows or unreviewed transcripts. |
+| `human_time_rule` | calibration | blocked_by_missing_timing | Report author/reviewer p50/p90 estimates and missing independent timing as a limitation. | Do not claim calibrated time-horizon scaling from metadata estimates alone. |
+| `hosted_freeze_rule` | operational_validity | blocked_by_hosted_qa | State local readiness and hosted-QA blockers. | Do not call the artifact hosted-QA-cleared, frozen, or locked. |
+
 
 ## Statistical Analysis Plan
 
@@ -524,6 +551,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/research_claim_gap_matrix.md`: evidence packages needed before stronger claims are allowed.
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
+- `reports/analysis_decision_register.md`: preregistered inclusion, endpoint, exact-k, subgroup, scaffold-delta, failure-label, timing, and freeze decisions for future sweeps.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 - `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
 - `reports/threat_coverage_audit.md`: mapping from open blockers and non-allowed claims to threats-to-validity rows.
@@ -532,9 +560,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 `reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
 
-- reproduction steps: `20`
-- phase counts: `{"external_evidence": 3, "local_replay": 17}`
-- status counts: `{"blocked_external_evidence": 3, "ready": 17}`
+- reproduction steps: `21`
+- phase counts: `{"external_evidence": 3, "local_replay": 18}`
+- status counts: `{"blocked_external_evidence": 3, "ready": 18}`
 - local replay problem rows: `0`
 - external-evidence rows still blocked: `3`
 
@@ -548,6 +576,7 @@ Reviewer reproduction ledger:
 | `difficulty_review` | local_replay | ready | `python scripts/audit_difficulty.py` | The audit combines static heuristics with human judgment; it is not independent human timing. |
 | `local_qa_rows` | local_replay | ready | `python scripts/record_local_qa_results.py` | Local QA rows must stay excluded from model-performance estimates. |
 | `run_integrity` | local_replay | ready | `python scripts/audit_run_integrity.py` | Passing integrity checks do not imply adequate provider sample size. |
+| `analysis_decision_register` | local_replay | ready | `python scripts/generate_analysis_decision_register.py` | The register fixes analysis rules but does not create provider rows or unlock performance claims. |
 | `peer_review_matrix` | local_replay | ready | `python scripts/generate_peer_review_matrix.py` | The matrix is a synthesis of existing evidence and does not resolve blocked external-evidence gaps. |
 | `model_sweep_coverage` | local_replay | ready | `python scripts/audit_model_sweep_coverage.py` | This audit does not create new model evidence; it only classifies coverage of existing rows. |
 | `passk_claim_boundaries` | local_replay | ready | `python scripts/audit_passk_claim_boundaries.py` | This audit prevents wording drift; it does not create additional provider attempts or performance evidence. |

@@ -89,6 +89,17 @@ STEPS = [
         "next_action": "Run after any provider sweep or local QA regeneration.",
     },
     {
+        "step_id": "analysis_decision_register",
+        "phase": "local_replay",
+        "command": "python scripts/generate_analysis_decision_register.py",
+        "expected_artifacts": "data/analysis_decision_register.csv;reports/analysis_decision_register.md",
+        "claim_supported": "The planned model analysis has explicit preregistered inclusion, endpoint, coverage, subgroup, failure-label, timing, and freeze decisions.",
+        "evidence_basis": "Model-sweep plan, run-results schema, statistical thresholds, coverage audit, failure-label schema, timing rows, and hosted-readiness rows.",
+        "failure_interpretation": "A stale or missing register weakens pre-analysis transparency and should block stronger report-quality claims until regenerated.",
+        "limitation": "The register fixes analysis rules but does not create provider rows or unlock performance claims.",
+        "next_action": "Run after sweep-plan, schema, statistical-threshold, timing, failure-label, or hosted-readiness changes.",
+    },
+    {
         "step_id": "peer_review_matrix",
         "phase": "local_replay",
         "command": "python scripts/generate_peer_review_matrix.py",

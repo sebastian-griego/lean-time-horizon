@@ -87,6 +87,7 @@ def post_run_commands() -> str:
         "python scripts/generate_transcript_review_packet.py",
         "python scripts/analyze_model_results.py",
         "python scripts/audit_model_sweep_coverage.py",
+        "python scripts/generate_analysis_decision_register.py",
         "python scripts/audit_passk_claim_boundaries.py",
         "python scripts/audit_model_evidence_provenance.py",
         "python scripts/audit_statistical_reporting.py",

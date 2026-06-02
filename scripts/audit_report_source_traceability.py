@@ -435,6 +435,25 @@ SECTION_SPECS = [
         "next_action": "Rerun provenance audit after every model sweep.",
     },
     {
+        "section_id": "analysis_decision_register",
+        "heading": "Analysis Decision Register",
+        "source_artifacts": [
+            "data/analysis_decision_register.csv",
+            "reports/analysis_decision_register.md",
+            "data/model_sweep_plan.csv",
+            "data/statistical_design_thresholds.csv",
+            "data/model_sweep_coverage_audit.csv",
+        ],
+        "required_phrases": [
+            "preregistered",
+            "inclusion",
+            "endpoint",
+            "blocked output",
+        ],
+        "limitation": "The analysis-decision register fixes analysis rules; it does not create provider rows or unlock blocked performance claims.",
+        "next_action": "Regenerate after sweep-plan, run-schema, statistical-threshold, coverage, timing, failure-label, or hosted-readiness changes.",
+    },
+    {
         "section_id": "statistical_analysis_plan",
         "heading": "Statistical Analysis Plan",
         "source_artifacts": [
@@ -591,6 +610,7 @@ SECTION_SPECS = [
             "reports/report_count_consistency_audit.md",
             "reports/peer_review_matrix.md",
             "reports/security_leakage_audit.md",
+            "reports/analysis_decision_register.md",
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
@@ -615,6 +635,7 @@ SECTION_SPECS = [
             "report_count_consistency_audit.md",
             "peer_review_matrix.md",
             "security_leakage_audit.md",
+            "analysis_decision_register.md",
             "data_schema_manifest.md",
             "reviewer_reproduction_packet.md",
             "clean_workspace_replay.md",
