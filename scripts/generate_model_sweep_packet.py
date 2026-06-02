@@ -86,6 +86,7 @@ def post_run_commands() -> str:
         "python scripts/audit_run_integrity.py",
         "python scripts/generate_transcript_review_packet.py",
         "python scripts/analyze_model_results.py",
+        "python scripts/audit_model_sweep_coverage.py",
         "python scripts/audit_model_evidence_provenance.py",
         "python scripts/audit_statistical_reporting.py",
         "python scripts/audit_provider_readiness.py",
@@ -218,7 +219,7 @@ def build_checklist_rows(command_rows: list[dict[str, str]]) -> list[dict[str, s
             "required_before_claim": "true",
             "current_status": "blocked" if scaffold_result_status != "supported" else "ready",
             "evidence": scaffold_result_evidence,
-            "next_action": "Commit run_results rows and transcript JSONL files, regenerate the transcript queue, complete failure-label review rows, then rerun integrity and model-result analysis.",
+            "next_action": "Commit run_results rows and transcript JSONL files, regenerate the transcript queue, complete failure-label review rows, then rerun integrity, model-result analysis, and model-sweep coverage audit.",
         },
         {
             "check_id": "frontier_claim_boundary",

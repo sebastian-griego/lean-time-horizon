@@ -103,6 +103,7 @@ def build_rows() -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     hosted = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
     figure_manifest = read_csv(ROOT / "data" / "figure_manifest.csv")
@@ -130,6 +131,11 @@ def build_rows() -> list[dict[str, str]]:
         row_data for row_data in nonlocal_rows
         if row_data.get("infra_fail_count") in {"", "0", 0}
     ]
+    coverage_status_counts = status_counts(model_sweep_coverage, "coverage_status")
+    exact_k_ready_cells = sum(
+        1 for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
 
     plan_by_scaffold: dict[str, set[str]] = {}
     for row_data in model_sweep_plan:
@@ -196,9 +202,11 @@ def build_rows() -> list[dict[str, str]]:
         "block",
         (
             f"planned_primary_cells={planned_cells}; covered_noninfra_cells={covered_noninfra}; "
+            f"strict_exact_k_ready_cells={exact_k_ready_cells}/{len(model_sweep_coverage)}; "
+            f"coverage_statuses={compact_json(dict(sorted(coverage_status_counts.items())))}; "
             f"noninfra_provider_rows={len(noninfra_rows)}; nonlocal_rows={len(nonlocal_rows)}"
         ),
-        ["data/model_sweep_plan.csv", "data/model_result_summary.csv", "data/run_results.csv"],
+        ["data/model_sweep_plan.csv", "data/model_result_summary.csv", "data/model_sweep_coverage_audit.csv", "data/run_results.csv"],
         "The plan specifies pass@10 cells, but committed provider rows do not cover the accepted task/scaffold plan.",
         "Run the planned accepted-core pass@10 sweep on exact final problem versions and commit transcripts/results.",
     ))

@@ -4,7 +4,7 @@ This generated audit maps the local repository state to the committed checklist 
 
 ## Status Counts
 
-- `supported`: 66
+- `supported`: 67
 - `partial`: 4
 - `not_met`: 3
 
@@ -14,7 +14,7 @@ This generated audit maps the local repository state to the committed checklist 
 - `required_for_locked_benchmark` / `partial`: 4
 - `required_for_locked_benchmark` / `not_met`: 3
 - `required_for_release_artifact` / `supported`: 15
-- `required_for_research_report` / `supported`: 49
+- `required_for_research_report` / `supported`: 50
 
 ## Coverage Table
 
@@ -39,6 +39,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `lookup_scaffold_no_hidden_leak` | integrity | required_for_release_artifact | supported | Lookup scaffold must not expose hidden references or wrong submissions. | lookup_roots_public_only=pass; lookup_hidden_leak_scan=pass. | No gap. |
 | `evaluation_protocol_plan` | runs | required_for_research_report | supported | A prospective evaluation protocol should define the primary accepted-task scaffold sweep before broad model runs. | evaluation_protocol.md exists: True; model_sweep_plan rows: 18; planned scaffolds: ["lookup", "lookup_unlimited", "one-shot"]. | No gap. |
 | `model_result_analysis` | runs | required_for_research_report | supported | Committed provider rows should be analyzed separately from local QA and against the planned primary sweep. | model_run_analysis.md exists: True; model_result_summary rows: 10; primary coverage rows: 1. | No gap. |
+| `model_sweep_coverage_audit` | runs | required_for_research_report | supported | Model sweep coverage audit should map planned accepted-core task/scaffold/pass@k cells to committed provider rows and distinguish smoke-only rows from pass@k-ready evidence. | coverage rows: 18; planned cells: 18; required fields present: True; planned cell ids covered: 18/18; statuses: {"missing": 17, "smoke_only": 1}; report exists: True. | No gap. |
 | `model_evidence_provenance_audit` | reporting | required_for_research_report | supported | Model evidence provenance audit should verify sample sizes model versions k values transcripts infra accounting and local-QA exclusion in report text and committed data. | model evidence provenance rows: 7; required checks covered: 7/7; failures: 0; report exists: True. | No gap. |
 | `scaffold_result_comparison` | scaffolds | required_for_locked_benchmark | partial | The report should compare real model performance across scaffolds, ideally pass@10. | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `transcript_failure_workflow` | runs | required_for_release_artifact | supported | Run rows should link transcripts and carry failure labels for review. | run_results rows: 71; local QA rows: 68; model rows: 3. | No gap for workflow; broader model sweeps are still needed. |
@@ -49,7 +50,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `task_asset_manifest` | reproducibility | required_for_research_report | supported | Task asset manifest should record per-task public hidden and wrong asset hashes plus public-export mapping. | task asset rows: 173; missing assets: 0; release public export misses: 0; hidden/wrong exported: 0; accepted wrong gaps: 0; accepted hidden gaps: 0; report exists: True. | No gap. |
 | `report_from_committed_data` | reporting | required_for_research_report | supported | The METR-style report and plots should regenerate from committed CSVs. | metr_style_report.md exists: True; generate_report reads CSV: True. | No gap. |
 | `figure_manifest_audit` | reporting | required_for_research_report | supported | Figure manifest should map generated SVGs to source CSVs allowed interpretations and blocked performance-plot overclaims. | figure rows: 10; required plots covered: 10/10; generated rows: 5; blocked performance rows: 5; problem rows: 0; report exists: True. | No gap. |
-| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 553; appendix exists: True; appendix lines: 1658; missing appendix phrases: []; main links appendix: True. | No gap. |
+| `evidence_appendix_boundary` | reporting | required_for_research_report | supported | Main report should stay skimmable while row-level generated evidence lives in a dedicated appendix. | main report lines: 558; appendix exists: True; appendix lines: 1667; missing appendix phrases: []; main links appendix: True. | No gap. |
 | `report_source_traceability` | reporting | required_for_research_report | supported | Report source-traceability audit should map main-report sections to committed CSV report script and export evidence and check section-level boundary phrases. | traceability rows: 35; required sections covered: 28/28; failures: 0; report exists: True. | No gap. |
 | `regeneration_command_consistency` | reproducibility | required_for_research_report | supported | Regeneration command consistency audit should verify that README validation commands manifest source commands committed manifest commands and reviewer local-replay commands stay synchronized. | command-consistency rows: 4; required checks covered: 4/4; failures: 0; report exists: True. | No gap. |
 | `concise_metr_report` | reporting | required_for_research_report | supported | Concise METR-style report should provide a skimmable reviewer-facing narrative while detailed generated tables remain in appendices and CSVs. | concise report exists: True; line_count: 217; missing required phrases: []; generator reads CSV: True. | No gap. |
@@ -89,7 +90,7 @@ This generated audit maps the local repository state to the committed checklist 
 | `hosted_qa_env_linter` | qa | required_for_locked_benchmark | not_met | Hosted Taiga/Env Linter QA should be run before delivery/freeze. | Hosted QA artifacts present: 0/2; hosted readiness report exists: True; blocked hosted-readiness checks: 6. | Run hosted Full Env QA and record findings/rebuttals before claiming a locked benchmark. |
 | `reproducibility_manifest` | reproducibility | required_for_research_report | supported | A clean regeneration trail should record toolchain, commands, counts, and artifact hashes. | validation_manifest.json exists: True. | No gap. |
 | `validation_manifest_audit` | reproducibility | required_for_research_report | supported | Validation manifest audit should verify manifest schema command coverage artifact hashes public-export summary and dirty-status policy. | manifest audit rows: 8; required checks covered: 8/8; failures: 0; report exists: True. | No gap. |
-| `reviewer_reproduction_packet` | reproducibility | required_for_research_report | supported | Reviewer reproduction packet should give an ordered local replay workflow external-evidence boundaries expected artifacts and failure interpretations. | reproduction steps: 16; required covered: 15/15; local problem rows: 0; external evidence rows: 3; report exists: True. | No gap. |
+| `reviewer_reproduction_packet` | reproducibility | required_for_research_report | supported | Reviewer reproduction packet should give an ordered local replay workflow external-evidence boundaries expected artifacts and failure interpretations. | reproduction steps: 17; required covered: 15/15; local problem rows: 0; external evidence rows: 3; report exists: True. | No gap. |
 | `clean_workspace_replay` | reproducibility | required_for_research_report | supported | Clean workspace replay should exercise dependency materialization Lean build grader pass/fail behavior and public export validation outside the dirty working directory. | clean replay rows: 7; required covered: 7/7; failures: 0; report exists: True. | No gap. |
 | `candidate_pruning_audit` | portfolio | required_for_release_artifact | supported | Candidate tasks should be separated from accepted tasks and pruned aggressively. | pruning rows: 26; metadata rows: 26; rejected rows: 12/12; calibration rows: 8/8; non-core rows with exclusion reasons: 20/20; report exists: True. | No gap. |
 | `semantic_formalization_pins` | grading | required_for_release_artifact | supported | Formalization tasks should use semantic pins rather than brittle exact-text matching. | Accepted informal-spec rows in difficulty audit: 1; semantic pin rows: 1. | No gap. |

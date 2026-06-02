@@ -39,6 +39,7 @@ REQUIRED_COMMANDS = {
     "python scripts/generate_reviewer_reproduction_packet.py",
     "python scripts/run_clean_workspace_replay.py",
     "python scripts/generate_statistical_analysis_plan.py",
+    "python scripts/audit_model_sweep_coverage.py",
     "python scripts/audit_statistical_reporting.py",
     "python scripts/audit_report_source_traceability.py",
     "python scripts/export_public_tasks.py --out public_tasks",

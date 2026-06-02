@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 66}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 67}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -112,7 +112,7 @@ The grader is Lean-first: submissions must pass forbidden-construct scanning, pu
 - run-integrity failures: `0`
 - data-schema manifest statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 3, "inventory_documented": 1, "schema_valid": 3}`
 - data-schema problem rows: `0`
-- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 13}`
+- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 14}`
 - reviewer reproduction local problem rows: `0`; external-evidence rows blocked: `3`
 - clean-workspace replay statuses: `{"pass": 7}`
 - clean-workspace replay failures: `0`

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import csv
 import json
 from collections import Counter
@@ -86,6 +87,17 @@ STEPS = [
         "failure_interpretation": "Integrity failures block use of committed run rows until repaired or removed.",
         "limitation": "Passing integrity checks do not imply adequate provider sample size.",
         "next_action": "Run after any provider sweep or local QA regeneration.",
+    },
+    {
+        "step_id": "model_sweep_coverage",
+        "phase": "local_replay",
+        "command": "python scripts/audit_model_sweep_coverage.py",
+        "expected_artifacts": "data/model_sweep_coverage_audit.csv;reports/model_sweep_coverage_audit.md",
+        "claim_supported": "Planned accepted-core task/scaffold/pass@k cells are mapped to committed provider rows with smoke-only cells separated from pass@k-ready cells.",
+        "evidence_basis": "The model sweep plan, run_results rows, k values, completed attempts, infra counts, and transcript links.",
+        "failure_interpretation": "Coverage-audit failures or missing rows block scaffold-effect and frontier-performance claims until repaired.",
+        "limitation": "This audit does not create new model evidence; it only classifies coverage of existing rows.",
+        "next_action": "Run after model-result analysis and after every provider sweep.",
     },
     {
         "step_id": "grader_hardening",
@@ -231,12 +243,25 @@ def command_script_exists(command: str) -> bool:
     return True
 
 
-def validation_manifest_commands() -> set[str]:
-    manifest = read_json(ROOT / "reports" / "validation_manifest.json")
-    if not isinstance(manifest, dict):
+def manifest_source_commands() -> set[str]:
+    source = ROOT / "scripts" / "write_validation_manifest.py"
+    if not source.exists():
         return set()
-    commands = manifest.get("regeneration_commands", [])
-    return {str(command) for command in commands if isinstance(command, str)}
+    module = ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
+    for node in module.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(isinstance(target, ast.Name) and target.id == "REGENERATION_COMMANDS" for target in node.targets):
+            continue
+        if not isinstance(node.value, (ast.List, ast.Tuple, ast.Set)):
+            continue
+        commands = {
+            str(item.value)
+            for item in node.value.elts
+            if isinstance(item, ast.Constant) and isinstance(item.value, str)
+        }
+        return commands
+    return set()
 
 
 def derive_status(step: dict[str, str], manifest_commands: set[str]) -> str:
@@ -258,7 +283,7 @@ def derive_status(step: dict[str, str], manifest_commands: set[str]) -> str:
 
 
 def build_rows() -> list[dict[str, str]]:
-    manifest_commands = validation_manifest_commands()
+    manifest_commands = manifest_source_commands()
     rows: list[dict[str, str]] = []
     for step in STEPS:
         row = {field: step.get(field, "") for field in FIELDS}
@@ -317,7 +342,7 @@ def write_markdown(path: Path, rows: list[dict[str, str]]) -> None:
             "",
             "## Reviewer Workflow",
             "",
-            "Run the local replay steps in order after dependency setup. Treat any nonzero exit code, missing expected artifact, or `manifest_gap` row as a report-blocking finding until repaired. External-evidence rows intentionally remain blocked in v0.1; do not replace them with local smoke rows or synthetic data.",
+            "Run the local replay steps in order after dependency setup. Treat any nonzero exit code, missing expected artifact, or local-gate coverage gap as a report-blocking finding until repaired. External-evidence rows intentionally remain blocked in v0.1; do not replace them with local smoke rows or synthetic data.",
             "",
             "## Step Table",
             "",
@@ -325,7 +350,7 @@ def write_markdown(path: Path, rows: list[dict[str, str]]) -> None:
             "",
             "## Interpretation",
             "",
-            "`ready` means the command and expected committed artifacts are present and the command is covered by the validation manifest where applicable. `blocked_external_evidence` means the step requires real provider runs, independent human timing, or hosted QA before the corresponding stronger claim can be made.",
+            "`ready` means the command and expected committed artifacts are present and the command is covered by the local regeneration gate where applicable. `blocked_external_evidence` means the step requires real provider runs, independent human timing, or hosted QA before the corresponding stronger claim can be made.",
             "",
         ]),
         encoding="utf-8",

@@ -4,16 +4,16 @@ This generated packet converts the local validation and report-generation surfac
 
 ## Summary
 
-- steps: `16`
-- phases: `{"external_evidence": 3, "local_replay": 13}`
-- statuses: `{"blocked_external_evidence": 3, "ready": 13}`
-- local replay steps ready: `13/13`
+- steps: `17`
+- phases: `{"external_evidence": 3, "local_replay": 14}`
+- statuses: `{"blocked_external_evidence": 3, "ready": 14}`
+- local replay steps ready: `14/14`
 - local replay problem rows: `0`
 - external evidence rows still blocked: `3`
 
 ## Reviewer Workflow
 
-Run the local replay steps in order after dependency setup. Treat any nonzero exit code, missing expected artifact, or `manifest_gap` row as a report-blocking finding until repaired. External-evidence rows intentionally remain blocked in v0.1; do not replace them with local smoke rows or synthetic data.
+Run the local replay steps in order after dependency setup. Treat any nonzero exit code, missing expected artifact, or local-gate coverage gap as a report-blocking finding until repaired. External-evidence rows intentionally remain blocked in v0.1; do not replace them with local smoke rows or synthetic data.
 
 ## Step Table
 
@@ -25,6 +25,7 @@ Run the local replay steps in order after dependency setup. Treat any nonzero ex
 | `difficulty_review` | local_replay | ready | `python scripts/audit_difficulty.py` | Accepted and calibration rows have mechanical proof-profile evidence and manual difficulty-review fields. | The audit combines static heuristics with human judgment; it is not independent human timing. |
 | `local_qa_rows` | local_replay | ready | `python scripts/record_local_qa_results.py` | Local QA rows are replayable validation evidence for references and plausible wrong submissions. | Local QA rows must stay excluded from model-performance estimates. |
 | `run_integrity` | local_replay | ready | `python scripts/audit_run_integrity.py` | run_results rows are internally consistent with transcripts, pass@k arithmetic, and failure labels. | Passing integrity checks do not imply adequate provider sample size. |
+| `model_sweep_coverage` | local_replay | ready | `python scripts/audit_model_sweep_coverage.py` | Planned accepted-core task/scaffold/pass@k cells are mapped to committed provider rows with smoke-only cells separated from pass@k-ready cells. | This audit does not create new model evidence; it only classifies coverage of existing rows. |
 | `grader_hardening` | local_replay | ready | `python scripts/audit_grader_hardening.py` | Forbidden-construct scanning, axiom allowlists, grader ordering, and validation-command coverage are reviewable. | The scanner remains lexical source scanning, not a complete Lean parser. |
 | `public_export` | local_replay | ready | `python scripts/export_public_tasks.py --out public_tasks` | Public release assets can be exported without hidden references or wrong submissions. | The export is a local directory snapshot, not a hosted problem version. |
 | `public_export_validation` | local_replay | ready | `python scripts/validate_public_export.py --out public_tasks` | The public export omits hidden/wrong directories and exported Lean files compile. | This does not run Taiga Full Env QA or Env Linter. |
@@ -38,4 +39,4 @@ Run the local replay steps in order after dependency setup. Treat any nonzero ex
 
 ## Interpretation
 
-`ready` means the command and expected committed artifacts are present and the command is covered by the validation manifest where applicable. `blocked_external_evidence` means the step requires real provider runs, independent human timing, or hosted QA before the corresponding stronger claim can be made.
+`ready` means the command and expected committed artifacts are present and the command is covered by the local regeneration gate where applicable. `blocked_external_evidence` means the step requires real provider runs, independent human timing, or hosted QA before the corresponding stronger claim can be made.

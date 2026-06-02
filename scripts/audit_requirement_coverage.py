@@ -259,6 +259,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     model_evidence_provenance = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
     task_dirs = discover_task_dirs()
     accepted = [task for task in metadata if task.get("acceptance_status") == "accepted_v0"]
@@ -553,6 +554,40 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(analysis_ok),
         f"model_run_analysis.md exists: {(ROOT / 'reports' / 'model_run_analysis.md').exists()}; model_result_summary rows: {len(model_result_summary)}; primary coverage rows: {len(primary_rows)}.",
         "No gap." if analysis_ok else "Generate model result analysis before interpreting provider rows.",
+    ))
+
+    coverage_fields = set(model_sweep_coverage[0].keys()) if model_sweep_coverage else set()
+    required_coverage_fields = {
+        "cell_id",
+        "task_id",
+        "scaffold",
+        "planned_k",
+        "provider_rows",
+        "noninfra_rows",
+        "exact_k_noninfra_rows",
+        "coverage_status",
+        "evidence",
+        "limitation",
+        "next_action",
+    }
+    coverage_status_counts = Counter(row_data.get("coverage_status", "unknown") for row_data in model_sweep_coverage)
+    planned_cell_count = len(model_sweep_plan)
+    coverage_cell_ids = {row_data.get("cell_id", "") for row_data in model_sweep_coverage}
+    planned_cell_ids = {f"{row_data.get('task_id', '')}:{row_data.get('scaffold', '')}" for row_data in model_sweep_plan}
+    coverage_ok = (
+        bool(model_sweep_coverage)
+        and required_coverage_fields.issubset(coverage_fields)
+        and planned_cell_ids.issubset(coverage_cell_ids)
+        and len(model_sweep_coverage) == planned_cell_count
+        and (ROOT / "reports" / "model_sweep_coverage_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "model_sweep_coverage_audit",
+        "runs",
+        "Model sweep coverage audit should map planned accepted-core task/scaffold/pass@k cells to committed provider rows and distinguish smoke-only rows from pass@k-ready evidence.",
+        status_from_bool(coverage_ok, partial=bool(model_sweep_coverage)),
+        f"coverage rows: {len(model_sweep_coverage)}; planned cells: {planned_cell_count}; required fields present: {required_coverage_fields.issubset(coverage_fields)}; planned cell ids covered: {len(planned_cell_ids & coverage_cell_ids)}/{len(planned_cell_ids)}; statuses: {compact_json(dict(sorted(coverage_status_counts.items())))}; report exists: {(ROOT / 'reports' / 'model_sweep_coverage_audit.md').exists()}.",
+        "No gap." if coverage_ok else "Regenerate scripts/audit_model_sweep_coverage.py after model-result or sweep-plan changes.",
     ))
 
     required_model_provenance_ids = {
