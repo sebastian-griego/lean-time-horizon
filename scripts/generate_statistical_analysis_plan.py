@@ -87,6 +87,7 @@ def current_counts() -> dict[str, object]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     plan_rows = read_csv(ROOT / "data" / "model_sweep_plan.csv")
+    coverage_rows = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
     failure_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
     failure_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
@@ -102,6 +103,12 @@ def current_counts() -> dict[str, object]:
     ]
     planned_cells = {(row.get("task_id", ""), row.get("scaffold", "")) for row in plan_rows}
     covered_noninfra_cells = {(row.get("task_id", ""), row.get("scaffold", "")) for row in accepted_noninfra}
+    pass_at_k_ready_rows = [
+        row for row in coverage_rows
+        if row.get("coverage_status") in {"covered_pass", "covered_fail"}
+    ]
+    pass_at_k_ready_cells = {(row.get("task_id", ""), row.get("scaffold", "")) for row in pass_at_k_ready_rows}
+    strict_coverage_status_counts = Counter(row.get("coverage_status", "unknown") for row in coverage_rows)
     observed_scaffolds = {row.get("scaffold", "") for row in accepted_noninfra}
     accepted_bucket_counts = Counter(row.get("human_time_bucket", "") for row in accepted)
     accepted_family_counts = Counter(row.get("family", "") for row in accepted)
@@ -128,6 +135,8 @@ def current_counts() -> dict[str, object]:
         "accepted_noninfra_rows": len(accepted_noninfra),
         "planned_cells": len(planned_cells),
         "covered_noninfra_cells": len(covered_noninfra_cells),
+        "pass_at_k_ready_cells": len(pass_at_k_ready_cells),
+        "strict_coverage_status_counts": dict(sorted(strict_coverage_status_counts.items())),
         "observed_scaffolds": len(observed_scaffolds),
         "observed_scaffold_names": sorted(observed_scaffolds),
         "planned_k_values": k_values,
@@ -178,7 +187,7 @@ def threshold_row(
 def build_threshold_rows(counts: dict[str, object]) -> list[dict[str, object]]:
     accepted_count = as_int(counts["accepted_count"])
     planned_cells = as_int(counts["planned_cells"])
-    covered_cells = as_int(counts["covered_noninfra_cells"])
+    covered_cells = as_int(counts["pass_at_k_ready_cells"])
     noninfra_failures = as_int(counts["noninfra_failure_rows"])
     failure_review_rows = as_int(counts["failure_review_rows"])
     failure_review_failures = as_int(counts["failure_review_failures"])
@@ -186,7 +195,9 @@ def build_threshold_rows(counts: dict[str, object]) -> list[dict[str, object]]:
     independent_timing_count = as_int(counts["independent_timing_count"])
     hosted_blocks = as_int(counts["hosted_blocks"])
     evidence = (
-        f"accepted={accepted_count}; planned_cells={planned_cells}; covered_noninfra_cells={covered_cells}; "
+        f"accepted={accepted_count}; planned_cells={planned_cells}; pass_at_k_ready_cells={covered_cells}; "
+        f"aggregate_covered_noninfra_cells={counts['covered_noninfra_cells']}; "
+        f"coverage_statuses={counts['strict_coverage_status_counts']}; "
         f"observed_scaffolds={counts['observed_scaffold_names']}; independent_timing={independent_timing_count}; "
         f"noninfra_failures={noninfra_failures}; failure_review_rows={failure_review_rows}; "
         f"failure_review_audit_failures={failure_review_failures}; hosted_blocks={hosted_blocks}"
@@ -382,7 +393,9 @@ def write_report(path: Path, threshold_rows: list[dict[str, object]], precision_
         "",
         f"- accepted tasks: `{counts['accepted_count']}`",
         f"- planned accepted task/scaffold cells: `{counts['planned_cells']}`",
-        f"- covered non-infra accepted task/scaffold cells: `{counts['covered_noninfra_cells']}`",
+        f"- pass@k-ready accepted task/scaffold cells: `{counts['pass_at_k_ready_cells']}`",
+        f"- aggregate non-infra smoke-covered cells: `{counts['covered_noninfra_cells']}`",
+        f"- strict coverage statuses: `{compact_json(counts['strict_coverage_status_counts'])}`",
         f"- observed scaffolds: `{compact_json(counts['observed_scaffold_names'])}`",
         f"- independent timing observations on accepted tasks: `{counts['independent_timing_count']}`",
         f"- non-infra provider failure rows: `{counts['noninfra_failure_rows']}`",

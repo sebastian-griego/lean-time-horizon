@@ -97,6 +97,7 @@ def build_rows() -> list[dict[str, str]]:
     metadata = read_csv(ROOT / "data" / "task_metadata.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
+    coverage_rows = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     report_text = read_text(ROOT / "reports" / "metr_style_report.md")
     generate_report = read_text(ROOT / "scripts" / "generate_report.py")
@@ -106,7 +107,13 @@ def build_rows() -> list[dict[str, str]]:
     accepted_provider = [row for row in provider_rows if row.get("task_id") in accepted_ids]
     accepted_noninfra = noninfra(accepted_provider)
     planned_cells = {(row.get("task_id", ""), row.get("scaffold", "")) for row in plan}
-    covered_cells = {(row.get("task_id", ""), row.get("scaffold", "")) for row in accepted_noninfra}
+    aggregate_covered_cells = {(row.get("task_id", ""), row.get("scaffold", "")) for row in accepted_noninfra}
+    covered_cells = {
+        (row.get("task_id", ""), row.get("scaffold", ""))
+        for row in coverage_rows
+        if row.get("coverage_status") in {"covered_pass", "covered_fail"}
+    }
+    coverage_status_counts = Counter(row.get("coverage_status", "unknown") for row in coverage_rows)
     scaffolds_planned = {row.get("scaffold", "") for row in plan}
     scaffolds_observed = {row.get("scaffold", "") for row in accepted_noninfra}
     buckets_observed = {
@@ -129,8 +136,12 @@ def build_rows() -> list[dict[str, str]]:
         "primary_sweep_coverage",
         "planned_sweep",
         "pass" if planned_cells and covered_cells >= planned_cells else "block",
-        f"planned_cells={len(planned_cells)}; covered_noninfra_cells={len(covered_cells)}; missing={len(planned_cells - covered_cells)}",
-        f"{len(covered_cells)}/{len(planned_cells)} accepted task/scaffold cells covered by non-infra provider rows",
+        (
+            f"planned_cells={len(planned_cells)}; pass_at_k_ready_cells={len(covered_cells)}; "
+            f"aggregate_covered_noninfra_cells={len(aggregate_covered_cells)}; missing={len(planned_cells - covered_cells)}; "
+            f"coverage_statuses={compact_json(dict(sorted(coverage_status_counts.items())))}"
+        ),
+        f"{len(covered_cells)}/{len(planned_cells)} accepted task/scaffold cells covered by exact-k non-infra provider rows",
         "All planned accepted_v0 x scaffold cells covered with non-infra rows.",
         "Coverage table only.",
         "The committed provider rows cannot support accepted-core performance estimates.",
@@ -151,7 +162,7 @@ def build_rows() -> list[dict[str, str]]:
             f"undercovered={undercovered}; forbidden_terms={compact_json(forbidden_performance_terms)}; "
             f"suppression_phrase_present={suppression_phrase_present}"
         ),
-        f"{len(covered_cells)}/{len(planned_cells)} accepted task/scaffold cells covered by non-infra provider rows",
+        f"{len(covered_cells)}/{len(planned_cells)} accepted task/scaffold cells covered by exact-k non-infra provider rows",
         "All planned accepted_v0 x scaffold cells covered with non-infra rows before reporting means or intervals.",
         "Smoke row provenance only.",
         "The main report should not display performance-style estimates when primary sweep coverage is blocked.",
@@ -161,8 +172,11 @@ def build_rows() -> list[dict[str, str]]:
         "scaffold_pass_at_k_plot",
         "recommended_plot",
         "pass" if scaffolds_observed >= scaffolds_planned and len(accepted_noninfra) >= len(planned_cells) else "block",
-        f"observed_scaffolds={compact_json(sorted(scaffolds_observed))}; planned_scaffolds={compact_json(sorted(scaffolds_planned))}; accepted_noninfra_rows={len(accepted_noninfra)}",
-        f"{len(scaffolds_observed)}/{len(scaffolds_planned)} scaffolds observed; {len(accepted_noninfra)} non-infra accepted-core rows",
+        (
+            f"observed_scaffolds={compact_json(sorted(scaffolds_observed))}; planned_scaffolds={compact_json(sorted(scaffolds_planned))}; "
+            f"accepted_noninfra_rows={len(accepted_noninfra)}; pass_at_k_ready_cells={len(covered_cells)}"
+        ),
+        f"{len(scaffolds_observed)}/{len(scaffolds_planned)} scaffolds observed in smoke rows; {len(covered_cells)} pass@k-ready cells",
         "Non-infra accepted-core rows for every planned scaffold, preferably pass@10 rows for every planned cell.",
         "Scaffold coverage audit and planned sweep table.",
         "A mean pass@10-by-scaffold plot would imply comparisons the data do not support.",

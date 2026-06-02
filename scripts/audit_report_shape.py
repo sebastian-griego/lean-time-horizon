@@ -74,6 +74,7 @@ def main() -> int:
     diagnostic = read_csv(ROOT / "data" / "diagnostic_coverage_audit.csv")
     conformance = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
 
     accepted = [task for task in metadata if task.get("acceptance_status") == "accepted_v0"]
     calibration = [task for task in metadata if task.get("acceptance_status") == "calibration_only"]
@@ -94,6 +95,11 @@ def main() -> int:
     )
     requirement_by_id = {row.get("requirement_id", ""): row for row in requirements}
     conformance_failures = [row for row in conformance if row.get("status") == "fail"]
+    coverage_status_counts = Counter(row.get("coverage_status", "unknown") for row in model_sweep_coverage)
+    pass_at_k_ready_cells = sum(
+        1 for row in model_sweep_coverage
+        if row.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
 
     rows: list[dict[str, str]] = []
     ok, missing = has_all(concise, ["## Task Set", "accepted core tasks", "Accepted core rows"])
@@ -128,13 +134,20 @@ def main() -> int:
         "scaffolds_compared",
         "What scaffolds were compared?",
         "answered_with_blocker" if ok else "needs_attention",
-        f"planned_cells={primary_coverage.get('planned_cells', '0')}; covered_noninfra={primary_coverage.get('covered_cells_noninfra', '0')}; missing_phrases={compact_json(missing)}",
+        (
+            f"planned_cells={primary_coverage.get('planned_cells', '0')}; "
+            f"aggregate_covered_noninfra={primary_coverage.get('covered_cells_noninfra', '0')}; "
+            f"pass_at_k_ready_cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}; "
+            f"coverage_statuses={compact_json(dict(sorted(coverage_status_counts.items())))}; "
+            f"missing_phrases={compact_json(missing)}"
+        ),
         "The scaffold ladder is planned and implemented, but committed provider evidence covers only a tiny one-shot smoke sample.",
         "Run the accepted-core scaffold sweep before interpreting scaffold effects.",
         [
             "reports/concise_metr_report.md",
             "reports/evaluation_protocol.md",
             "reports/model_run_analysis.md",
+            "reports/model_sweep_coverage_audit.md",
         ],
     ))
 
@@ -145,11 +158,18 @@ def main() -> int:
         "success_changes_by_scaffold_and_bucket",
         "How does success change with scaffold and human-time bucket?",
         "blocked_by_evidence",
-        f"scaffold_result_comparison={scaffold_req.get('status', 'missing')}; time_horizon_spread={time_req.get('status', 'missing')}; statistical_analysis_plan={statistical_plan_req.get('status', 'missing')}; primary_covered_noninfra={primary_coverage.get('covered_cells_noninfra', '0')}",
+        (
+            f"scaffold_result_comparison={scaffold_req.get('status', 'missing')}; "
+            f"time_horizon_spread={time_req.get('status', 'missing')}; "
+            f"statistical_analysis_plan={statistical_plan_req.get('status', 'missing')}; "
+            f"aggregate_primary_covered_noninfra={primary_coverage.get('covered_cells_noninfra', '0')}; "
+            f"pass_at_k_ready_cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}"
+        ),
         "Real scaffold/time-horizon performance summaries are not supported by committed data.",
         "Run pass@k sweeps across accepted_v0 x scaffold cells, meet the statistical threshold rows, and add independently timed T3/T4 tasks.",
         [
             "data/model_result_summary.csv",
+            "data/model_sweep_coverage_audit.csv",
             "data/statistical_design_thresholds.csv",
             "data/figure_manifest.csv",
             "reports/figure_manifest.md",

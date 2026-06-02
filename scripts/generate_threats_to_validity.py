@@ -96,6 +96,7 @@ def build_rows() -> list[dict[str, str]]:
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     provider = read_csv(ROOT / "data" / "provider_readiness_audit.csv")
     hosted = read_csv(ROOT / "data" / "hosted_qa_readiness_audit.csv")
@@ -133,6 +134,11 @@ def build_rows() -> list[dict[str, str]]:
     primary = primary_model_coverage(model_summary)
     planned_cells = int_value(primary, "planned_cells")
     covered_noninfra = int_value(primary, "covered_cells_noninfra")
+    coverage_status_counts = Counter(row_data.get("coverage_status", "unknown") for row_data in model_sweep_coverage)
+    pass_at_k_ready_cells = sum(
+        1 for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
     accepted_provider = next(
         (
             row_data
@@ -251,12 +257,16 @@ def build_rows() -> list[dict[str, str]]:
             "scaffold_sweep_undercoverage",
             "statistical_validity",
             "high",
-            "block" if planned_cells == 0 or covered_noninfra < planned_cells else "controlled",
-            f"planned accepted-core cells={planned_cells}; covered non-infra cells={covered_noninfra}",
+            "block" if planned_cells == 0 or pass_at_k_ready_cells < planned_cells else "controlled",
+            (
+                f"planned accepted-core cells={planned_cells}; pass@k-ready cells={pass_at_k_ready_cells}; "
+                f"aggregate non-infra smoke-covered cells={covered_noninfra}; "
+                f"coverage statuses={compact_json(dict(sorted(coverage_status_counts.items())))}"
+            ),
             "Evaluation protocol and model-sweep execution packet define the missing sweep before broad model runs.",
             "Run accepted_v0 x one-shot/lookup/lookup_unlimited rows with fixed k and committed transcripts.",
             ["scaffold_effects", "frontier_performance"],
-            ["data/model_sweep_plan.csv", "data/model_sweep_execution_commands.csv", "data/model_result_summary.csv"],
+            ["data/model_sweep_plan.csv", "data/model_sweep_coverage_audit.csv", "data/model_sweep_execution_commands.csv", "data/model_result_summary.csv"],
         ),
         row(
             "frontier_performance_undercoverage",

@@ -1965,6 +1965,10 @@ def main() -> int:
     accepted_model_summary = model_result_by_key.get(("accepted_core_results", "all", "all"), {})
     planned_primary_cells = as_int(primary_model_summary.get("planned_cells", "0"))
     covered_primary_noninfra = as_int(primary_model_summary.get("covered_cells_noninfra", "0"))
+    pass_at_k_ready_cells = sum(
+        1 for row in model_sweep_coverage_rows
+        if row.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
     accepted_noninfra_count = as_int(accepted_model_summary.get("rows_noninfra", "0"))
     accepted_noninfra_successes = as_int(accepted_model_summary.get("successes", "0"))
     infra_model_rows = [row for row in model_rows if row.get("infra_fail_count") not in {"", "0", 0}]
@@ -1973,7 +1977,8 @@ def main() -> int:
         model_md = "\n".join([
             f"- accepted-core non-infra provider smoke rows: `{accepted_noninfra_count}`",
             f"- successful smoke rows: `{accepted_noninfra_successes}`",
-            f"- primary sweep coverage: `{covered_primary_noninfra}/{planned_primary_cells}` planned cells covered",
+            f"- primary sweep pass@k-ready coverage: `{pass_at_k_ready_cells}/{planned_primary_cells}` planned cells ready",
+            f"- aggregate non-infra smoke-covered cells: `{covered_primary_noninfra}/{planned_primary_cells}`",
             "- performance estimate status: `blocked_by_undercoverage`; no benchmark pass-rate or interval is reported.",
         ])
     else:

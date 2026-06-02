@@ -130,6 +130,7 @@ def build_rows() -> list[dict[str, str]]:
     release_decision = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     research_claim_gap = read_csv(ROOT / "data" / "research_claim_gap_matrix.csv")
     manifest = read_json(VALIDATION_MANIFEST)
     text_by_report = {
@@ -289,16 +290,22 @@ def build_rows() -> list[dict[str, str]]:
     accepted_provider = row_by_key(model_summary, analysis_set="accepted_core_results", group_by="all", group="all")
     planned_cells = as_int(primary_coverage.get("planned_cells"))
     covered_noninfra = as_int(primary_coverage.get("covered_cells_noninfra"))
+    pass_at_k_ready_cells = sum(
+        1 for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
     accepted_total = as_int(accepted_provider.get("rows_total"))
     accepted_noninfra = as_int(accepted_provider.get("rows_noninfra"))
     model_missing = missing_needles(text_by_report, {
         "main": [
-            f"primary sweep coverage: `{covered_noninfra}/{planned_cells}` planned cells covered",
+            f"primary sweep pass@k-ready coverage: `{pass_at_k_ready_cells}/{planned_cells}` planned cells ready",
+            f"aggregate non-infra smoke-covered cells: `{covered_noninfra}/{planned_cells}`",
             f"accepted-core non-infra provider smoke rows: `{accepted_noninfra}`",
         ],
         "concise": [
             f"- planned accepted-core task/scaffold cells: `{planned_cells}`",
-            f"- covered non-infra primary cells: `{covered_noninfra}`",
+            f"- pass@k-ready primary cells: `{pass_at_k_ready_cells}`",
+            f"- aggregate non-infra smoke-covered primary cells: `{covered_noninfra}`",
             f"- accepted-core provider rows: `{accepted_total}` total, `{accepted_noninfra}` non-infra",
         ],
     })
@@ -308,6 +315,7 @@ def build_rows() -> list[dict[str, str]]:
         bool(model_summary) and planned_cells > 0 and not model_missing,
         {
             "planned_primary_cells": planned_cells,
+            "pass_at_k_ready_cells": pass_at_k_ready_cells,
             "covered_primary_noninfra": covered_noninfra,
             "accepted_provider_rows_total": accepted_total,
             "accepted_provider_rows_noninfra": accepted_noninfra,
@@ -317,6 +325,7 @@ def build_rows() -> list[dict[str, str]]:
         model_missing,
         [
             "data/model_result_summary.csv",
+            "data/model_sweep_coverage_audit.csv",
             "reports/metr_style_report.md",
             "reports/concise_metr_report.md",
         ],

@@ -138,6 +138,7 @@ def main() -> int:
     release_decisions = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
     run_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     data_schema_manifest = read_csv(ROOT / "data" / "data_schema_manifest.csv")
@@ -185,6 +186,11 @@ def main() -> int:
     independent_review_status_counts = Counter(row.get("status", "unknown") for row in independent_review_status)
     primary_coverage = row_by_id(run_summary, "analysis_set", "primary_plan_coverage")
     accepted_provider = row_by_id(run_summary, "analysis_set", "accepted_core_results")
+    coverage_status_counts = Counter(row.get("coverage_status", "unknown") for row in model_sweep_coverage)
+    pass_at_k_ready_cells = sum(
+        1 for row in model_sweep_coverage
+        if row.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
     provider_versions = sorted({
         f"{row.get('model', '')}:{row.get('model_version', '')}"
         for row in run_rows
@@ -313,7 +319,9 @@ def main() -> int:
         ),
         "",
         f"- planned accepted-core task/scaffold cells: `{primary_coverage.get('planned_cells', '0')}`",
-        f"- covered non-infra primary cells: `{primary_coverage.get('covered_cells_noninfra', '0')}`",
+        f"- pass@k-ready primary cells: `{pass_at_k_ready_cells}`",
+        f"- aggregate non-infra smoke-covered primary cells: `{primary_coverage.get('covered_cells_noninfra', '0')}`",
+        f"- strict coverage statuses: `{compact_json(dict(sorted(coverage_status_counts.items())))}`",
         f"- accepted-core provider rows: `{accepted_provider.get('rows_total', '0')}` total, `{accepted_provider.get('rows_noninfra', '0')}` non-infra",
         f"- provider/model versions in committed smoke rows: `{compact_json(provider_versions)}`",
         f"- statistical claim-tier statuses: `{compact_json(dict(sorted(statistical_status_counts.items())))}`",

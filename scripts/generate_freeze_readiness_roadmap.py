@@ -93,6 +93,7 @@ def build_rows() -> list[dict[str, str]]:
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     run_results = read_csv(ROOT / "data" / "run_results.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     human_observations = read_csv(ROOT / "data" / "human_time_observations.csv")
     independent_task_reviews = read_csv(ROOT / "data" / "independent_task_reviews.csv")
@@ -122,6 +123,11 @@ def build_rows() -> list[dict[str, str]]:
             and row_data.get("group") == "all"
         ),
         {},
+    )
+    coverage_status_counts = Counter(row_data.get("coverage_status", "unknown") for row_data in model_sweep_coverage)
+    pass_at_k_ready_cells = sum(
+        1 for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") in {"covered_pass", "covered_fail"}
     )
     hosted_blocks = [row_data for row_data in hosted if row_data.get("status") == "block"]
     statistical_plan_blocks = [
@@ -252,18 +258,21 @@ def build_rows() -> list[dict[str, str]]:
         "model_sweeps",
         "block",
         (
-            f"planned cells={len(model_sweep_plan)}; covered_noninfra="
-            f"{primary_coverage.get('covered_cells_noninfra', '0')}; observed non-infra provider rows={len(noninfra_provider_rows)}."
+            f"planned cells={len(model_sweep_plan)}; aggregate covered_noninfra="
+            f"{primary_coverage.get('covered_cells_noninfra', '0')}; pass@k-ready cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}; "
+            f"coverage statuses={compact_json(dict(sorted(coverage_status_counts.items())))}; observed non-infra provider rows={len(noninfra_provider_rows)}."
         ),
-        f"{requirement(requirements, 'scaffold_result_comparison')}; {requirement(requirements, 'model_sweep_execution_packet')}",
+        f"{requirement(requirements, 'scaffold_result_comparison')}; {requirement(requirements, 'model_sweep_coverage_audit')}; {requirement(requirements, 'model_sweep_execution_packet')}",
         "Accepted_v0 x {one-shot, lookup, lookup_unlimited} cells should have non-infra pass@k rows for each reported model.",
         "Run the planned sweep commands from reports/evaluation_protocol.md with fixed k and committed transcripts.",
         ["scaffold_effects", "frontier_performance", "locked_benchmark"],
         [
             "data/model_sweep_plan.csv",
+            "data/model_sweep_coverage_audit.csv",
             "data/model_sweep_execution_commands.csv",
             "data/run_results.csv",
             "reports/model_run_analysis.md",
+            "reports/model_sweep_coverage_audit.md",
             "reports/model_sweep_execution_packet.md",
         ],
     ))

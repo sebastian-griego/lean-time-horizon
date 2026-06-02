@@ -6,7 +6,9 @@ This generated plan fixes the minimum evidence thresholds for interpreting futur
 
 - accepted tasks: `6`
 - planned accepted task/scaffold cells: `18`
-- covered non-infra accepted task/scaffold cells: `1`
+- pass@k-ready accepted task/scaffold cells: `0`
+- aggregate non-infra smoke-covered cells: `1`
+- strict coverage statuses: `{"missing": 17, "smoke_only": 1}`
 - observed scaffolds: `["one-shot"]`
 - independent timing observations on accepted tasks: `0`
 - non-infra provider failure rows: `1`

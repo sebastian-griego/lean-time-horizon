@@ -125,7 +125,9 @@ The grader is Lean-first: submissions must pass forbidden-construct scanning, pu
 Committed provider rows are smoke evidence only. They show the runner and transcript path can work, but they do not characterize frontier performance, scaffold effects, family-level performance, or failure distributions.
 
 - planned accepted-core task/scaffold cells: `18`
-- covered non-infra primary cells: `1`
+- pass@k-ready primary cells: `0`
+- aggregate non-infra smoke-covered primary cells: `1`
+- strict coverage statuses: `{"missing": 17, "smoke_only": 1}`
 - accepted-core provider rows: `2` total, `1` non-infra
 - provider/model versions in committed smoke rows: `["anthropic:claude-sonnet-4-6"]`
 - statistical claim-tier statuses: `{"blocked": 6, "supported": 1}`
@@ -188,7 +190,7 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 | --- | --- | --- | --- |
 | `portfolio_accepted_count` | not_met | 6 accepted_v0 tasks; 8 calibration-only tasks; 12 rejected archive tasks. | Add and hard-review more high-quality T2/T3/T4 tasks before claiming a full benchmark. |
 | `time_horizon_spread` | partial | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
-| `scaffold_result_comparison` | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
+| `scaffold_result_comparison` | partial | Non-infra model rows: 2; smoke scaffolds observed: ["one-shot"]; pass@k-ready cells: 0/18; pass@k-ready scaffolds: []; coverage statuses: {"missing": 17, "smoke_only": 1}. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `frontier_model_evidence` | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |

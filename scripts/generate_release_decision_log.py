@@ -79,6 +79,7 @@ def build_rows() -> list[dict[str, str]]:
     pin_coverage = read_csv(ROOT / "data" / "pin_coverage_audit.csv")
     run_integrity = read_csv(ROOT / "data" / "run_integrity_audit.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
 
     reqs = {row_data["requirement_id"]: row_data for row_data in requirements}
     claims_by_id = {row_data["claim_id"]: row_data for row_data in claims}
@@ -145,6 +146,15 @@ def build_rows() -> list[dict[str, str]]:
         ),
         {},
     )
+    coverage_status_counts = Counter(row_data.get("coverage_status", "unknown") for row_data in model_sweep_coverage)
+    pass_at_k_ready_cells = sum(
+        1 for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
+    smoke_or_missing_cells = [
+        row_data for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") not in {"covered_pass", "covered_fail"}
+    ]
 
     rows: list[dict[str, str]] = []
     rows.append(row(
@@ -248,10 +258,12 @@ def build_rows() -> list[dict[str, str]]:
         "block",
         (
             f"{evidence(reqs, 'scaffold_result_comparison')}; primary plan coverage={compact_json(primary_coverage)}; "
+            f"strict pass@k-ready cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}; "
+            f"coverage statuses={compact_json(dict(sorted(coverage_status_counts.items())))}; "
             f"{evidence(reqs, 'provider_readiness_audit')}; {evidence(reqs, 'model_sweep_execution_packet')}; "
             f"claim={claims_by_id.get('scaffold_effects', {}).get('support_status', 'missing')}"
         ),
-        "The scaffold ladder exists, but accepted-core provider data cover only one non-infra one-shot cell.",
+        f"The scaffold ladder exists, but accepted-core provider data have {pass_at_k_ready_cells} pass@k-ready planned cells and {len(smoke_or_missing_cells)} smoke-only or missing cells.",
         "Run the planned accepted_v0 x scaffold sweep with fixed k before comparing scaffold effects.",
     ))
     rows.append(row(

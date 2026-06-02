@@ -324,7 +324,7 @@ Figure and plot-boundary ledger:
 | `bucket_success_plot` | blocked_by_evidence | false | No success-by-time-bucket plot is generated from the undercovered smoke rows. | Current rows cannot estimate success by human-time bucket. |
 | `family_success_plot` | blocked_by_evidence | false | No family success plot is generated from the undercovered smoke rows. | Current rows cannot estimate success by task family. |
 | `failure_taxonomy_plot` | blocked_by_evidence | false | No failure-taxonomy distribution plot is generated from the undercovered smoke rows. | The current failure taxonomy is useful for transcript QA but too small for distributional claims. |
-| `problem_pass_vs_time` | blocked_by_evidence | false | No problem-level pass-rate versus human-time plot is generated yet. | Do not imply a time-horizon trend from one covered accepted-core non-infra cell and author-estimated times. |
+| `problem_pass_vs_time` | blocked_by_evidence | false | No problem-level pass-rate versus human-time plot is generated yet. | Do not imply a time-horizon trend from zero pass@k-ready accepted-core cells and author-estimated times. |
 
 
 ## Committed Run Results
@@ -335,7 +335,8 @@ Accepted-core provider row summary:
 
 - accepted-core non-infra provider smoke rows: `1`
 - successful smoke rows: `0`
-- primary sweep coverage: `1/18` planned cells covered
+- primary sweep pass@k-ready coverage: `0/18` planned cells ready
+- aggregate non-infra smoke-covered cells: `1/18`
 - performance estimate status: `blocked_by_undercoverage`; no benchmark pass-rate or interval is reported.
 
 All committed non-local rows:
@@ -401,7 +402,7 @@ Claim authorization table:
 | --- | --- | --- | --- |
 | `portfolio_accepted_count` | not_met | 6 accepted_v0 tasks; 8 calibration-only tasks; 12 rejected archive tasks. | Add and hard-review more high-quality T2/T3/T4 tasks before claiming a full benchmark. |
 | `time_horizon_spread` | partial | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
-| `scaffold_result_comparison` | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
+| `scaffold_result_comparison` | partial | Non-infra model rows: 2; smoke scaffolds observed: ["one-shot"]; pass@k-ready cells: 0/18; pass@k-ready scaffolds: []; coverage statuses: {"missing": 17, "smoke_only": 1}. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `frontier_model_evidence` | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |

@@ -83,6 +83,7 @@ def summary_row(rows: list[dict[str, str]], analysis_set: str, group_by: str, gr
 def build_rows() -> list[dict[str, str]]:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     metadata = {
         row_data.get("task_id", ""): row_data
         for row_data in read_csv(ROOT / "data" / "task_metadata.csv")
@@ -139,6 +140,11 @@ def build_rows() -> list[dict[str, str]]:
     accepted_summary = summary_row(summary, "accepted_core_results", "all", "all")
     calibration_summary = summary_row(summary, "calibration_smoke_rows", "all", "all")
     primary_summary = summary_row(summary, "primary_plan_coverage", "all", "all")
+    coverage_status_counts = Counter(row_data.get("coverage_status", "unknown") for row_data in model_sweep_coverage)
+    pass_at_k_ready_cells = sum(
+        1 for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
     summary_mismatches = []
     if all_smoke_summary and int_field(all_smoke_summary, "rows_total") != len(provider_rows):
         summary_mismatches.append("all_provider_smoke_rows.rows_total")
@@ -222,11 +228,13 @@ def build_rows() -> list[dict[str, str]]:
         (
             f"summary_rows={len(summary)}; mismatches={compact_json(summary_mismatches)}; "
             f"primary_planned_cells={primary_summary.get('planned_cells', 'missing')}; "
-            f"primary_covered_noninfra={primary_summary.get('covered_cells_noninfra', 'missing')}"
+            f"primary_covered_noninfra={primary_summary.get('covered_cells_noninfra', 'missing')}; "
+            f"pass_at_k_ready_cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}; "
+            f"coverage_statuses={compact_json(dict(sorted(coverage_status_counts.items())))}"
         ),
         "The summary intentionally records undercoverage rather than performance conclusions.",
         "Regenerate scripts/analyze_model_results.py after any run_results change.",
-        ["data/model_result_summary.csv", "scripts/analyze_model_results.py"],
+        ["data/model_result_summary.csv", "data/model_sweep_coverage_audit.csv", "scripts/analyze_model_results.py", "scripts/audit_model_sweep_coverage.py"],
     ))
     rows.append(row(
         "report_sample_size_and_version_disclosure",

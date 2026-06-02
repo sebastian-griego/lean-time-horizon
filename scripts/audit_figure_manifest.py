@@ -91,6 +91,7 @@ def build_rows() -> list[dict[str, str]]:
     run_rows = read_csv(ROOT / "data" / "run_results.csv")
     statistical = read_csv(ROOT / "data" / "statistical_reporting_audit.csv")
     model_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
+    model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     human_time = read_csv(ROOT / "data" / "human_time_calibration_audit.csv")
 
     accepted = [item for item in metadata if item.get("acceptance_status") == "accepted_v0"]
@@ -211,6 +212,11 @@ def build_rows() -> list[dict[str, str]]:
         ),
         {},
     )
+    pass_at_k_ready_cells = sum(
+        1 for item in model_sweep_coverage
+        if item.get("coverage_status") in {"covered_pass", "covered_fail"}
+    )
+    coverage_statuses = Counter(item.get("coverage_status", "unknown") for item in model_sweep_coverage)
     rows.append(row(
         "problem_pass_vs_time",
         "blocked_performance",
@@ -218,14 +224,17 @@ def build_rows() -> list[dict[str, str]]:
         "reports/figures/problem_pass_vs_human_minutes.svg",
         [
             "data/model_result_summary.csv",
+            "data/model_sweep_coverage_audit.csv",
             "data/human_time_calibration_audit.csv",
             "data/statistical_design_thresholds.csv",
         ],
         "No problem-level pass-rate versus human-time plot is generated yet.",
-        "Do not imply a time-horizon trend from one covered accepted-core non-infra cell and author-estimated times.",
+        "Do not imply a time-horizon trend from zero pass@k-ready accepted-core cells and author-estimated times.",
         (
             f"planned_cells={primary.get('planned_cells', '0')}; "
-            f"covered_noninfra={primary.get('covered_cells_noninfra', '0')}; "
+            f"pass_at_k_ready_cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}; "
+            f"aggregate_noninfra_smoke_cells={primary.get('covered_cells_noninfra', '0')}; "
+            f"coverage_statuses={compact_json(dict(sorted(coverage_statuses.items())))}; "
             f"human_time_rows={len(human_time)}"
         ),
         "Run covered scaffold sweeps and collect independent timing before generating this plot.",

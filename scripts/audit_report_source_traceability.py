@@ -420,6 +420,7 @@ SECTION_SPECS = [
         "source_artifacts": [
             "reports/figure_manifest.md",
             "data/figure_manifest.csv",
+            "data/model_sweep_coverage_audit.csv",
             "reports/figures/task_counts_by_family.svg",
             "reports/figures/task_counts_by_bucket.svg",
             "reports/figures/task_minutes_by_bucket.svg",

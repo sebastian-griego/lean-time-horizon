@@ -630,13 +630,29 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "No gap." if model_provenance_ok else "Regenerate scripts/audit_model_evidence_provenance.py after model-result analysis and inspect failing provenance rows.",
     ))
 
-    scaffold_results_ok = len({row_data.get("scaffold") for row_data in non_infra_model_rows}) >= 3 and any(int(row_data.get("k", "1")) >= 10 for row_data in non_infra_model_rows if row_data.get("k", "1").isdigit())
+    pass_at_k_ready_cells = [
+        row_data for row_data in model_sweep_coverage
+        if row_data.get("coverage_status") in {"covered_pass", "covered_fail"}
+    ]
+    pass_at_k_ready_scaffolds = {row_data.get("scaffold", "") for row_data in pass_at_k_ready_cells}
+    coverage_status_counts_for_result = Counter(row_data.get("coverage_status", "unknown") for row_data in model_sweep_coverage)
+    scaffold_results_ok = (
+        bool(model_sweep_plan)
+        and len(pass_at_k_ready_cells) >= len(model_sweep_plan)
+        and len(pass_at_k_ready_scaffolds) >= 3
+    )
     requirement_rows.append(row(
         "scaffold_result_comparison",
         "scaffolds",
         "The report should compare real model performance across scaffolds, ideally pass@10.",
-        status_from_bool(scaffold_results_ok, partial=bool(non_infra_model_rows)),
-        f"Non-infra model rows: {len(non_infra_model_rows)}; scaffolds observed: {compact_json(sorted({row_data.get('scaffold') for row_data in non_infra_model_rows}))}; planned rows: {len(model_sweep_plan)}.",
+        status_from_bool(scaffold_results_ok, partial=bool(non_infra_model_rows) or bool(model_sweep_coverage)),
+        (
+            f"Non-infra model rows: {len(non_infra_model_rows)}; smoke scaffolds observed: "
+            f"{compact_json(sorted({row_data.get('scaffold') for row_data in non_infra_model_rows}))}; "
+            f"pass@k-ready cells: {len(pass_at_k_ready_cells)}/{len(model_sweep_plan)}; "
+            f"pass@k-ready scaffolds: {compact_json(sorted(pass_at_k_ready_scaffolds))}; "
+            f"coverage statuses: {compact_json(dict(sorted(coverage_status_counts_for_result.items())))}."
+        ),
         "Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims.",
     ))
 

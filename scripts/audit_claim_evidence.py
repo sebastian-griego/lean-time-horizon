@@ -280,7 +280,7 @@ def build_rows() -> list[dict[str, str]]:
         "performance_claim",
         "unsupported" if status(reqs, "scaffold_result_comparison") != "supported" else "supported",
         "none" if status(reqs, "scaffold_result_comparison") != "supported" else "medium",
-        f"{evidence(reqs, 'evaluation_protocol_plan')}; {evidence(reqs, 'model_sweep_execution_packet')}; {evidence(reqs, 'scaffold_result_comparison')}; {evidence(reqs, 'provider_readiness_audit')}; {evidence(reqs, 'statistical_reporting_audit')}; primary plan coverage: {compact_json(primary_coverage)}",
+        f"{evidence(reqs, 'evaluation_protocol_plan')}; {evidence(reqs, 'model_sweep_execution_packet')}; {evidence(reqs, 'model_sweep_coverage_audit')}; {evidence(reqs, 'scaffold_result_comparison')}; {evidence(reqs, 'provider_readiness_audit')}; {evidence(reqs, 'statistical_reporting_audit')}; primary plan coverage: {compact_json(primary_coverage)}",
         "The scaffold ladder is implemented and planned, but real accepted-core provider data cover only one one-shot cell.",
         "Run accepted-core pass@10 or equivalent rows across one-shot, lookup, and lookup_unlimited.",
     ))

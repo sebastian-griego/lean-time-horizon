@@ -527,7 +527,7 @@ Model-evidence provenance checks:
 | `provider_row_inventory` | run_data | pass | provider_rows=3; noninfra_provider_rows=2; accepted_provider_rows=2; accepted_noninfra_rows=1; calibration_provider_rows=1; local_qa_rows=68 | Provider rows are smoke evidence only and are underpowered for benchmark claims. | Keep provider rows separate from local QA rows and rerun this audit after every sweep. |
 | `model_version_and_k_completeness` | run_data | pass | model_versions=["anthropic:claude-sonnet-4-6"]; k_values=["1"]; scaffolds={"one-shot": 3}; missing_required_rows=[]; duplicate_jobs=[] | Current model-version rows are tiny smoke rows, not a model-comparison dataset. | Require model, model_version, job_id, k, and transcript_link on every future non-local row. |
 | `transcript_provenance` | run_data | pass | provider_transcripts=3; missing_transcripts=[] | Transcript existence plus single-review labels does not imply independent adjudication or representative failure-mode coverage. | Keep transcript files committed, audit review rows against transcript evidence, and require independent adjudication before failure-distribution claims. |
-| `summary_count_consistency` | analysis_data | pass | summary_rows=10; mismatches=[]; primary_planned_cells=18; primary_covered_noninfra=1 | The summary intentionally records undercoverage rather than performance conclusions. | Regenerate scripts/analyze_model_results.py after any run_results change. |
+| `summary_count_consistency` | analysis_data | pass | summary_rows=10; mismatches=[]; primary_planned_cells=18; primary_covered_noninfra=1; pass_at_k_ready_cells=0/18; coverage_statuses={"missing": 17, "smoke_only": 1} | The summary intentionally records undercoverage rather than performance conclusions. | Regenerate scripts/analyze_model_results.py after any run_results change. |
 | `report_sample_size_and_version_disclosure` | report_text | pass | model_versions_in_detailed_report=1/1; missing_versions=[]; missing_main_phrases=[]; missing_model_analysis_phrases=[] | The concise report summarizes counts but leaves full model-version rows to the detailed evidence appendix. | Keep sample sizes, k, infra policy, and model versions visible in generated report text. |
 | `local_qa_exclusion_boundary` | claim_boundary | pass | local_qa_rows=68; provider_rows=3 | Local QA rows validate grading behavior and must not enter model-capability summaries. | Keep local QA excluded from model_result_summary and benchmark pass-rate text. |
 | `infra_policy_boundary` | claim_boundary | pass | provider_infra_rows=1; accepted_infra_rows=1 | Provider reliability claims need many more rows; this row only checks accounting policy disclosure. | Retain infra rows in raw data and report them separately from capability means. |
@@ -591,7 +591,7 @@ Figure and plot-boundary ledger:
 | `bucket_success_plot` | blocked_by_evidence | false | No success-by-time-bucket plot is generated from the undercovered smoke rows. | Current rows cannot estimate success by human-time bucket. |
 | `family_success_plot` | blocked_by_evidence | false | No family success plot is generated from the undercovered smoke rows. | Current rows cannot estimate success by task family. |
 | `failure_taxonomy_plot` | blocked_by_evidence | false | No failure-taxonomy distribution plot is generated from the undercovered smoke rows. | The current failure taxonomy is useful for transcript QA but too small for distributional claims. |
-| `problem_pass_vs_time` | blocked_by_evidence | false | No problem-level pass-rate versus human-time plot is generated yet. | Do not imply a time-horizon trend from one covered accepted-core non-infra cell and author-estimated times. |
+| `problem_pass_vs_time` | blocked_by_evidence | false | No problem-level pass-rate versus human-time plot is generated yet. | Do not imply a time-horizon trend from zero pass@k-ready accepted-core cells and author-estimated times. |
 
 
 ## Statistical Reporting Audit
@@ -608,9 +608,9 @@ Statistical reporting checks:
 
 | check | area | status | current sample | limitation | next action |
 | --- | --- | --- | --- | --- | --- |
-| `primary_sweep_coverage` | planned_sweep | block | 1/18 accepted task/scaffold cells covered by non-infra provider rows | The committed provider rows cannot support accepted-core performance estimates. | Run the planned accepted_v0 x scaffold sweep before reporting benchmark performance. |
-| `main_report_performance_estimate_suppression` | report_text | pass | 1/18 accepted task/scaffold cells covered by non-infra provider rows | The main report should not display performance-style estimates when primary sweep coverage is blocked. | Suppress mean/interval wording in the main report until the planned accepted-core sweep is covered. |
-| `scaffold_pass_at_k_plot` | recommended_plot | block | 1/3 scaffolds observed; 1 non-infra accepted-core rows | A mean pass@10-by-scaffold plot would imply comparisons the data do not support. | Populate all one-shot, lookup, and lookup_unlimited cells before generating scaffold-effect plots. |
+| `primary_sweep_coverage` | planned_sweep | block | 0/18 accepted task/scaffold cells covered by exact-k non-infra provider rows | The committed provider rows cannot support accepted-core performance estimates. | Run the planned accepted_v0 x scaffold sweep before reporting benchmark performance. |
+| `main_report_performance_estimate_suppression` | report_text | pass | 0/18 accepted task/scaffold cells covered by exact-k non-infra provider rows | The main report should not display performance-style estimates when primary sweep coverage is blocked. | Suppress mean/interval wording in the main report until the planned accepted-core sweep is covered. |
+| `scaffold_pass_at_k_plot` | recommended_plot | block | 1/3 scaffolds observed in smoke rows; 0 pass@k-ready cells | A mean pass@10-by-scaffold plot would imply comparisons the data do not support. | Populate all one-shot, lookup, and lookup_unlimited cells before generating scaffold-effect plots. |
 | `bucket_success_plot` | recommended_plot | block | 1 human-time buckets observed in non-infra accepted-core provider rows | Current rows cannot estimate success by human-time bucket. | Run the planned sweep and add T3/T4 accepted tasks before plotting time-horizon success curves. |
 | `family_success_plot` | recommended_plot | block | 1/6 accepted families observed in non-infra provider rows | Current rows cannot estimate success by task family. | Run provider rows across the accepted core before family-level summaries. |
 | `failure_taxonomy_plot` | recommended_plot | block | 1 non-infra provider failure rows | The current failure taxonomy is useful for transcript QA but too small for distributional claims. | Collect provider failures across the planned scaffold sweep and review labels before plotting. |
@@ -717,7 +717,7 @@ Threat register:
 | `missing_independent_task_quality_review` | internal_validity | high | block | independent task-review rows=0/6; review-status checks=5 | Collect non-author task-quality reviews covering prompt clarity, time bucket, diagnostic value, hidden pins, wrong submissions, and benchmark-grade recommendation for every accepted task. | accepted_core_reviewed;locked_benchmark |
 | `automation_dominated_retained_tasks` | construct_validity | medium | caution | automation-dominated accepted tasks=2: ["lt-201", "lt-206"] | Replace or independently validate retained caveat rows before locked benchmark status. | accepted_core_reviewed;time_horizon_measurement |
 | `semantic_pin_finiteness` | internal_validity | medium | caution | accepted tasks with hidden-pin wrong failures=4/6; proof-only fixed-statement rows=2 | Have an independent reviewer inspect hidden pins and add richer same-signature hidden wrongs for future mutable tasks. | hidden_pin_strength;grading_validity |
-| `scaffold_sweep_undercoverage` | statistical_validity | high | block | planned accepted-core cells=18; covered non-infra cells=1 | Run accepted_v0 x one-shot/lookup/lookup_unlimited rows with fixed k and committed transcripts. | scaffold_effects;frontier_performance |
+| `scaffold_sweep_undercoverage` | statistical_validity | high | block | planned accepted-core cells=18; pass@k-ready cells=0; aggregate non-infra smoke-covered cells=1; coverage statuses={"missing": 17, "smoke_only": 1} | Run accepted_v0 x one-shot/lookup/lookup_unlimited rows with fixed k and committed transcripts. | scaffold_effects;frontier_performance |
 | `frontier_performance_undercoverage` | external_validity | high | block | accepted-core non-infra provider rows=1; accepted tasks=6 | Run documented frontier/open-model sweeps across the accepted scaffold plan with model versions and transcripts. | frontier_performance;locked_benchmark |
 | `statistical_power_and_plots` | statistical_validity | high | block | statistical audit rows=9; blocked outputs=5 | Populate the planned sweep and accepted task count before generating scaffold, family, and bucket performance plots. | scaffold_effects;frontier_performance;family_level_performance |
 | `failure_taxonomy_forecast` | internal_validity | medium | caution | accepted-core non-infra provider rows=1; transcript review queue rows=3; single-review rows=3; review-audit failures=0; high/critical queue rows=1 | Label real model transcripts after the scaffold sweep, use independent adjudication for disagreements, and compare observed failures to intended diagnostic modes. | diagnostic_failure_distribution;scaffold_effects |
@@ -758,7 +758,8 @@ Accepted-core provider row summary:
 
 - accepted-core non-infra provider smoke rows: `1`
 - successful smoke rows: `0`
-- primary sweep coverage: `1/18` planned cells covered
+- primary sweep pass@k-ready coverage: `0/18` planned cells ready
+- aggregate non-infra smoke-covered cells: `1/18`
 - performance estimate status: `blocked_by_undercoverage`; no benchmark pass-rate or interval is reported.
 
 All committed non-local rows:
@@ -904,11 +905,11 @@ Report-shape checks:
 | --- | --- | --- | --- | --- | --- |
 | `tasks_built` | What tasks were built? | answered | accepted=6; calibration=8; missing_phrases=[] | The accepted set is below the final 20-50 task target. | Keep accepted/calibration/rejected status visible and expand only with hard-reviewed tasks. |
 | `capabilities_tested` | What capabilities do the tasks test? | answered_with_caveat | capability_rows=7; singleton_capabilities=["library_search", "semantic_formalization", "codebase_navigation"]; missing_phrases=[] | Some capabilities are represented by only one accepted task, so capability-level claims remain weak. | Add independently reviewed tasks for singleton capabilities before making capability-level performance claims. |
-| `scaffolds_compared` | What scaffolds were compared? | answered_with_blocker | planned_cells=18; covered_noninfra=1; missing_phrases=[] | The scaffold ladder is planned and implemented, but committed provider evidence covers only a tiny one-shot smoke sample. | Run the accepted-core scaffold sweep before interpreting scaffold effects. |
-| `success_changes_by_scaffold_and_bucket` | How does success change with scaffold and human-time bucket? | blocked_by_evidence | scaffold_result_comparison=partial; time_horizon_spread=partial; statistical_analysis_plan=supported; primary_covered_noninfra=1 | Real scaffold/time-horizon performance summaries are not supported by committed data. | Run pass@k sweeps across accepted_v0 x scaffold cells, meet the statistical threshold rows, and add independently timed T3/T4 tasks. |
+| `scaffolds_compared` | What scaffolds were compared? | answered_with_blocker | planned_cells=18; aggregate_covered_noninfra=1; pass_at_k_ready_cells=0/18; coverage_statuses={"missing": 17, "smoke_only": 1}; missing_phrases=[] | The scaffold ladder is planned and implemented, but committed provider evidence covers only a tiny one-shot smoke sample. | Run the accepted-core scaffold sweep before interpreting scaffold effects. |
+| `success_changes_by_scaffold_and_bucket` | How does success change with scaffold and human-time bucket? | blocked_by_evidence | scaffold_result_comparison=partial; time_horizon_spread=partial; statistical_analysis_plan=supported; aggregate_primary_covered_noninfra=1; pass_at_k_ready_cells=0/18 | Real scaffold/time-horizon performance summaries are not supported by committed data. | Run pass@k sweeps across accepted_v0 x scaffold cells, meet the statistical threshold rows, and add independently timed T3/T4 tasks. |
 | `failure_modes_dominate` | What failure modes dominate? | blocked_by_evidence | concision_mentions_failure_limits=True; missing_phrases=[] | Expected failure modes are documented, but broad model transcripts are not independently adjudicated. | Use the transcript review packet and failure-label review audit after broader provider sweeps before claiming dominant failure modes. |
 | `next_batch_needs` | What does the next batch need? | answered | missing_phrases=[] | Next work is a concrete blocker list, not a claim that the benchmark is locked. | Keep next-work items tied to requirement/freeze gates. |
-| `skimmability` | Is the main report skimmable? | answered | concise_report_lines=217; conformance_failures=0 | The concise report is short, and row-level generated tables live in the evidence appendix instead of the main narrative. | Keep the concise and main reports short and keep long tables in generated appendices. |
+| `skimmability` | Is the main report skimmable? | answered | concise_report_lines=219; conformance_failures=0 | The concise report is short, and row-level generated tables live in the evidence appendix instead of the main narrative. | Keep the concise and main reports short and keep long tables in generated appendices. |
 
 
 ## Report Count Consistency Audit
@@ -1127,7 +1128,7 @@ Partial or unmet requirements:
 | --- | --- | --- | --- | --- | --- |
 | `portfolio_accepted_count` | portfolio | required_for_locked_benchmark | not_met | 6 accepted_v0 tasks; 8 calibration-only tasks; 12 rejected archive tasks. | Add and hard-review more high-quality T2/T3/T4 tasks before claiming a full benchmark. |
 | `time_horizon_spread` | portfolio | required_for_locked_benchmark | partial | Accepted bucket counts: {"T2": 5, "T3": 1}; release bucket counts: {"T1": 8, "T2": 5, "T3": 1}. | Add more accepted T3/T4 tasks, including a T4 stretch row, and independently review human times. |
-| `scaffold_result_comparison` | scaffolds | required_for_locked_benchmark | partial | Non-infra model rows: 2; scaffolds observed: ["one-shot"]; planned rows: 18. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
+| `scaffold_result_comparison` | scaffolds | required_for_locked_benchmark | partial | Non-infra model rows: 2; smoke scaffolds observed: ["one-shot"]; pass@k-ready cells: 0/18; pass@k-ready scaffolds: []; coverage statuses: {"missing": 17, "smoke_only": 1}. | Run real pass@10 or comparable sweeps across one-shot, lookup, and lookup_unlimited before performance claims. |
 | `frontier_model_evidence` | runs | required_for_locked_benchmark | partial | Non-infra model rows: 2 over 6 accepted tasks; total model rows including infra failures: 3. | Run broader provider sweeps only after local and hosted QA are stable. |
 | `independent_human_time_review` | calibration | required_for_locked_benchmark | partial | Accepted tasks with manual_review_complete: 6/6; accepted tasks with successful independent timing observations: 0/6; observation rows: 0. | Collect independent Lean-human timed solves or second-reviewer timing notes before freeze. |
 | `independent_task_quality_review` | calibration | required_for_locked_benchmark | not_met | Accepted tasks with completed independent task reviews: 0/6; review rows: 0; status-audit rows: 5. | Collect non-author task-quality reviews for every accepted_v0 task before freeze. |
@@ -1289,9 +1290,9 @@ Clean workspace replay ledger:
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-02T03:00:38.808078+00:00`
+Generated at UTC: `2026-06-02T03:09:16.310539+00:00`
 
-Git branch/head at generation: `main` / `fca313390a8e`. Worktree status at generation: `clean`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `42fc613e53e9`. Worktree status at generation: `47 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -1421,14 +1422,14 @@ Key artifact hashes:
 | `data/model_sweep_execution_checklist.csv` | `85ee653afc22` | 7 | 1876 |
 | `data/model_result_summary.csv` | `2cfee9603a36` | 10 | 1682 |
 | `data/model_sweep_coverage_audit.csv` | `cc1a7084ff8a` | 18 | 6252 |
-| `data/model_evidence_provenance_audit.csv` | `957cc137ac4d` | 7 | 2848 |
-| `data/statistical_design_thresholds.csv` | `2469c33c6170` | 7 | 4822 |
+| `data/model_evidence_provenance_audit.csv` | `d7561eb2a31b` | 7 | 3008 |
+| `data/statistical_design_thresholds.csv` | `8cb8d8eb371e` | 7 | 5441 |
 | `data/wilson_precision_table.csv` | `70f8b9f29aaf` | 18 | 829 |
-| `data/statistical_reporting_audit.csv` | `745a46e93f0a` | 9 | 4740 |
+| `data/statistical_reporting_audit.csv` | `4e9696083d79` | 9 | 4878 |
 | `data/provider_readiness_audit.csv` | `5085a5f82ce2` | 12 | 5378 |
 | `data/hosted_qa_readiness_audit.csv` | `8079bd178206` | 12 | 4829 |
 | `data/taiga_wrapper_isolation_audit.csv` | `353208a823dc` | 3 | 1506 |
-| `data/threats_to_validity.csv` | `1238b0655155` | 13 | 6894 |
+| `data/threats_to_validity.csv` | `019be9c279ee` | 13 | 7026 |
 | `data/threat_coverage_audit.csv` | `babdabd5070c` | 4 | 2834 |
 | `data/transcript_review_queue.csv` | `ae3cbf568c1e` | 3 | 1347 |
 | `data/failure_label_review_template.csv` | `737dcc43903c` | 3 | 373 |
@@ -1459,23 +1460,23 @@ Key artifact hashes:
 | `data/pin_coverage_audit.csv` | `495e181b4573` | 26 | 9391 |
 | `data/run_integrity_audit.csv` | `1f2c34f1e34d` | 71 | 14962 |
 | `data/grader_hardening_audit.csv` | `fe8460a22a09` | 9 | 3187 |
-| `data/claim_evidence_audit.csv` | `4a56a8d174e9` | 9 | 22252 |
-| `data/claim_authorization_matrix.csv` | `fce4e8e67213` | 12 | 16554 |
-| `data/research_claim_gap_matrix.csv` | `e6b3f6397976` | 12 | 16565 |
+| `data/claim_evidence_audit.csv` | `c8f3aa32f3f0` | 9 | 22663 |
+| `data/claim_authorization_matrix.csv` | `56b6c560cdd5` | 12 | 16865 |
+| `data/research_claim_gap_matrix.csv` | `bd8beab248ba` | 12 | 17258 |
 | `data/report_claim_conformance_audit.csv` | `7ac714b04d4b` | 11 | 4101 |
-| `data/report_source_traceability.csv` | `4a4744fa8c0a` | 35 | 16344 |
+| `data/report_source_traceability.csv` | `45ca78ea7640` | 35 | 16380 |
 | `data/regeneration_command_consistency.csv` | `b6ed49aa065b` | 4 | 1537 |
-| `data/report_shape_audit.csv` | `162dd3825949` | 7 | 3350 |
-| `data/report_count_consistency_audit.csv` | `bdf92bf242af` | 8 | 5271 |
+| `data/report_shape_audit.csv` | `bf1c13cb6de0` | 7 | 3558 |
+| `data/report_count_consistency_audit.csv` | `2c3743ef2b54` | 8 | 5337 |
 | `data/final_delivery_checklist_audit.csv` | `580cbfbdfe9e` | 10 | 5279 |
-| `data/figure_manifest.csv` | `a077ca854b0d` | 10 | 5376 |
+| `data/figure_manifest.csv` | `7029d83be29f` | 10 | 5534 |
 | `data/data_schema_manifest.csv` | `8f0cf970f77b` | 9 | 3823 |
 | `data/reviewer_reproduction_steps.csv` | `68f66bec09e4` | 17 | 9943 |
 | `data/clean_workspace_replay.csv` | `42f1756d139c` | 7 | 3642 |
-| `data/release_decision_log.csv` | `3872c2b33dde` | 8 | 11533 |
-| `data/freeze_readiness_roadmap.csv` | `3901554c75a8` | 10 | 12854 |
+| `data/release_decision_log.csv` | `163829708236` | 8 | 11750 |
+| `data/freeze_readiness_roadmap.csv` | `7d86e9d9728e` | 10 | 13332 |
 | `data/scaffold_support_audit.csv` | `5c97c5fb587a` | 11 | 3994 |
-| `data/requirement_coverage.csv` | `452bddc7a59c` | 74 | 29148 |
+| `data/requirement_coverage.csv` | `13f5629750b2` | 74 | 29247 |
 | `reports/difficulty_audit.md` | `a39fa2e07b5c` |  | 6942 |
 | `reports/task_quality_matrix.md` | `c041ef470ce1` |  | 4990 |
 | `reports/candidate_pruning_audit.md` | `a9d733ca01f5` |  | 7227 |
@@ -1493,29 +1494,29 @@ Key artifact hashes:
 | `reports/grader_hardening_audit.md` | `3077ce81d3b1` |  | 4073 |
 | `reports/claim_evidence_audit.md` | `5cd2c5a4f8b4` |  | 6738 |
 | `reports/claim_authorization_matrix.md` | `f2efb00e0b08` |  | 7893 |
-| `reports/research_claim_gap_matrix.md` | `8f4bd8a124af` |  | 11700 |
+| `reports/research_claim_gap_matrix.md` | `16f0b12b391c` |  | 12365 |
 | `reports/report_claim_conformance_audit.md` | `d0c93287cb00` |  | 4268 |
-| `reports/report_source_traceability.md` | `246ba3508fd5` |  | 17088 |
+| `reports/report_source_traceability.md` | `4cb02a244fe4` |  | 17124 |
 | `reports/regeneration_command_consistency.md` | `7079037bfb9c` |  | 2166 |
-| `reports/report_shape_audit.md` | `c5a11554e4ae` |  | 3373 |
-| `reports/report_count_consistency_audit.md` | `2ab430bc7a3b` |  | 5190 |
+| `reports/report_shape_audit.md` | `8e284c5659f3` |  | 3501 |
+| `reports/report_count_consistency_audit.md` | `ffdb393e3e41` |  | 5218 |
 | `reports/final_delivery_checklist_audit.md` | `29d8de513811` |  | 5286 |
-| `reports/figure_manifest.md` | `954eeb15e740` |  | 6198 |
+| `reports/figure_manifest.md` | `72bd937df08f` |  | 6350 |
 | `reports/data_schema_manifest.md` | `1735bf2905a7` |  | 4381 |
 | `reports/reviewer_reproduction_packet.md` | `a8da2efd7a43` |  | 6281 |
 | `reports/clean_workspace_replay.md` | `93c55a3546e4` |  | 2739 |
-| `reports/concise_metr_report.md` | `a3ee1cb7c917` |  | 18905 |
-| `reports/release_decision_log.md` | `42a4992baca7` |  | 12120 |
-| `reports/freeze_readiness_roadmap.md` | `91751e533340` |  | 6174 |
+| `reports/concise_metr_report.md` | `9574fc96fb1b` |  | 19115 |
+| `reports/release_decision_log.md` | `9cfd62b6f529` |  | 12329 |
+| `reports/freeze_readiness_roadmap.md` | `42a5167fa375` |  | 6261 |
 | `reports/scaffold_support_audit.md` | `a4e45ef0d556` |  | 4916 |
 | `reports/accepted_task_review.md` | `7ea531dc5f6e` |  | 13332 |
 | `reports/evaluation_protocol.md` | `76d8ab27330f` |  | 6771 |
 | `reports/model_sweep_execution_packet.md` | `27bc99eecbe6` |  | 7361 |
 | `reports/model_run_analysis.md` | `7ea88a7de75f` |  | 1965 |
 | `reports/model_sweep_coverage_audit.md` | `b6cf8c8499bc` |  | 5023 |
-| `reports/model_evidence_provenance_audit.md` | `fe79d14b5819` |  | 3190 |
-| `reports/statistical_analysis_plan.md` | `b62e2034bd60` |  | 4710 |
-| `reports/statistical_reporting_audit.md` | `f4badab5d8f2` |  | 3813 |
+| `reports/model_evidence_provenance_audit.md` | `d7b8eece72b0` |  | 3270 |
+| `reports/statistical_analysis_plan.md` | `6ce8fdc98bf5` |  | 4817 |
+| `reports/statistical_reporting_audit.md` | `f8a0e8bf8131` |  | 3833 |
 | `reports/provider_readiness_audit.md` | `ad401384c693` |  | 6359 |
 | `reports/hosted_qa_readiness_audit.md` | `c003a6fbf7b3` |  | 5317 |
 | `reports/taiga_wrapper_isolation_audit.md` | `db757d2d1009` |  | 2304 |
@@ -1523,11 +1524,11 @@ Key artifact hashes:
 | `taiga/Dockerfile` | `d3bb46369105` |  | 1481 |
 | `taiga/mcp_server.py` | `466e7f7205ee` |  | 12424 |
 | `taiga/problems_metadata.template.json` | `f8ecbc2eeaba` |  | 14677 |
-| `reports/threats_to_validity.md` | `7defee4c0b9b` |  | 6799 |
+| `reports/threats_to_validity.md` | `d28c18693d90` |  | 6889 |
 | `reports/threat_coverage_audit.md` | `9354eebeb039` |  | 3415 |
 | `reports/transcript_review_packet.md` | `58c5e52bf1b5` |  | 4276 |
 | `reports/failure_label_review_audit.md` | `b8aa8b111870` |  | 2775 |
-| `reports/requirement_coverage.md` | `37a11207c363` |  | 26157 |
+| `reports/requirement_coverage.md` | `575038a6edbc` |  | 26252 |
 | `reports/figures/task_counts_by_family.svg` | `5833212738d0` |  | 2523 |
 | `reports/figures/task_counts_by_bucket.svg` | `2ce3c13b007f` |  | 1479 |
 | `reports/figures/top_skills.svg` | `27fb2a82febe` |  | 3806 |
@@ -1550,42 +1551,42 @@ Key artifact hashes:
 | `scripts/audit_pin_coverage.py` | `aaa6a5abbf28` |  | 15593 |
 | `scripts/audit_run_integrity.py` | `0d57a7faa416` |  | 13598 |
 | `scripts/audit_grader_hardening.py` | `7bcba063dd41` |  | 14898 |
-| `scripts/audit_claim_evidence.py` | `d7788043c305` |  | 19034 |
-| `scripts/generate_claim_authorization_matrix.py` | `96d55e2df744` |  | 22884 |
+| `scripts/audit_claim_evidence.py` | `f2a9e1bf8af2` |  | 19082 |
+| `scripts/generate_claim_authorization_matrix.py` | `15a31878aeb0` |  | 22936 |
 | `scripts/generate_research_claim_gap_matrix.py` | `53e3bdfcd86c` |  | 17966 |
 | `scripts/audit_report_claim_conformance.py` | `b77d0684f1f2` |  | 18920 |
-| `scripts/audit_report_source_traceability.py` | `d706e00c830d` |  | 33346 |
-| `scripts/audit_report_count_consistency.py` | `c166095dc595` |  | 20053 |
+| `scripts/audit_report_source_traceability.py` | `deff57f89ab3` |  | 33397 |
+| `scripts/audit_report_count_consistency.py` | `6e135155cfa5` |  | 20613 |
 | `scripts/audit_final_delivery_checklist.py` | `d6b7deb43a73` |  | 17647 |
 | `scripts/audit_regeneration_commands.py` | `2059803ba297` |  | 11105 |
-| `scripts/audit_figure_manifest.py` | `9d1717d9a6ff` |  | 11955 |
+| `scripts/audit_figure_manifest.py` | `19cdfd8d463c` |  | 12547 |
 | `scripts/audit_data_schema_manifest.py` | `42a7e152571a` |  | 18608 |
 | `scripts/generate_reviewer_reproduction_packet.py` | `8a721bcf9bf2` |  | 20782 |
 | `scripts/run_clean_workspace_replay.py` | `7df9aa349ef9` |  | 11361 |
-| `scripts/generate_concise_report.py` | `16eca2b0032f` |  | 22749 |
-| `scripts/audit_report_shape.py` | `c05401fcd5b5` |  | 11123 |
-| `scripts/generate_release_decision_log.py` | `3e3c631059fa` |  | 16375 |
-| `scripts/generate_freeze_readiness_roadmap.py` | `ed698310f875` |  | 20818 |
+| `scripts/generate_concise_report.py` | `b26fe3de96ab` |  | 23285 |
+| `scripts/audit_report_shape.py` | `be82688044cf` |  | 12002 |
+| `scripts/generate_release_decision_log.py` | `3f45c1f67268` |  | 17189 |
+| `scripts/generate_freeze_readiness_roadmap.py` | `5045e679e3a9` |  | 21528 |
 | `scripts/audit_scaffold_support.py` | `4e8cab1a8f2b` |  | 15866 |
-| `scripts/audit_requirement_coverage.py` | `fa0c83945bf9` |  | 138415 |
+| `scripts/audit_requirement_coverage.py` | `62e76a47bee9` |  | 139101 |
 | `scripts/generate_evaluation_protocol.py` | `335e77481a6e` |  | 9710 |
-| `scripts/generate_statistical_analysis_plan.py` | `fc6d38797a90` |  | 18559 |
+| `scripts/generate_statistical_analysis_plan.py` | `eb2daa32a87a` |  | 19495 |
 | `scripts/generate_model_sweep_packet.py` | `90d154fc04c7` |  | 14432 |
 | `scripts/analyze_model_results.py` | `eb7385902402` |  | 11969 |
 | `scripts/audit_model_sweep_coverage.py` | `6354195d2fcb` |  | 8875 |
-| `scripts/audit_model_evidence_provenance.py` | `f97a3d01f536` |  | 14136 |
-| `scripts/audit_statistical_reporting.py` | `62d3992d0214` |  | 14208 |
+| `scripts/audit_model_evidence_provenance.py` | `807c4173c7c5` |  | 14772 |
+| `scripts/audit_statistical_reporting.py` | `7ed5e0c079de` |  | 14891 |
 | `scripts/audit_provider_readiness.py` | `721efbd15df9` |  | 19841 |
 | `scripts/audit_hosted_qa_readiness.py` | `6607b26134b5` |  | 21145 |
 | `scripts/audit_taiga_wrapper_isolation.py` | `cfd4a843a3c2` |  | 9740 |
 | `scripts/generate_taiga_problem_metadata.py` | `8f309a77a488` |  | 3728 |
 | `scripts/generate_taiga_hidden_bundle.py` | `c88ea320ad4d` |  | 2931 |
-| `scripts/generate_threats_to_validity.py` | `2ebd94b4935a` |  | 20148 |
+| `scripts/generate_threats_to_validity.py` | `dccdd309aeb4` |  | 20773 |
 | `scripts/audit_threat_coverage.py` | `e67a9460521e` |  | 11521 |
 | `scripts/generate_transcript_review_packet.py` | `d65df15a3994` |  | 10925 |
 | `scripts/audit_failure_label_reviews.py` | `03af6cabc1b3` |  | 11811 |
 | `scripts/record_local_qa_results.py` | `e65fa7831bc3` |  | 5303 |
-| `scripts/generate_report.py` | `34c46d5f6135` |  | 133639 |
+| `scripts/generate_report.py` | `3f2d143d4a12` |  | 133919 |
 | `scripts/export_public_tasks.py` | `ad45c6bdcdf2` |  | 2471 |
 | `scripts/validate_public_export.py` | `586940302ff3` |  | 3575 |
 | `scripts/anthropic_runner.py` | `4f940f91986e` |  | 2095 |
@@ -1615,7 +1616,7 @@ Validation manifest audit rows:
 | `artifact_inventory_coverage` | artifact_hashes | pass | inventory_candidates=177; recorded_artifacts=193; allowed_unhashed=5; missing_inventory=0; examples=[] | The inventory check covers data CSVs, report markdown, and scripts. It intentionally excludes self-referential final reports, the validation-manifest audit output, and the progress log. |
 | `self_reference_boundary` | artifact_hashes | pass | main_report_omitted=True; evidence_appendix_omitted=True; policy_note_mentions_omission=True | The main report and appendix are regenerated after manifest writing and therefore cannot be hashed by the manifest without circularity. |
 | `public_export_snapshot` | public_export | pass | configured=True; exists=True; task_count=14; hidden_or_wrong_path_count=0 | This is a local public-export snapshot, not hosted QA evidence. |
-| `git_snapshot_policy` | git_state | pass | dirty=False; status_entries=0; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
+| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=47; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
 | `summary_count_snapshot` | counts | pass | task_count=26; acceptance_status_counts={"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}; run_rows=71; local_qa_rows=68; model_rows=3 | Count snapshots are local evidence and do not imply benchmark-scale sufficiency. |
 
 
