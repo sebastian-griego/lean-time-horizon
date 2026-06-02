@@ -100,6 +100,17 @@ STEPS = [
         "next_action": "Run after sweep-plan, schema, statistical-threshold, timing, failure-label, or hosted-readiness changes.",
     },
     {
+        "step_id": "evidence_strength_matrix",
+        "phase": "local_replay",
+        "command": "python scripts/generate_evidence_strength_matrix.py",
+        "expected_artifacts": "data/evidence_strength_matrix.csv;reports/evidence_strength_matrix.md",
+        "claim_supported": "Major report claims are graded by evidence type so local, provider-smoke, independent-review, hosted-QA, and freeze evidence are not conflated.",
+        "evidence_basis": "Requirement coverage, claim authorization, run-result coverage, human-timing rows, independent-review rows, hosted-readiness rows, and analysis decisions.",
+        "failure_interpretation": "A stale or missing matrix weakens research-report claim control and should block stronger report-quality claims until regenerated.",
+        "limitation": "The matrix classifies evidence strength; it does not create independent review, exact-k provider sweeps, hosted QA, or freeze evidence.",
+        "next_action": "Run after requirement coverage, claim authorization, model-coverage, timing, independent-review, or hosted-readiness changes.",
+    },
+    {
         "step_id": "peer_review_matrix",
         "phase": "local_replay",
         "command": "python scripts/generate_peer_review_matrix.py",

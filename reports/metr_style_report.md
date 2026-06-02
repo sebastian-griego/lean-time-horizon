@@ -167,7 +167,7 @@ Independent review status:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 71}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 72}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -216,7 +216,7 @@ Peer-review matrix:
 | `human_time_evidence` | calibration | block | No. Accepted tasks have manual review fields but no independent timed solve observations. | Time-horizon claims remain author/reviewer-estimate-only. |
 | `hosted_qa_and_public_export` | operational_validity | caution | Local public export and committed/exported leakage scans are clean, but hosted QA, Env Linter, problem-version mapping, and uploaded-image evidence are absent. | Local wrapper, export, and leakage checks do not prove hosted filesystem-tool isolation or final problem-version behavior. |
 | `local_reproducibility` | reproducibility | pass | Yes for the local role. The README gate, reviewer packet, clean-workspace replay, regeneration-command audit, and manifest audit are synchronized and passing. | This is local reproducibility, not hosted QA or clean remote CI proof. |
-| `claim_control_system` | claims | pass | Yes. Claim authorization, claim conformance, count consistency, source traceability, and pass@k boundary audits are present and passing. | Text audits are guardrails; they do not create missing provider, timing, task-review, or hosted evidence. |
+| `claim_control_system` | claims | pass | Yes. Claim authorization, evidence-strength grading, claim conformance, count consistency, source traceability, and pass@k boundary audits are present and passing. | Text audits are guardrails; they do not create missing provider, timing, task-review, or hosted evidence. |
 | `upgrade_path` | roadmap | pass | Yes. The gap matrix, release decision log, freeze roadmap, and final-delivery checklist name the missing evidence and exit criteria. | The roadmap is not evidence that the blocked gates have been completed. |
 
 
@@ -337,6 +337,32 @@ Analysis decision register:
 | `failure_label_rule` | failure_analysis | workflow_ready_data_blocked | Report the transcript-review workflow and smoke labels as provenance only. | Do not claim dominant failure modes from single-review smoke rows or unreviewed transcripts. |
 | `human_time_rule` | calibration | blocked_by_missing_timing | Report author/reviewer p50/p90 estimates and missing independent timing as a limitation. | Do not claim calibrated time-horizon scaling from metadata estimates alone. |
 | `hosted_freeze_rule` | operational_validity | blocked_by_hosted_qa | State local readiness and hosted-QA blockers. | Do not call the artifact hosted-QA-cleared, frozen, or locked. |
+
+
+## Evidence Strength Matrix
+
+`reports/evidence_strength_matrix.md` and `data/evidence_strength_matrix.csv` grade the evidence behind major report claims. They separate local generated audits, local mechanical validation, local manual review, provider smoke rows, independent review, exact-k sweeps, hosted QA, and freeze evidence. This is not new model evidence; it prevents local evidence from being used as support for provider, hosted, or locked-benchmark claims.
+
+- evidence rows: `11`
+- evidence grades: `{"author_estimate_or_plan": 2, "local_generated_audit": 3, "local_manual_review": 1, "local_mechanical_validation": 3, "none": 1, "provider_smoke": 1}`
+- claim areas: `{"artifact_validity": 1, "benchmark_status": 1, "calibration": 1, "data_validity": 1, "failure_analysis": 1, "grading_validity": 1, "operational_validity": 1, "performance_claim": 1, "scaffold_effects": 1, "statistical_validity": 1, "task_validity": 1}`
+- rows still below independent/exact-k/hosted/freeze evidence for stronger claims: `7`
+
+Evidence strength matrix:
+
+| evidence | area | evidence grade | current wording allowed | unsupported stronger wording |
+| --- | --- | --- | --- | --- |
+| `local_artifact_validation` | artifact_validity | local_mechanical_validation | Local v0.1 artifact validity with caveats. | Unsupported stronger wording: Locked, hosted-QA-cleared, or final benchmark status. |
+| `accepted_task_quality` | task_validity | local_manual_review | Internally reviewed six-task accepted core with explicit caveats. | Unsupported stronger wording: Benchmark-grade, representative, independently reviewed accepted set. |
+| `human_time_calibration` | calibration | author_estimate_or_plan | Author/reviewer p50 and p90 estimates with missing independent timing stated as a limitation. | Unsupported stronger wording: Calibrated time-horizon scaling or independently timed bucket trends. |
+| `grader_semantic_validity` | grading_validity | local_mechanical_validation | Lean scoring, forbidden-construct scanning, axiom auditing, and finite hidden-pin probes. | Unsupported stronger wording: Full semantic equivalence or complete resistance to all weakened formalizations. |
+| `run_data_integrity` | data_validity | local_mechanical_validation | Run rows have schema, transcript, pass@k arithmetic, infra, and local-QA separation checks. | Unsupported stronger wording: Representative model-performance estimates, scaffold effects, or failure distributions. |
+| `model_performance_evidence` | performance_claim | provider_smoke | Provider smoke provenance only, with performance claims blocked. | Unsupported stronger wording: Frontier capability estimates, model rankings, pass@10 means, or family/bucket performance claims. |
+| `scaffold_comparison_evidence` | scaffold_effects | author_estimate_or_plan | Prospective scaffold ladder and coverage ledger only. | Unsupported stronger wording: Lookup benefit, iterative-debug benefit, or paired scaffold-effect estimates. |
+| `failure_taxonomy_evidence` | failure_analysis | local_generated_audit | Failure taxonomy, transcript queue, and smoke adjudication workflow are present. | Unsupported stronger wording: Dominant failure modes or distributional taxonomy claims. |
+| `statistical_reporting_evidence` | statistical_validity | local_generated_audit | Preregistered statistical thresholds, Wilson precision planning, and blocked performance plots. | Unsupported stronger wording: Published performance intervals, pass@10-by-scaffold plots, or subgroup performance means. |
+| `hosted_operational_evidence` | operational_validity | local_generated_audit | Taiga packaging scaffold and local wrapper-isolation checks only. | Unsupported stronger wording: Hosted-QA-cleared, Env-Linter-cleared, or exact hosted problem-version claims. |
+| `locked_benchmark_evidence` | benchmark_status | none | No locked-benchmark claim is allowed; only blockers and exit criteria are reported. | Unsupported stronger wording: Final, locked, population-valid, or benchmark-ready status. |
 
 
 ## Statistical Analysis Plan
@@ -552,6 +578,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 - `reports/analysis_decision_register.md`: preregistered inclusion, endpoint, exact-k, subgroup, scaffold-delta, failure-label, timing, and freeze decisions for future sweeps.
+- `reports/evidence_strength_matrix.md`: evidence-grade ledger separating local, provider-smoke, independent-review, hosted-QA, and freeze support for report claims.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 - `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
 - `reports/threat_coverage_audit.md`: mapping from open blockers and non-allowed claims to threats-to-validity rows.
@@ -560,9 +587,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 `reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
 
-- reproduction steps: `21`
-- phase counts: `{"external_evidence": 3, "local_replay": 18}`
-- status counts: `{"blocked_external_evidence": 3, "ready": 18}`
+- reproduction steps: `22`
+- phase counts: `{"external_evidence": 3, "local_replay": 19}`
+- status counts: `{"blocked_external_evidence": 3, "ready": 19}`
 - local replay problem rows: `0`
 - external-evidence rows still blocked: `3`
 
@@ -577,6 +604,7 @@ Reviewer reproduction ledger:
 | `local_qa_rows` | local_replay | ready | `python scripts/record_local_qa_results.py` | Local QA rows must stay excluded from model-performance estimates. |
 | `run_integrity` | local_replay | ready | `python scripts/audit_run_integrity.py` | Passing integrity checks do not imply adequate provider sample size. |
 | `analysis_decision_register` | local_replay | ready | `python scripts/generate_analysis_decision_register.py` | The register fixes analysis rules but does not create provider rows or unlock performance claims. |
+| `evidence_strength_matrix` | local_replay | ready | `python scripts/generate_evidence_strength_matrix.py` | The matrix classifies evidence strength; it does not create independent review, exact-k provider sweeps, hosted QA, or freeze evidence. |
 | `peer_review_matrix` | local_replay | ready | `python scripts/generate_peer_review_matrix.py` | The matrix is a synthesis of existing evidence and does not resolve blocked external-evidence gaps. |
 | `model_sweep_coverage` | local_replay | ready | `python scripts/audit_model_sweep_coverage.py` | This audit does not create new model evidence; it only classifies coverage of existing rows. |
 | `passk_claim_boundaries` | local_replay | ready | `python scripts/audit_passk_claim_boundaries.py` | This audit prevents wording drift; it does not create additional provider attempts or performance evidence. |

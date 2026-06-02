@@ -216,12 +216,13 @@ def build_rows() -> list[dict[str, str]]:
             "block",
             "Are statistical plots and intervals publishable as performance results?",
             "No. The statistical plan exists and correctly blocks performance plots under current coverage.",
-            f"{req_text(reqs, 'analysis_decision_register')}; {req_text(reqs, 'statistical_analysis_plan')}; {req_text(reqs, 'statistical_reporting_audit')}; {req_text(reqs, 'figure_manifest_audit')}",
+            f"{req_text(reqs, 'analysis_decision_register')}; {req_text(reqs, 'evidence_strength_matrix')}; {req_text(reqs, 'statistical_analysis_plan')}; {req_text(reqs, 'statistical_reporting_audit')}; {req_text(reqs, 'figure_manifest_audit')}",
             "Descriptive task-count figures are supported, but performance figures would imply nonexistent coverage.",
             "Generate performance plots only after planned cells are covered and raw n plus Wilson intervals can be reported.",
             [
                 "reports/statistical_analysis_plan.md",
                 "reports/analysis_decision_register.md",
+                "reports/evidence_strength_matrix.md",
                 "reports/statistical_reporting_audit.md",
                 "reports/figure_manifest.md",
             ],
@@ -284,16 +285,17 @@ def build_rows() -> list[dict[str, str]]:
             "claims",
             "pass",
             "Are tempting overclaims mechanically constrained in the report?",
-            "Yes. Claim authorization, claim conformance, count consistency, source traceability, and pass@k boundary audits are present and passing.",
+            "Yes. Claim authorization, evidence-strength grading, claim conformance, count consistency, source traceability, and pass@k boundary audits are present and passing.",
             (
                 f"{req_text(reqs, 'claim_authorization_matrix')}; {req_text(reqs, 'report_claim_conformance_audit')}; "
-                f"{req_text(reqs, 'report_source_traceability')}; {req_text(reqs, 'report_count_consistency_audit')}; "
+                f"{req_text(reqs, 'evidence_strength_matrix')}; {req_text(reqs, 'report_source_traceability')}; {req_text(reqs, 'report_count_consistency_audit')}; "
                 f"{req_text(reqs, 'passk_claim_boundary_audit')}"
             ),
             "Text audits are guardrails; they do not create missing provider, timing, task-review, or hosted evidence.",
             "Keep these audits in the validation gate after every report, run-data, or claim-policy change.",
             [
                 "reports/claim_authorization_matrix.md",
+                "reports/evidence_strength_matrix.md",
                 "reports/report_claim_conformance_audit.md",
                 "reports/report_source_traceability.md",
                 "reports/passk_claim_boundary_audit.md",

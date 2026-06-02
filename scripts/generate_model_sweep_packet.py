@@ -97,6 +97,7 @@ def post_run_commands() -> str:
         "python scripts/audit_requirement_coverage.py --public-export public_tasks",
         "python scripts/audit_claim_evidence.py",
         "python scripts/generate_claim_authorization_matrix.py",
+        "python scripts/generate_evidence_strength_matrix.py",
         "python scripts/generate_research_claim_gap_matrix.py",
         "python scripts/generate_concise_report.py",
         "python scripts/audit_report_claim_conformance.py",

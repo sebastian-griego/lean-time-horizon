@@ -536,6 +536,47 @@ Analysis decision register:
 """
 
 
+def evidence_strength_matrix_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/evidence_strength_matrix.md` has not been generated yet. Run "
+            "`python scripts/generate_evidence_strength_matrix.py`, then regenerate this report."
+        )
+    grade_counts = Counter(row.get("current_evidence_grade", "unknown") for row in rows)
+    area_counts = Counter(row.get("claim_area", "unknown") for row in rows)
+    insufficient_for_stronger = [
+        row for row in rows
+        if row.get("current_evidence_grade") in {
+            "none",
+            "author_estimate_or_plan",
+            "local_generated_audit",
+            "provider_smoke",
+        }
+    ]
+    lines = [
+        "| evidence | area | evidence grade | current wording allowed | unsupported stronger wording |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        allowed = row.get("current_wording_allowed", "").replace("|", "/")
+        unsupported = "Unsupported stronger wording: " + row.get("unsupported_stronger_wording", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('evidence_id', '')}` | {row.get('claim_area', '')} | "
+            f"{row.get('current_evidence_grade', '')} | {allowed} | {unsupported} |"
+        )
+    return f"""`reports/evidence_strength_matrix.md` and `data/evidence_strength_matrix.csv` grade the evidence behind major report claims. They separate local generated audits, local mechanical validation, local manual review, provider smoke rows, independent review, exact-k sweeps, hosted QA, and freeze evidence. This is not new model evidence; it prevents local evidence from being used as support for provider, hosted, or locked-benchmark claims.
+
+- evidence rows: `{len(rows)}`
+- evidence grades: `{compact_json(dict(sorted(grade_counts.items())))}`
+- claim areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- rows still below independent/exact-k/hosted/freeze evidence for stronger claims: `{len(insufficient_for_stronger)}`
+
+Evidence strength matrix:
+
+{chr(10).join(lines)}
+"""
+
+
 def data_schema_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -2026,6 +2067,7 @@ def main() -> int:
     model_sweep_coverage_rows = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
     model_evidence_provenance_rows = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
     analysis_decision_rows = read_csv(ROOT / "data" / "analysis_decision_register.csv")
+    evidence_strength_rows = read_csv(ROOT / "data" / "evidence_strength_matrix.csv")
     statistical_design_rows = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
     wilson_precision_rows = read_csv(ROOT / "data" / "wilson_precision_table.csv")
     figure_manifest_rows = read_csv(ROOT / "data" / "figure_manifest.csv")
@@ -2294,6 +2336,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 ## Analysis Decision Register
 
 {analysis_decision_register_section(analysis_decision_rows)}
+
+## Evidence Strength Matrix
+
+{evidence_strength_matrix_section(evidence_strength_rows)}
 
 ## Statistical Analysis Plan
 
@@ -2642,6 +2688,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {analysis_decision_register_section(analysis_decision_rows)}
 
+## Evidence Strength Matrix
+
+{evidence_strength_matrix_section(evidence_strength_rows)}
+
 ## Statistical Analysis Plan
 
 {statistical_analysis_plan_section(statistical_design_rows, wilson_precision_rows)}
@@ -2715,6 +2765,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/freeze_readiness_roadmap.md`: locked-benchmark gates.
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 - `reports/analysis_decision_register.md`: preregistered inclusion, endpoint, exact-k, subgroup, scaffold-delta, failure-label, timing, and freeze decisions for future sweeps.
+- `reports/evidence_strength_matrix.md`: evidence-grade ledger separating local, provider-smoke, independent-review, hosted-QA, and freeze support for report claims.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 - `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
 - `reports/threat_coverage_audit.md`: mapping from open blockers and non-allowed claims to threats-to-validity rows.

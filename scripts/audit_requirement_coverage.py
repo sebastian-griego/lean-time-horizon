@@ -259,6 +259,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     analysis_decision_register = read_csv(ROOT / "data" / "analysis_decision_register.csv")
+    evidence_strength_matrix = read_csv(ROOT / "data" / "evidence_strength_matrix.csv")
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -596,6 +597,56 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(analysis_decision_ok, partial=bool(analysis_decision_register)),
         f"analysis decisions: {len(analysis_decision_register)}; required decisions covered: {len(required_analysis_decisions & analysis_decision_ids)}/{len(required_analysis_decisions)}; statuses: {compact_json(dict(sorted(analysis_decision_status_counts.items())))}; report exists: {(ROOT / 'reports' / 'analysis_decision_register.md').exists()}.",
         "No gap." if analysis_decision_ok else "Run scripts/generate_analysis_decision_register.py and inspect missing preregistered analysis decisions.",
+    ))
+
+    required_evidence_strength_ids = {
+        "local_artifact_validation",
+        "accepted_task_quality",
+        "human_time_calibration",
+        "grader_semantic_validity",
+        "run_data_integrity",
+        "model_performance_evidence",
+        "scaffold_comparison_evidence",
+        "failure_taxonomy_evidence",
+        "statistical_reporting_evidence",
+        "hosted_operational_evidence",
+        "locked_benchmark_evidence",
+    }
+    evidence_strength_ids = {row_data.get("evidence_id", "") for row_data in evidence_strength_matrix}
+    evidence_strength_fields = set(evidence_strength_matrix[0].keys()) if evidence_strength_matrix else set()
+    required_evidence_strength_fields = {
+        "evidence_id",
+        "claim_area",
+        "current_evidence_grade",
+        "grade_rank",
+        "adequate_for_current_wording",
+        "current_wording_allowed",
+        "unsupported_stronger_wording",
+        "evidence_summary",
+        "missing_upgrade_evidence",
+        "source_artifacts",
+    }
+    evidence_strength_grade_counts = Counter(
+        row_data.get("current_evidence_grade", "unknown")
+        for row_data in evidence_strength_matrix
+    )
+    evidence_strength_ok = (
+        bool(evidence_strength_matrix)
+        and required_evidence_strength_ids.issubset(evidence_strength_ids)
+        and required_evidence_strength_fields.issubset(evidence_strength_fields)
+        and evidence_strength_grade_counts.get("local_mechanical_validation", 0) >= 1
+        and evidence_strength_grade_counts.get("provider_smoke", 0) >= 1
+        and evidence_strength_grade_counts.get("none", 0) >= 1
+        and all(row_data.get("adequate_for_current_wording") == "true" for row_data in evidence_strength_matrix)
+        and (ROOT / "reports" / "evidence_strength_matrix.md").exists()
+    )
+    requirement_rows.append(row(
+        "evidence_strength_matrix",
+        "reporting",
+        "Evidence strength matrix should grade local generated mechanical manual provider independent hosted and freeze evidence separately before stronger report claims are allowed.",
+        status_from_bool(evidence_strength_ok, partial=bool(evidence_strength_matrix)),
+        f"evidence rows: {len(evidence_strength_matrix)}; required rows covered: {len(required_evidence_strength_ids & evidence_strength_ids)}/{len(required_evidence_strength_ids)}; grades: {compact_json(dict(sorted(evidence_strength_grade_counts.items())))}; report exists: {(ROOT / 'reports' / 'evidence_strength_matrix.md').exists()}.",
+        "No gap." if evidence_strength_ok else "Run scripts/generate_evidence_strength_matrix.py and inspect missing evidence-grade rows or over-broad current wording.",
     ))
 
     analysis_ok = (ROOT / "reports" / "model_run_analysis.md").exists() and bool(model_result_summary)
