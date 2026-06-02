@@ -1,32 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-06-02T01:02:39.578510+00:00",
+  "generated_at_utc": "2026-06-02T01:03:03.773241+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md and reports/evidence_appendix.md to avoid self-referential report hashes. The validation-manifest audit is generated after this manifest and is checked by requirement coverage rather than hashed by the manifest. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "3e58b253c398d378b62ea7e91c265c83c94131f0",
-    "dirty": true,
-    "status_short": [
-      " M data/claim_authorization_matrix.csv",
-      " M data/claim_evidence_audit.csv",
-      " M data/release_decision_log.csv",
-      " M data/report_claim_conformance_audit.csv",
-      " M data/report_count_consistency_audit.csv",
-      " M data/report_shape_audit.csv",
-      " M data/requirement_coverage.csv",
-      " M data/research_claim_gap_matrix.csv",
-      " M reports/claim_evidence_audit.md",
-      " M reports/concise_metr_report.md",
-      " M reports/evidence_appendix.md",
-      " M reports/metr_style_report.md",
-      " M reports/release_decision_log.md",
-      " M reports/report_claim_conformance_audit.md",
-      " M reports/report_count_consistency_audit.md",
-      " M reports/report_shape_audit.md",
-      " M reports/requirement_coverage.md",
-      " M reports/research_claim_gap_matrix.md"
-    ],
-    "status_summary_first_line": " M data/claim_authorization_matrix.csv"
+    "head": "0e510c7ed9dcb83082bb20e6a00fa7aba2584e99",
+    "dirty": false,
+    "status_short": [],
+    "status_summary_first_line": ""
   },
   "tool_versions": {
     "python": "3.11.9",
