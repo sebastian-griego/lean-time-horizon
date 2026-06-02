@@ -202,6 +202,7 @@ def build_rows() -> list[dict[str, str]]:
             f"{evidence(reqs, 'independent_task_review_status_audit')}; "
             f"{evidence(reqs, 'statistical_analysis_plan')}; "
             f"{evidence(reqs, 'figure_manifest_audit')}; "
+            f"{evidence(reqs, 'passk_claim_boundary_audit')}; "
             f"{evidence(reqs, 'research_claim_gap_matrix')}; "
             f"{evidence(reqs, 'transcript_review_packet')}; {evidence(reqs, 'failure_label_review_audit')}; "
             f"{evidence(reqs, 'hosted_qa_readiness_audit')}; "
@@ -257,7 +258,7 @@ def build_rows() -> list[dict[str, str]]:
         "Do not report scaffold-effect conclusions from committed data.",
         "block",
         (
-            f"{evidence(reqs, 'scaffold_result_comparison')}; primary plan coverage={compact_json(primary_coverage)}; "
+            f"{evidence(reqs, 'scaffold_result_comparison')}; {evidence(reqs, 'passk_claim_boundary_audit')}; primary plan coverage={compact_json(primary_coverage)}; "
             f"strict pass@k-ready cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}; "
             f"coverage statuses={compact_json(dict(sorted(coverage_status_counts.items())))}; "
             f"{evidence(reqs, 'provider_readiness_audit')}; {evidence(reqs, 'model_sweep_execution_packet')}; "

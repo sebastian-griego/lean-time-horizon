@@ -262,17 +262,19 @@ def build_rows() -> list[dict[str, str]]:
             f"{primary_coverage.get('covered_cells_noninfra', '0')}; pass@k-ready cells={pass_at_k_ready_cells}/{len(model_sweep_coverage)}; "
             f"coverage statuses={compact_json(dict(sorted(coverage_status_counts.items())))}; observed non-infra provider rows={len(noninfra_provider_rows)}."
         ),
-        f"{requirement(requirements, 'scaffold_result_comparison')}; {requirement(requirements, 'model_sweep_coverage_audit')}; {requirement(requirements, 'model_sweep_execution_packet')}",
+        f"{requirement(requirements, 'scaffold_result_comparison')}; {requirement(requirements, 'model_sweep_coverage_audit')}; {requirement(requirements, 'passk_claim_boundary_audit')}; {requirement(requirements, 'model_sweep_execution_packet')}",
         "Accepted_v0 x {one-shot, lookup, lookup_unlimited} cells should have non-infra pass@k rows for each reported model.",
         "Run the planned sweep commands from reports/evaluation_protocol.md with fixed k and committed transcripts.",
         ["scaffold_effects", "frontier_performance", "locked_benchmark"],
         [
             "data/model_sweep_plan.csv",
             "data/model_sweep_coverage_audit.csv",
+            "data/passk_claim_boundary_audit.csv",
             "data/model_sweep_execution_commands.csv",
             "data/run_results.csv",
             "reports/model_run_analysis.md",
             "reports/model_sweep_coverage_audit.md",
+            "reports/passk_claim_boundary_audit.md",
             "reports/model_sweep_execution_packet.md",
         ],
     ))

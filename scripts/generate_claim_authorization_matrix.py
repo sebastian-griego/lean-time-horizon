@@ -196,6 +196,7 @@ def build_rows() -> list[dict[str, str]]:
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
             "reports/validation_manifest.json",
+            "reports/passk_claim_boundary_audit.md",
         ],
     ))
     rows.append(row(
@@ -299,13 +300,14 @@ def build_rows() -> list[dict[str, str]]:
         "The scaffold ladder and execution plan are implemented; empirical scaffold-effect conclusions are not yet supported.",
         "Only describe planned scaffold comparisons and the fact that current provider rows do not cover lookup or iterative debug cells.",
         "Do not claim lookup helps, iterative compile/debug helps, or scaffold effects are measured from committed rows.",
-        f"{claim_evidence(claims, 'scaffold_effects')}; {req_evidence(reqs, 'scaffold_result_comparison')}; {req_evidence(reqs, 'model_sweep_coverage_audit')}; {req_evidence(reqs, 'model_sweep_execution_packet')}",
+        f"{claim_evidence(claims, 'scaffold_effects')}; {req_evidence(reqs, 'scaffold_result_comparison')}; {req_evidence(reqs, 'model_sweep_coverage_audit')}; {req_evidence(reqs, 'passk_claim_boundary_audit')}; {req_evidence(reqs, 'model_sweep_execution_packet')}",
         "Run accepted-core pass@k rows across one-shot, lookup, and lookup_unlimited with documented provider versions.",
         blocking_requirements(reqs, ["scaffold_result_comparison", "frontier_model_evidence"]).split(";") if blocking_requirements(reqs, ["scaffold_result_comparison", "frontier_model_evidence"]) else [],
         [
             "reports/evaluation_protocol.md",
             "reports/model_sweep_execution_packet.md",
             "reports/model_run_analysis.md",
+            "reports/passk_claim_boundary_audit.md",
         ],
     ))
     rows.append(row(

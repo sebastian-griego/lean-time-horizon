@@ -16,13 +16,13 @@ It is stronger than a manifest-only command list, but still weaker than a remote
 
 | check | phase | status | seconds | command | limitation |
 | --- | --- | --- | ---: | --- | --- |
-| `workspace_materialization` | setup | pass | 68.53 | `materialize tracked and unignored working-tree files into tmp/clean_workspace_replay/workspace` | This is a local clean workspace from the current working tree, not a remote clone or hosted container. |
-| `mathlib_cache_get` | replay | pass | 657.98 | `lake exe cache get` | This uses the Mathlib cache for local dependency materialization; hosted runners need their own cache or build path. |
-| `clean_lake_build` | replay | pass | 5.65 | `lake build` | Local toolchain and dependency resolution can differ from hosted QA. |
-| `reference_validation_smoke` | replay | pass | 33.68 | `python scripts/validate_task.py tasks/dev/lt-201-multifile-cache-repair --submission tasks/dev/lt-201-multifile-cache-repair/hidden/Reference.lean --expect pass` | This is a representative reference-validation smoke, not full validate_all coverage. |
-| `wrong_submission_smoke` | replay | pass | 5.41 | `python scripts/validate_task.py tasks/dev/lt-203-exact-cover-spec --submission tasks/dev/lt-203-exact-cover-spec/wrong/Vacuous.lean --expect fail` | This probes expected-fail behavior for one semantic-pin wrong submission only. |
-| `public_export_smoke` | replay | pass | 0.74 | `python scripts/export_public_tasks.py --out public_tasks` | Local public export is not hosted problem packaging. |
-| `public_export_validation_smoke` | replay | pass | 133.20 | `python scripts/validate_public_export.py --out public_tasks` | This validates local public assets but does not run Env Linter. |
+| `workspace_materialization` | setup | pass | 28.60 | `materialize tracked and unignored working-tree files into tmp/clean_workspace_replay/workspace` | This is a local clean workspace from the current working tree, not a remote clone or hosted container. |
+| `mathlib_cache_get` | replay | pass | 511.86 | `lake exe cache get` | This uses the Mathlib cache for local dependency materialization; hosted runners need their own cache or build path. |
+| `clean_lake_build` | replay | pass | 5.04 | `lake build` | Local toolchain and dependency resolution can differ from hosted QA. |
+| `reference_validation_smoke` | replay | pass | 24.95 | `python scripts/validate_task.py tasks/dev/lt-201-multifile-cache-repair --submission tasks/dev/lt-201-multifile-cache-repair/hidden/Reference.lean --expect pass` | This is a representative reference-validation smoke, not full validate_all coverage. |
+| `wrong_submission_smoke` | replay | pass | 6.06 | `python scripts/validate_task.py tasks/dev/lt-203-exact-cover-spec --submission tasks/dev/lt-203-exact-cover-spec/wrong/Vacuous.lean --expect fail` | This probes expected-fail behavior for one semantic-pin wrong submission only. |
+| `public_export_smoke` | replay | pass | 0.72 | `python scripts/export_public_tasks.py --out public_tasks` | Local public export is not hosted problem packaging. |
+| `public_export_validation_smoke` | replay | pass | 82.89 | `python scripts/validate_public_export.py --out public_tasks` | This validates local public assets but does not run Env Linter. |
 
 ## Interpretation
 

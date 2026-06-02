@@ -384,7 +384,7 @@ def model_analysis_section(rows: list[dict[str, str]], coverage_rows: list[dict[
 - strict cells not ready for pass@k analysis: `{len(not_ready)}`
 - scaffold/status cells: `{compact_json(dict(sorted(scaffold_status_counts.items())))}`
 
-`reports/model_sweep_coverage_audit.md` is the stricter ledger for planned `(task, scaffold, k)` cells. It treats current k=1 provider rows as smoke evidence only; the planned primary sweep remains mostly uncovered and cannot support scaffold-effect or frontier-performance claims.
+`reports/model_sweep_coverage_audit.md` is the stricter ledger for planned `(task, scaffold, k)` cells. `reports/passk_claim_boundary_audit.md` then checks that this distinction is preserved in the report, statistical, release, freeze, claim, and requirement artifacts. Current k=1 provider rows are smoke evidence only; the planned primary sweep remains mostly uncovered and cannot support scaffold-effect or frontier-performance claims.
 """
 
 
@@ -2572,6 +2572,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.
 - `reports/model_sweep_coverage_audit.md`: strict planned-cell coverage ledger distinguishing pass@k-ready provider rows from smoke-only or missing cells.
+- `reports/passk_claim_boundary_audit.md`: generated text audit that prevents smoke-only provider rows from being reported as pass@k-ready evidence.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
 - `reports/reviewer_reproduction_packet.md`: ordered local replay workflow, expected artifacts, failure interpretations, and external-evidence boundaries.
 - `reports/clean_workspace_replay.md`: bounded temporary-workspace replay of dependency materialization, Lean build, grader pass/fail behavior, and public export validation.

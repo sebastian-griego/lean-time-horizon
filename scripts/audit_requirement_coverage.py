@@ -260,6 +260,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
     model_sweep_coverage = read_csv(ROOT / "data" / "model_sweep_coverage_audit.csv")
+    passk_claim_boundary = read_csv(ROOT / "data" / "passk_claim_boundary_audit.csv")
     model_evidence_provenance = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
     task_dirs = discover_task_dirs()
     accepted = [task for task in metadata if task.get("acceptance_status") == "accepted_v0"]
@@ -588,6 +589,46 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(coverage_ok, partial=bool(model_sweep_coverage)),
         f"coverage rows: {len(model_sweep_coverage)}; planned cells: {planned_cell_count}; required fields present: {required_coverage_fields.issubset(coverage_fields)}; planned cell ids covered: {len(planned_cell_ids & coverage_cell_ids)}/{len(planned_cell_ids)}; statuses: {compact_json(dict(sorted(coverage_status_counts.items())))}; report exists: {(ROOT / 'reports' / 'model_sweep_coverage_audit.md').exists()}.",
         "No gap." if coverage_ok else "Regenerate scripts/audit_model_sweep_coverage.py after model-result or sweep-plan changes.",
+    ))
+
+    required_passk_boundary_ids = {
+        "strict_coverage_ledger_counts",
+        "main_report_passk_boundary",
+        "concise_report_passk_boundary",
+        "release_and_freeze_passk_boundary",
+        "statistical_and_plot_passk_boundary",
+        "claim_and_requirement_passk_boundary",
+        "legacy_aggregate_phrase_scan",
+    }
+    passk_boundary_ids = {row_data.get("check_id", "") for row_data in passk_claim_boundary}
+    passk_boundary_fields = set(passk_claim_boundary[0].keys()) if passk_claim_boundary else set()
+    required_passk_boundary_fields = {
+        "check_id",
+        "area",
+        "status",
+        "evidence",
+        "bad_matches",
+        "source_artifacts",
+        "required_action",
+    }
+    passk_boundary_failures = [
+        row_data for row_data in passk_claim_boundary
+        if row_data.get("status") == "fail"
+    ]
+    passk_boundary_ok = (
+        bool(passk_claim_boundary)
+        and required_passk_boundary_ids.issubset(passk_boundary_ids)
+        and required_passk_boundary_fields.issubset(passk_boundary_fields)
+        and not passk_boundary_failures
+        and (ROOT / "reports" / "passk_claim_boundary_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "passk_claim_boundary_audit",
+        "reporting",
+        "Pass@k claim-boundary audit should verify that reports separate exact-k pass@k-ready planned cells from smoke-only or missing provider rows.",
+        status_from_bool(passk_boundary_ok, partial=bool(passk_claim_boundary)),
+        f"pass@k-boundary rows: {len(passk_claim_boundary)}; required checks covered: {len(required_passk_boundary_ids & passk_boundary_ids)}/{len(required_passk_boundary_ids)}; failures: {len(passk_boundary_failures)}; report exists: {(ROOT / 'reports' / 'passk_claim_boundary_audit.md').exists()}.",
+        "No gap." if passk_boundary_ok else "Regenerate scripts/audit_passk_claim_boundaries.py after report or model-sweep coverage changes.",
     ))
 
     required_model_provenance_ids = {
@@ -2484,6 +2525,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "difficulty_review",
         "local_qa_rows",
         "run_integrity",
+        "passk_claim_boundaries",
         "grader_hardening",
         "public_export",
         "public_export_validation",

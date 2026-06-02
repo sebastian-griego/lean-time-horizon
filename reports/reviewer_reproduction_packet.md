@@ -4,10 +4,10 @@ This generated packet converts the local validation and report-generation surfac
 
 ## Summary
 
-- steps: `17`
-- phases: `{"external_evidence": 3, "local_replay": 14}`
-- statuses: `{"blocked_external_evidence": 3, "ready": 14}`
-- local replay steps ready: `14/14`
+- steps: `18`
+- phases: `{"external_evidence": 3, "local_replay": 15}`
+- statuses: `{"blocked_external_evidence": 3, "ready": 15}`
+- local replay steps ready: `15/15`
 - local replay problem rows: `0`
 - external evidence rows still blocked: `3`
 
@@ -26,6 +26,7 @@ Run the local replay steps in order after dependency setup. Treat any nonzero ex
 | `local_qa_rows` | local_replay | ready | `python scripts/record_local_qa_results.py` | Local QA rows are replayable validation evidence for references and plausible wrong submissions. | Local QA rows must stay excluded from model-performance estimates. |
 | `run_integrity` | local_replay | ready | `python scripts/audit_run_integrity.py` | run_results rows are internally consistent with transcripts, pass@k arithmetic, and failure labels. | Passing integrity checks do not imply adequate provider sample size. |
 | `model_sweep_coverage` | local_replay | ready | `python scripts/audit_model_sweep_coverage.py` | Planned accepted-core task/scaffold/pass@k cells are mapped to committed provider rows with smoke-only cells separated from pass@k-ready cells. | This audit does not create new model evidence; it only classifies coverage of existing rows. |
+| `passk_claim_boundaries` | local_replay | ready | `python scripts/audit_passk_claim_boundaries.py` | Report artifacts keep exact-k pass@k-ready cells separate from smoke-only or missing planned cells. | This audit prevents wording drift; it does not create additional provider attempts or performance evidence. |
 | `grader_hardening` | local_replay | ready | `python scripts/audit_grader_hardening.py` | Forbidden-construct scanning, axiom allowlists, grader ordering, and validation-command coverage are reviewable. | The scanner remains lexical source scanning, not a complete Lean parser. |
 | `public_export` | local_replay | ready | `python scripts/export_public_tasks.py --out public_tasks` | Public release assets can be exported without hidden references or wrong submissions. | The export is a local directory snapshot, not a hosted problem version. |
 | `public_export_validation` | local_replay | ready | `python scripts/validate_public_export.py --out public_tasks` | The public export omits hidden/wrong directories and exported Lean files compile. | This does not run Taiga Full Env QA or Env Linter. |

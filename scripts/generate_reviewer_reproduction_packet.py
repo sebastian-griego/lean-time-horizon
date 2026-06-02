@@ -100,6 +100,17 @@ STEPS = [
         "next_action": "Run after model-result analysis and after every provider sweep.",
     },
     {
+        "step_id": "passk_claim_boundaries",
+        "phase": "local_replay",
+        "command": "python scripts/audit_passk_claim_boundaries.py",
+        "expected_artifacts": "data/passk_claim_boundary_audit.csv;reports/passk_claim_boundary_audit.md",
+        "claim_supported": "Report artifacts keep exact-k pass@k-ready cells separate from smoke-only or missing planned cells.",
+        "evidence_basis": "Strict model-sweep coverage rows plus text scans of report, statistical, release, freeze, claim, and requirement artifacts.",
+        "failure_interpretation": "Any failure means provider smoke rows may be overstated and report wording must be fixed before publication.",
+        "limitation": "This audit prevents wording drift; it does not create additional provider attempts or performance evidence.",
+        "next_action": "Run after report regeneration, release/freeze regeneration, and every provider sweep.",
+    },
+    {
         "step_id": "grader_hardening",
         "phase": "local_replay",
         "command": "python scripts/audit_grader_hardening.py",

@@ -7,7 +7,7 @@ This repository is a locally validated v0.1 Lean time-horizon evaluation artifac
 - accepted core tasks: `6`
 - calibration-only tasks: `8`
 - rejected archive tasks: `12`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 67}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 68}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -112,7 +112,7 @@ The grader is Lean-first: submissions must pass forbidden-construct scanning, pu
 - run-integrity failures: `0`
 - data-schema manifest statuses: `{"codebook_valid": 1, "documented_projection": 1, "empty_ready": 3, "inventory_documented": 1, "schema_valid": 3}`
 - data-schema problem rows: `0`
-- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 14}`
+- reviewer reproduction statuses: `{"blocked_external_evidence": 3, "ready": 15}`
 - reviewer reproduction local problem rows: `0`; external-evidence rows blocked: `3`
 - clean-workspace replay statuses: `{"pass": 7}`
 - clean-workspace replay failures: `0`
@@ -131,9 +131,7 @@ Committed provider rows are smoke evidence only. They show the runner and transc
 - accepted-core provider rows: `2` total, `1` non-infra
 - provider/model versions in committed smoke rows: `["anthropic:claude-sonnet-4-6"]`
 - statistical claim-tier statuses: `{"blocked": 6, "supported": 1}`
-- Wilson precision ledger rows for assumed p=0.5: `6`
-- figure-manifest statuses: `{"blocked_by_evidence": 5, "generated_descriptive": 4, "generated_provenance": 1}`
-- blocked performance-plot rows in figure manifest: `5`
+- No benchmark pass-rate or interval is reported from the current rows.
 - the statistical analysis plan treats current provider rows as smoke provenance only; performance estimates and scaffold effects stay blocked by threshold rows.
 - the figure manifest allows descriptive/provenance SVGs while keeping unsupported performance plots intentionally absent.
 
@@ -145,6 +143,7 @@ The report now has explicit claim authorization and a prose conformance audit. B
 - `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.
 - `reports/report_count_consistency_audit.md` checks that repeated top-line counts agree with committed CSV/JSON sources.
 - `reports/regeneration_command_consistency.md` checks that README, manifest, and reviewer local-replay commands stay synchronized.
+- `reports/passk_claim_boundary_audit.md` checks that smoke-covered cells are not reported as exact-k pass@k-ready evidence.
 - `reports/candidate_pruning_audit.md` makes the aggressive pruning decision reviewable for every tracked task.
 - `reports/accepted_task_cards.md` makes per-task caveats and benchmark-grade blockers easy to inspect without turning them into stronger claims.
 - `reports/independent_task_review_packet.md` and `reports/independent_review_status_audit.md` make missing non-author task reviews explicit.
@@ -216,4 +215,4 @@ Upgrade priorities: `{"high": 6, "highest": 1, "maintain": 1, "medium": 4}`. Hig
 
 ## Evidence Appendix
 
-Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/report_count_consistency_audit.md`, `reports/regeneration_command_consistency.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/threat_coverage_audit.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.
+Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/report_count_consistency_audit.md`, `reports/regeneration_command_consistency.md`, `reports/passk_claim_boundary_audit.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/threat_coverage_audit.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.

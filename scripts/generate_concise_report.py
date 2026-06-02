@@ -150,8 +150,6 @@ def main() -> int:
     failure_label_reviews = read_csv(ROOT / "data" / "failure_label_reviews.csv")
     failure_label_review_audit = read_csv(ROOT / "data" / "failure_label_review_audit.csv")
     statistical_design = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
-    wilson_precision = read_csv(ROOT / "data" / "wilson_precision_table.csv")
-    figure_manifest = read_csv(ROOT / "data" / "figure_manifest.csv")
 
     accepted = [row for row in metadata if row.get("acceptance_status") == "accepted_v0"]
     calibration = [row for row in metadata if row.get("acceptance_status") == "calibration_only"]
@@ -208,9 +206,6 @@ def main() -> int:
         if row.get("pin_coverage_grade") == "semantic_pins_exercised"
     )
     statistical_status_counts = Counter(row.get("current_status", "unknown") for row in statistical_design)
-    precision_half_rows = [row for row in wilson_precision if row.get("assumed_p") == "0.5"]
-    figure_status_counts = Counter(row.get("current_status", "unknown") for row in figure_manifest)
-    blocked_figure_rows = sum(1 for row in figure_manifest if row.get("category") == "blocked_performance")
     skill_counts: Counter[str] = Counter()
     failure_mode_counts: Counter[str] = Counter()
     for task in accepted:
@@ -325,9 +320,7 @@ def main() -> int:
         f"- accepted-core provider rows: `{accepted_provider.get('rows_total', '0')}` total, `{accepted_provider.get('rows_noninfra', '0')}` non-infra",
         f"- provider/model versions in committed smoke rows: `{compact_json(provider_versions)}`",
         f"- statistical claim-tier statuses: `{compact_json(dict(sorted(statistical_status_counts.items())))}`",
-        f"- Wilson precision ledger rows for assumed p=0.5: `{len(precision_half_rows)}`",
-        f"- figure-manifest statuses: `{compact_json(dict(sorted(figure_status_counts.items())))}`",
-        f"- blocked performance-plot rows in figure manifest: `{blocked_figure_rows}`",
+        "- No benchmark pass-rate or interval is reported from the current rows.",
         "- the statistical analysis plan treats current provider rows as smoke provenance only; performance estimates and scaffold effects stay blocked by threshold rows.",
         "- the figure manifest allows descriptive/provenance SVGs while keeping unsupported performance plots intentionally absent.",
         "",
@@ -339,6 +332,7 @@ def main() -> int:
         "- `reports/report_shape_audit.md` checks whether this narrative answers the playbook report-shape questions or explicitly blocks unsupported analyses.",
         "- `reports/report_count_consistency_audit.md` checks that repeated top-line counts agree with committed CSV/JSON sources.",
         "- `reports/regeneration_command_consistency.md` checks that README, manifest, and reviewer local-replay commands stay synchronized.",
+        "- `reports/passk_claim_boundary_audit.md` checks that smoke-covered cells are not reported as exact-k pass@k-ready evidence.",
         "- `reports/candidate_pruning_audit.md` makes the aggressive pruning decision reviewable for every tracked task.",
         "- `reports/accepted_task_cards.md` makes per-task caveats and benchmark-grade blockers easy to inspect without turning them into stronger claims.",
         "- `reports/independent_task_review_packet.md` and `reports/independent_review_status_audit.md` make missing non-author task reviews explicit.",
@@ -382,7 +376,7 @@ def main() -> int:
         "",
         "## Evidence Appendix",
         "",
-        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/report_count_consistency_audit.md`, `reports/regeneration_command_consistency.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/threat_coverage_audit.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
+        "Detailed evidence is in `reports/metr_style_report.md`, `reports/evidence_appendix.md`, `reports/report_source_traceability.md`, `reports/report_count_consistency_audit.md`, `reports/regeneration_command_consistency.md`, `reports/passk_claim_boundary_audit.md`, `reports/candidate_pruning_audit.md`, `reports/accepted_task_cards.md`, `reports/independent_task_review_packet.md`, `reports/independent_review_status_audit.md`, `reports/requirement_coverage.md`, `reports/data_schema_manifest.md`, `reports/reviewer_reproduction_packet.md`, `reports/clean_workspace_replay.md`, `reports/claim_authorization_matrix.md`, `reports/research_claim_gap_matrix.md`, `reports/threat_coverage_audit.md`, `reports/statistical_analysis_plan.md`, `reports/figure_manifest.md`, `reports/report_claim_conformance_audit.md`, `reports/report_shape_audit.md`, and the committed CSVs under `data/`.",
         "",
     ]
 
