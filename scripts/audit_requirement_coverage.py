@@ -244,6 +244,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     data_schema_manifest = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_count_consistency = read_csv(ROOT / "data" / "report_count_consistency_audit.csv")
+    final_delivery_checklist = read_csv(ROOT / "data" / "final_delivery_checklist_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     regeneration_command_consistency = read_csv(ROOT / "data" / "regeneration_command_consistency.csv")
     validation_manifest_audit = read_csv(ROOT / "data" / "validation_manifest_audit.csv")
@@ -2242,6 +2243,47 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(freeze_roadmap_ok, partial=bool(freeze_roadmap)),
         f"freeze roadmap rows: {len(freeze_roadmap)}; required gates covered: {len(required_freeze_gate_ids & freeze_gate_ids)}/{len(required_freeze_gate_ids)}; statuses: {compact_json(dict(sorted(freeze_statuses.items())))}; report exists: {(ROOT / 'reports' / 'freeze_readiness_roadmap.md').exists()}.",
         "No gap." if freeze_roadmap_ok else "Regenerate scripts/generate_freeze_readiness_roadmap.py after requirement, claim, release, and readiness audits.",
+    ))
+
+    required_final_delivery_checks = {
+        "final_versions_have_pass_at_k",
+        "scaffolds_use_same_task_set",
+        "env_linter_findings_resolved",
+        "full_env_qa_10_attempts",
+        "late_qa_findings_settled",
+        "repo_matches_uploaded_environment",
+        "plots_regenerate_from_committed_csv",
+        "report_states_sample_sizes_and_model_versions",
+        "dev_test_split_marked",
+        "hidden_references_not_public_runtime_assets",
+    }
+    final_delivery_ids = {row_data.get("check_id", "") for row_data in final_delivery_checklist}
+    final_delivery_fields = set(final_delivery_checklist[0].keys()) if final_delivery_checklist else set()
+    required_final_delivery_fields = {
+        "check_id",
+        "playbook_item",
+        "status",
+        "evidence",
+        "source_artifacts",
+        "limitation",
+        "next_action",
+    }
+    final_delivery_statuses = Counter(row_data.get("status", "unknown") for row_data in final_delivery_checklist)
+    final_delivery_ok = (
+        bool(final_delivery_checklist)
+        and required_final_delivery_checks.issubset(final_delivery_ids)
+        and required_final_delivery_fields.issubset(final_delivery_fields)
+        and final_delivery_statuses.get("pass", 0) >= 1
+        and final_delivery_statuses.get("block", 0) >= 1
+        and (ROOT / "reports" / "final_delivery_checklist_audit.md").exists()
+    )
+    requirement_rows.append(row(
+        "final_delivery_checklist_audit",
+        "reporting",
+        "Final delivery checklist audit should map the playbook final-delivery checklist to committed evidence and explicitly block unmet pass@k hosted QA and version-freeze requirements.",
+        status_from_bool(final_delivery_ok, partial=bool(final_delivery_checklist)),
+        f"final-delivery rows: {len(final_delivery_checklist)}; required checks covered: {len(required_final_delivery_checks & final_delivery_ids)}/{len(required_final_delivery_checks)}; statuses: {compact_json(dict(sorted(final_delivery_statuses.items())))}; report exists: {(ROOT / 'reports' / 'final_delivery_checklist_audit.md').exists()}.",
+        "No gap." if final_delivery_ok else "Regenerate scripts/audit_final_delivery_checklist.py and keep playbook final-delivery blockers visible.",
     ))
 
     required_scaffold_checks = {

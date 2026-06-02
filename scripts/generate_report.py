@@ -1164,6 +1164,39 @@ Freeze-readiness gates:
 """
 
 
+def final_delivery_checklist_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/final_delivery_checklist_audit.md` has not been generated yet. Run "
+            "`python scripts/audit_final_delivery_checklist.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("status", "unknown") for row in rows)
+    block_rows = [row for row in rows if row.get("status") == "block"]
+    caution_rows = [row for row in rows if row.get("status") == "caution"]
+    lines = [
+        "| check | status | playbook item | limitation | next action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        item = row.get("playbook_item", "").replace("|", "/")
+        limitation = row.get("limitation", "").replace("|", "/")
+        action = row.get("next_action", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('check_id', '')}` | {row.get('status', '')} | {item} | {limitation} | {action} |"
+        )
+    return f"""`reports/final_delivery_checklist_audit.md` and `data/final_delivery_checklist_audit.csv` map the playbook final-delivery checklist to committed evidence. This is a claim-boundary audit: it keeps missing pass@10/pass@k, hosted QA, late-finding, and version-freeze proof blocked while identifying local rows that are already supported.
+
+- checklist rows: `{len(rows)}`
+- statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- blocked final-delivery rows: `{len(block_rows)}`
+- caution rows: `{len(caution_rows)}`
+
+Final-delivery checklist:
+
+{chr(10).join(lines)}
+"""
+
+
 def scaffold_support_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -1868,6 +1901,7 @@ def main() -> int:
     clean_workspace_replay_rows = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
     release_decision_rows = read_csv(ROOT / "data" / "release_decision_log.csv")
     freeze_readiness_rows = read_csv(ROOT / "data" / "freeze_readiness_roadmap.csv")
+    final_delivery_checklist_rows = read_csv(ROOT / "data" / "final_delivery_checklist_audit.csv")
     scaffold_support_rows = read_csv(ROOT / "data" / "scaffold_support_audit.csv")
     requirement_rows = read_csv(ROOT / "data" / "requirement_coverage.csv")
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
@@ -2219,6 +2253,10 @@ Observed model-sweep failure labels:
 
 {freeze_readiness_section(freeze_readiness_rows)}
 
+## Final Delivery Checklist Audit
+
+{final_delivery_checklist_section(final_delivery_checklist_rows)}
+
 ## Difficulty Audit Summary
 
 The regenerated difficulty audit separates mechanical signals from manual judgments. Mechanical signals include reference proof lines, declaration count, public file count, public lemma count, tactic profile, automation dominance, Mathlib use, multi-file context, hidden pin strength, and wrong-submission count. Manual fields include frontier one-shot solvability estimates, p50/p90 human time, scaffold sensitivity, diagnostic value, and final accept/reject rationale.
@@ -2498,6 +2536,10 @@ No provider API credentials or runner commands are committed. To run a real smok
 
 {taiga_wrapper_isolation_section(taiga_wrapper_isolation_rows)}
 
+## Final Delivery Checklist Audit
+
+{final_delivery_checklist_section(final_delivery_checklist_rows)}
+
 ## Report And Evidence Files
 
 The long generated evidence tables are intentionally outside this main report:
@@ -2507,6 +2549,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
+- `reports/final_delivery_checklist_audit.md`: strict playbook final-delivery checklist mapped to committed evidence, with pass@k, hosted QA, and version-freeze blockers kept visible.
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.

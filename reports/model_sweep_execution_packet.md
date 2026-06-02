@@ -39,7 +39,7 @@ This generated packet turns the planned accepted-core scaffold sweep into concre
 
 | check | phase | status | evidence | next action |
 | --- | --- | --- | --- | --- |
-| `local_validation_before_sweep` | pre_run | ready | run_integrity rows: 69; run_results rows: 69; failing rows: 0; report exists: True. | Run lake build, validate_all, public export validation, and run_integrity immediately before provider sweeps. |
+| `local_validation_before_sweep` | pre_run | ready | run_integrity rows: 71; run_results rows: 71; failing rows: 0; report exists: True. | Run lake build, validate_all, public export validation, and run_integrity immediately before provider sweeps. |
 | `provider_runner_contract` | pre_run | ready | provider readiness rows: 12; required checks covered: 12/12; failures: 0; cautions: 1; blocks: 1; report exists: True. | Set the relevant runner env var and provider API key in the shell only; run a one-task smoke command first. |
 | `scaffold_ladder_contract` | pre_run | ready | scaffold audit rows: 11; required checks covered: 11/11; failures: 0; cautions: 1; report exists: True. | Keep one-shot, lookup, and lookup_unlimited prompt semantics fixed across provider runs. |
 | `planned_primary_cells` | run | planned | accepted_tasks=6; planned_rows=18; scaffolds=["lookup", "lookup_unlimited", "one-shot"]; planned_k=["10"]; command_rows=12 | Run exactly the accepted_v0 x scaffold commands for each provider/model being reported. |

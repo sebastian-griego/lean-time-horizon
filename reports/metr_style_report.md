@@ -44,7 +44,7 @@ Data schema ledger:
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
 | `independent_task_reviews` | empty_ready | 0 | `data/independent_task_review_schema.json` | Empty review data cannot support independent acceptance, time-bucket, hidden-pin, or wrong-submission adequacy claims. | Collect non-author review rows for every accepted_v0 task before strengthening benchmark-grade task-quality claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 62 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 63 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -167,7 +167,7 @@ Independent review status:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 65}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 66}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -421,6 +421,31 @@ Taiga wrapper isolation checks:
 | `docker_static_isolation_controls` | static_packaging | pass | Static controls can drift from hosted runtime behavior and do not replace uploaded-image inspection. |
 
 
+## Final Delivery Checklist Audit
+
+`reports/final_delivery_checklist_audit.md` and `data/final_delivery_checklist_audit.csv` map the playbook final-delivery checklist to committed evidence. This is a claim-boundary audit: it keeps missing pass@10/pass@k, hosted QA, late-finding, and version-freeze proof blocked while identifying local rows that are already supported.
+
+- checklist rows: `10`
+- statuses: `{"block": 5, "caution": 2, "pass": 3}`
+- blocked final-delivery rows: `5`
+- caution rows: `2`
+
+Final-delivery checklist:
+
+| check | status | playbook item | limitation | next action |
+| --- | --- | --- | --- | --- |
+| `final_versions_have_pass_at_k` | block | all exact final problem versions have pass@10 or the agreed pass@k | The plan specifies pass@10 cells, but committed provider rows do not cover the accepted task/scaffold plan. | Run the planned accepted-core pass@10 sweep on exact final problem versions and commit transcripts/results. |
+| `scaffolds_use_same_task_set` | caution | every scaffold uses the same task set unless explicitly documented | The planned sweep uses the same accepted task set, but observed committed provider evidence has not yet covered the scaffold ladder. | Keep the same accepted task IDs across one-shot, lookup, and lookup_unlimited runs; document any exclusion before running. |
+| `env_linter_findings_resolved` | block | no unresolved warning/error/critical Env Linter findings | No Env Linter result rows are committed, so absence of unresolved findings is unproven. | Run Env Linter on exact hosted problem versions and record each warning/error/critical finding disposition. |
+| `full_env_qa_10_attempts` | block | final QA used Full Env QA on 10 attempts | No Full Env QA result rows on final exact problem versions are committed. | Run Full Env QA on 10 attempts after hosted smoke stability and commit result IDs/findings. |
+| `late_qa_findings_settled` | block | late QA findings have settled | There are no hosted QA rows or late-finding timestamps to prove the 30-45 minute settling window has elapsed. | Record hosted QA completion times and final finding dispositions after the settling window. |
+| `repo_matches_uploaded_environment` | block | repo source matches the uploaded environment | The local Taiga package scaffold exists, but no immutable uploaded image digest or hosted problem-version mapping is committed. | Commit image digest, environment/problem-version IDs, and snapshot/tag mapping for the exact uploaded package. |
+| `plots_regenerate_from_committed_csv` | pass | plots regenerate from committed CSV files | Generated descriptive/provenance plots are covered; blocked performance plots intentionally remain absent. | Keep performance plots blocked until provider/scaffold coverage satisfies the statistical plan. |
+| `report_states_sample_sizes_and_model_versions` | pass | report text states sample sizes and model versions | The report states sample sizes and model versions for smoke rows, but performance conclusions remain blocked by undercoverage. | After broad sweeps, regenerate model provenance, count consistency, and claim-conformance audits before interpreting pass rates. |
+| `dev_test_split_marked` | pass | dev/test split is clearly marked | Split labels are local metadata/export evidence, not evidence of hosted problem-version mapping. | Preserve split labels in metadata and hosted problem metadata when uploading exact versions. |
+| `hidden_references_not_public_runtime_assets` | caution | hidden references are not in public runtime assets | Local public export and wrapper mitigation pass, but hosted filesystem-tool isolation on uploaded images is still unproven. | Run hosted preflight/Env Linter and record proof that tools cannot read hidden references, hidden pins, wrong submissions, or transient bundles. |
+
+
 ## Report And Evidence Files
 
 The long generated evidence tables are intentionally outside this main report:
@@ -430,6 +455,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
+- `reports/final_delivery_checklist_audit.md`: strict playbook final-delivery checklist mapped to committed evidence, with pass@k, hosted QA, and version-freeze blockers kept visible.
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.
 - `reports/data_schema_manifest.md`: schema/data-dictionary boundary audit for core datasets and generated CSVs.
@@ -491,13 +517,13 @@ Clean workspace replay ledger:
 
 | check | phase | status | seconds | limitation |
 | --- | --- | --- | ---: | --- |
-| `workspace_materialization` | setup | pass | 26.83 | This is a local clean workspace from the current working tree, not a remote clone or hosted container. |
-| `mathlib_cache_get` | replay | pass | 647.88 | This uses the Mathlib cache for local dependency materialization; hosted runners need their own cache or build path. |
-| `clean_lake_build` | replay | pass | 7.31 | Local toolchain and dependency resolution can differ from hosted QA. |
-| `reference_validation_smoke` | replay | pass | 27.06 | This is a representative reference-validation smoke, not full validate_all coverage. |
-| `wrong_submission_smoke` | replay | pass | 7.03 | This probes expected-fail behavior for one semantic-pin wrong submission only. |
-| `public_export_smoke` | replay | pass | 0.71 | Local public export is not hosted problem packaging. |
-| `public_export_validation_smoke` | replay | pass | 114.43 | This validates local public assets but does not run Env Linter. |
+| `workspace_materialization` | setup | pass | 83.39 | This is a local clean workspace from the current working tree, not a remote clone or hosted container. |
+| `mathlib_cache_get` | replay | pass | 743.40 | This uses the Mathlib cache for local dependency materialization; hosted runners need their own cache or build path. |
+| `clean_lake_build` | replay | pass | 5.23 | Local toolchain and dependency resolution can differ from hosted QA. |
+| `reference_validation_smoke` | replay | pass | 35.08 | This is a representative reference-validation smoke, not full validate_all coverage. |
+| `wrong_submission_smoke` | replay | pass | 4.89 | This probes expected-fail behavior for one semantic-pin wrong submission only. |
+| `public_export_smoke` | replay | pass | 0.70 | Local public export is not hosted problem packaging. |
+| `public_export_validation_smoke` | replay | pass | 119.76 | This validates local public assets but does not run Env Linter. |
 
 
 The local regeneration gate is recorded in `README.md`, `reports/validation_manifest.json`, `reports/validation_manifest_audit.md`, `reports/regeneration_command_consistency.md`, `reports/reviewer_reproduction_packet.md`, and `reports/clean_workspace_replay.md`. The manifest audit verifies command coverage, current artifact hashes, public-export summary, and the policy that the manifest records generation-time git state rather than a post-commit clean-checkout proof. The command-consistency audit checks that README, manifest-source, committed manifest, and reviewer local-replay commands stay synchronized. The public export validator checks that hidden references and wrong submissions are absent from `public_tasks`, all metadata-listed public files are present, exported Lean files compile, and obvious hidden-reference path strings do not leak.

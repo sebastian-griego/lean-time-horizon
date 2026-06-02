@@ -38,8 +38,8 @@ Allowed template values:
 | `lt-201` | proof_repair_codebase | T2 | accepted_core_with_caveat | true | semantic | 2 | maybe | `python scripts/validate_task.py tasks/dev/lt-201-multifile-cache-repair --submission <reviewer-solution.lean> --expect pass` |
 | `lt-203` | informal_spec_to_formal | T2 | accepted_core_retained | false | semantic | 2 | maybe | `python scripts/validate_task.py tasks/dev/lt-203-exact-cover-spec --submission <reviewer-solution.lean> --expect pass` |
 | `lt-202` | direct_theorem_proving | T2 | accepted_core_with_caveat | false | mixed | 2 | maybe | `python scripts/validate_task.py tasks/test/lt-202-mathlib-image-preimage --submission <reviewer-solution.lean> --expect pass` |
-| `lt-204` | invariant_verification_ml_optimization | T2 | accepted_core_retained | false | semantic | 2 | maybe | `python scripts/validate_task.py tasks/test/lt-204-caplist-sum-invariant --submission <reviewer-solution.lean> --expect pass` |
-| `lt-205` | small_formal_library_construction | T3 | accepted_core_retained | false | semantic | 2 | unlikely | `python scripts/validate_task.py tasks/test/lt-205-bag-count-library --submission <reviewer-solution.lean> --expect pass` |
+| `lt-204` | invariant_verification_ml_optimization | T2 | accepted_core_retained | false | semantic | 3 | maybe | `python scripts/validate_task.py tasks/test/lt-204-caplist-sum-invariant --submission <reviewer-solution.lean> --expect pass` |
+| `lt-205` | small_formal_library_construction | T3 | accepted_core_retained | false | semantic | 3 | unlikely | `python scripts/validate_task.py tasks/test/lt-205-bag-count-library --submission <reviewer-solution.lean> --expect pass` |
 | `lt-206` | algorithm_correctness | T2 | accepted_core_with_caveat | true | semantic | 2 | maybe | `python scripts/validate_task.py tasks/test/lt-206-partition-count-correctness --submission <reviewer-solution.lean> --expect pass` |
 
 ## Interpretation

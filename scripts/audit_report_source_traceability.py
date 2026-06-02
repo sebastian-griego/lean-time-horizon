@@ -498,6 +498,27 @@ SECTION_SPECS = [
         "next_action": "Use this table as the upgrade path, not as a completion claim.",
     },
     {
+        "section_id": "final_delivery_checklist",
+        "heading": "Final Delivery Checklist Audit",
+        "source_artifacts": [
+            "data/final_delivery_checklist_audit.csv",
+            "reports/final_delivery_checklist_audit.md",
+            "docs/lean_eval_project_playbook.md",
+            "data/model_sweep_plan.csv",
+            "data/hosted_qa_readiness_audit.csv",
+            "data/figure_manifest.csv",
+            "data/task_asset_manifest.csv",
+        ],
+        "required_phrases": [
+            "playbook final-delivery checklist",
+            "missing pass@10/pass@k",
+            "hosted QA",
+            "version-freeze proof blocked",
+        ],
+        "limitation": "The checklist audit maps final-delivery evidence; it does not complete blocked hosted QA, pass@k, or version-freeze requirements.",
+        "next_action": "Keep final-delivery blockers visible until hosted and provider evidence is committed.",
+    },
+    {
         "section_id": "taiga_wrapper_isolation",
         "heading": "Taiga Wrapper Isolation Audit",
         "source_artifacts": [
@@ -538,6 +559,7 @@ SECTION_SPECS = [
             "reports/threat_coverage_audit.md",
             "reports/regeneration_command_consistency.md",
             "reports/taiga_wrapper_isolation_audit.md",
+            "reports/final_delivery_checklist_audit.md",
         ],
         "required_phrases": [
             "evidence_appendix.md",
@@ -557,6 +579,7 @@ SECTION_SPECS = [
             "threat_coverage_audit.md",
             "regeneration_command_consistency.md",
             "taiga_wrapper_isolation_audit.md",
+            "final_delivery_checklist_audit.md",
         ],
         "limitation": "The source map improves traceability but does not create new model evidence.",
         "next_action": "Keep new report artifacts listed in README, manifest, and source traceability.",
