@@ -1256,9 +1256,9 @@ Clean workspace replay ledger:
 
 `reports/validation_manifest.json` records the local toolchain, task/run counts, public-export summary, expected regeneration commands, and artifact hashes. The main report itself is intentionally omitted from the hash list to avoid a self-referential report hash.
 
-Generated at UTC: `2026-06-02T00:27:10.736572+00:00`
+Generated at UTC: `2026-06-02T00:29:59.352622+00:00`
 
-Git branch/head at generation: `main` / `efe690c7fb35`. Worktree status at generation: `33 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
+Git branch/head at generation: `main` / `df2b9b885b98`. Worktree status at generation: `4 pre-commit path(s) recorded`. The exact status lines are kept in the JSON manifest because this file is generated before the final commit.
 
 Toolchain:
 
@@ -1367,7 +1367,7 @@ Key artifact hashes:
 | `lean-toolchain` | `db7bb24b756d` |  | 25 |
 | `lakefile.lean` | `1d842f6b4179` |  | 284 |
 | `lake-manifest.json` | `601ea0517a05` |  | 3110 |
-| `README.md` | `16df198fe524` |  | 20432 |
+| `README.md` | `fddd6350f3e1` |  | 20742 |
 | `.dockerignore` | `54dcbd5f7f0c` |  | 75 |
 | `docs/axiom_policy.md` | `0adf66f9085a` |  | 712 |
 | `data/benchmark_requirements.csv` | `03a78be6c82e` | 72 | 18180 |
@@ -1424,9 +1424,9 @@ Key artifact hashes:
 | `data/claim_evidence_audit.csv` | `4d00cdf9bada` | 9 | 22252 |
 | `data/claim_authorization_matrix.csv` | `0b7143914c75` | 12 | 16554 |
 | `data/research_claim_gap_matrix.csv` | `e6b3f6397976` | 12 | 16565 |
-| `data/report_claim_conformance_audit.csv` | `f0f94b163523` | 11 | 4101 |
+| `data/report_claim_conformance_audit.csv` | `d820439cc299` | 11 | 4101 |
 | `data/report_source_traceability.csv` | `d088e38ff9da` | 34 | 15532 |
-| `data/regeneration_command_consistency.csv` | `9a25b7f80a79` | 4 | 3420 |
+| `data/regeneration_command_consistency.csv` | `e98f9162dabb` | 4 | 1537 |
 | `data/report_shape_audit.csv` | `162dd3825949` | 7 | 3350 |
 | `data/report_count_consistency_audit.csv` | `a3a55339ed2d` | 8 | 5271 |
 | `data/figure_manifest.csv` | `41b703492d89` | 10 | 5376 |
@@ -1455,9 +1455,9 @@ Key artifact hashes:
 | `reports/claim_evidence_audit.md` | `5cd2c5a4f8b4` |  | 6738 |
 | `reports/claim_authorization_matrix.md` | `f2efb00e0b08` |  | 7893 |
 | `reports/research_claim_gap_matrix.md` | `8f4bd8a124af` |  | 11700 |
-| `reports/report_claim_conformance_audit.md` | `d9ae7d8e8e00` |  | 4268 |
+| `reports/report_claim_conformance_audit.md` | `46ce29e5735f` |  | 4268 |
 | `reports/report_source_traceability.md` | `4376ba8c77f1` |  | 16285 |
-| `reports/regeneration_command_consistency.md` | `0ae837a794c0` |  | 4034 |
+| `reports/regeneration_command_consistency.md` | `750664a54d41` |  | 2166 |
 | `reports/report_shape_audit.md` | `c5a11554e4ae` |  | 3373 |
 | `reports/report_count_consistency_audit.md` | `9755cc17e114` |  | 5190 |
 | `reports/figure_manifest.md` | `b39eb8a92c4c` |  | 6198 |
@@ -1572,7 +1572,7 @@ Validation manifest audit rows:
 | `artifact_inventory_coverage` | artifact_hashes | pass | inventory_candidates=171; recorded_artifacts=187; allowed_unhashed=5; missing_inventory=0; examples=[] | The inventory check covers data CSVs, report markdown, and scripts. It intentionally excludes self-referential final reports, the validation-manifest audit output, and the progress log. |
 | `self_reference_boundary` | artifact_hashes | pass | main_report_omitted=True; evidence_appendix_omitted=True; policy_note_mentions_omission=True | The main report and appendix are regenerated after manifest writing and therefore cannot be hashed by the manifest without circularity. |
 | `public_export_snapshot` | public_export | pass | configured=True; exists=True; task_count=14; hidden_or_wrong_path_count=0 | This is a local public-export snapshot, not hosted QA evidence. |
-| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=33; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
+| `git_snapshot_policy` | git_state | pass | dirty=True; status_entries=4; policy_note_present=True | A dirty generation-time snapshot is expected for committed report updates; this is not a clean-checkout proof. |
 | `summary_count_snapshot` | counts | pass | task_count=26; acceptance_status_counts={"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}; run_rows=69; local_qa_rows=66; model_rows=3 | Count snapshots are local evidence and do not imply benchmark-scale sufficiency. |
 
 

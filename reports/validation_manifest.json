@@ -1,47 +1,18 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-06-02T00:27:10.736572+00:00",
+  "generated_at_utc": "2026-06-02T00:29:59.352622+00:00",
   "note": "This manifest is written after the local regeneration gate has passed. It hashes inputs and generated evidence files, but intentionally omits reports/metr_style_report.md and reports/evidence_appendix.md to avoid self-referential report hashes. The validation-manifest audit is generated after this manifest and is checked by requirement coverage rather than hashed by the manifest. Git status is captured before the final commit, so a dirty status can reflect the in-progress report commit rather than a validation failure.",
   "git": {
     "branch": "main",
-    "head": "efe690c7fb35da74b39692f348432806e0286b41",
+    "head": "df2b9b885b987aeea4fc297202639b26b500a8cc",
     "dirty": true,
     "status_short": [
-      " M README.md",
-      " M data/benchmark_requirements.csv",
-      " M data/claim_evidence_audit.csv",
-      " M data/clean_workspace_replay.csv",
-      " M data/data_schema_manifest.csv",
-      " M data/freeze_readiness_roadmap.csv",
-      " M data/hosted_qa_readiness_audit.csv",
-      " M data/regeneration_command_consistency.csv",
-      " M data/release_decision_log.csv",
-      " M data/report_claim_conformance_audit.csv",
-      " M data/report_count_consistency_audit.csv",
-      " M data/report_source_traceability.csv",
-      " M data/requirement_coverage.csv",
-      " M reports/clean_workspace_replay.md",
-      " M reports/concise_metr_report.md",
-      " M reports/data_schema_manifest.md",
+      " M data/validation_manifest_audit.csv",
       " M reports/evidence_appendix.md",
-      " M reports/hosted_qa_readiness_audit.md",
-      " M reports/metr_style_report.md",
-      " M reports/regeneration_command_consistency.md",
-      " M reports/release_decision_log.md",
-      " M reports/report_claim_conformance_audit.md",
-      " M reports/report_count_consistency_audit.md",
-      " M reports/report_source_traceability.md",
-      " M reports/requirement_coverage.md",
-      " M scripts/audit_report_source_traceability.py",
-      " M scripts/audit_requirement_coverage.py",
-      " M scripts/audit_validation_manifest.py",
-      " M scripts/generate_report.py",
-      " M scripts/write_validation_manifest.py",
-      "?? data/taiga_wrapper_isolation_audit.csv",
-      "?? reports/taiga_wrapper_isolation_audit.md",
-      "?? scripts/audit_taiga_wrapper_isolation.py"
+      " M reports/validation_manifest.json",
+      " M reports/validation_manifest_audit.md"
     ],
-    "status_summary_first_line": " M README.md"
+    "status_summary_first_line": " M data/validation_manifest_audit.csv"
   },
   "tool_versions": {
     "python": "3.11.9",
@@ -235,9 +206,9 @@
     {
       "path": "README.md",
       "exists": true,
-      "bytes": 20432,
-      "sha256": "16df198fe524d1f7f926bb2defba1308e306f3609095e2b719ccc551ec65ab96",
-      "line_count": 314
+      "bytes": 20742,
+      "sha256": "fddd6350f3e1895da17d2e64ab304ac4c69ed5bf9bb3ff461bdf98f0cd9b76d3",
+      "line_count": 316
     },
     {
       "path": ".dockerignore",
@@ -683,7 +654,7 @@
       "path": "data/report_claim_conformance_audit.csv",
       "exists": true,
       "bytes": 4101,
-      "sha256": "f0f94b163523a9a6b125990066d1780c3ec967cfb5f25a4ef55dd33adfcb387e",
+      "sha256": "d820439cc29973fd2f17ee27b61c5c3043d566ee48b6347ab22a6ccdc9165955",
       "line_count": 12,
       "row_count": 11
     },
@@ -698,8 +669,8 @@
     {
       "path": "data/regeneration_command_consistency.csv",
       "exists": true,
-      "bytes": 3420,
-      "sha256": "9a25b7f80a797ea9cbf2105b94a069e7e339481e416f7de412d6309c0ff39c3e",
+      "bytes": 1537,
+      "sha256": "e98f9162dabb795629d840e79ab61d1155a2c04d31525e818f8062a5dd7d289e",
       "line_count": 5,
       "row_count": 4
     },
@@ -913,7 +884,7 @@
       "path": "reports/report_claim_conformance_audit.md",
       "exists": true,
       "bytes": 4268,
-      "sha256": "d9ae7d8e8e0056488ceecba09e5484bce786f4b3e9dc9149d582513dbc777427",
+      "sha256": "46ce29e5735f9304df0eb75623de22556c78ca93fb1766ed25a5fd3facb096a4",
       "line_count": 29
     },
     {
@@ -926,8 +897,8 @@
     {
       "path": "reports/regeneration_command_consistency.md",
       "exists": true,
-      "bytes": 4034,
-      "sha256": "0ae837a794c01ce5e7e507f460ca60ee32a96ed4febed5fb0420fa479cdd3b9c",
+      "bytes": 2166,
+      "sha256": "750664a54d4100384329057a1e133178da1abafa3bf5e1c635465538b14d32ed",
       "line_count": 22
     },
     {
