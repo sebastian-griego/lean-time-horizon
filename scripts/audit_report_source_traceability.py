@@ -474,6 +474,26 @@ SECTION_SPECS = [
         "next_action": "Regenerate after requirements, claims, run coverage, independent review, timing, or hosted-readiness changes.",
     },
     {
+        "section_id": "protocol_deviation_log",
+        "heading": "Protocol Deviation Log",
+        "source_artifacts": [
+            "data/protocol_deviation_log.csv",
+            "reports/protocol_deviation_log.md",
+            "data/task_metadata.csv",
+            "data/model_sweep_coverage_audit.csv",
+            "data/hosted_qa_readiness_audit.csv",
+            "data/claim_authorization_matrix.csv",
+        ],
+        "required_phrases": [
+            "protocol deviations",
+            "open blockers",
+            "intentional scope",
+            "not evidence that deviations are resolved",
+        ],
+        "limitation": "The protocol-deviation log records scope differences and blockers; it does not resolve those blockers.",
+        "next_action": "Regenerate after task status, run coverage, timing/review evidence, hosted-readiness, or claim-authorization changes.",
+    },
+    {
         "section_id": "statistical_analysis_plan",
         "heading": "Statistical Analysis Plan",
         "source_artifacts": [
@@ -632,6 +652,7 @@ SECTION_SPECS = [
             "reports/security_leakage_audit.md",
             "reports/analysis_decision_register.md",
             "reports/evidence_strength_matrix.md",
+            "reports/protocol_deviation_log.md",
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
@@ -658,6 +679,7 @@ SECTION_SPECS = [
             "security_leakage_audit.md",
             "analysis_decision_register.md",
             "evidence_strength_matrix.md",
+            "protocol_deviation_log.md",
             "data_schema_manifest.md",
             "reviewer_reproduction_packet.md",
             "clean_workspace_replay.md",

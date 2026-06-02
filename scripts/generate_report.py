@@ -577,6 +577,40 @@ Evidence strength matrix:
 """
 
 
+def protocol_deviation_log_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/protocol_deviation_log.md` has not been generated yet. Run "
+            "`python scripts/generate_protocol_deviation_log.py`, then regenerate this report."
+        )
+    status_counts = Counter(row.get("deviation_status", "unknown") for row in rows)
+    area_counts = Counter(row.get("protocol_area", "unknown") for row in rows)
+    open_rows = [row for row in rows if row.get("deviation_status") == "open_blocker"]
+    lines = [
+        "| deviation | area | status | current state | claim impact | required resolution |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        state = row.get("current_state", "").replace("|", "/")
+        impact = row.get("claim_impact", "").replace("|", "/")
+        resolution = row.get("required_resolution", "").replace("|", "/")
+        lines.append(
+            f"| `{row.get('deviation_id', '')}` | {row.get('protocol_area', '')} | "
+            f"{row.get('deviation_status', '')} | {state} | {impact} | {resolution} |"
+        )
+    return f"""`reports/protocol_deviation_log.md` and `data/protocol_deviation_log.csv` record protocol deviations between v0.1 and the intended full benchmark protocol. They separate open blockers from intentional scope and claim-control decisions. This is not evidence that deviations are resolved; it is a transparency ledger for why stronger claims remain blocked.
+
+- deviations tracked: `{len(rows)}`
+- deviation statuses: `{compact_json(dict(sorted(status_counts.items())))}`
+- protocol areas: `{compact_json(dict(sorted(area_counts.items())))}`
+- open blockers: `{len(open_rows)}`
+
+Protocol deviation log:
+
+{chr(10).join(lines)}
+"""
+
+
 def data_schema_manifest_section(rows: list[dict[str, str]]) -> str:
     if not rows:
         return (
@@ -2068,6 +2102,7 @@ def main() -> int:
     model_evidence_provenance_rows = read_csv(ROOT / "data" / "model_evidence_provenance_audit.csv")
     analysis_decision_rows = read_csv(ROOT / "data" / "analysis_decision_register.csv")
     evidence_strength_rows = read_csv(ROOT / "data" / "evidence_strength_matrix.csv")
+    protocol_deviation_rows = read_csv(ROOT / "data" / "protocol_deviation_log.csv")
     statistical_design_rows = read_csv(ROOT / "data" / "statistical_design_thresholds.csv")
     wilson_precision_rows = read_csv(ROOT / "data" / "wilson_precision_table.csv")
     figure_manifest_rows = read_csv(ROOT / "data" / "figure_manifest.csv")
@@ -2340,6 +2375,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 ## Evidence Strength Matrix
 
 {evidence_strength_matrix_section(evidence_strength_rows)}
+
+## Protocol Deviation Log
+
+{protocol_deviation_log_section(protocol_deviation_rows)}
 
 ## Statistical Analysis Plan
 
@@ -2692,6 +2731,10 @@ The supported scaffold ladder is `one-shot`, `lookup`, and `lookup_unlimited`. L
 
 {evidence_strength_matrix_section(evidence_strength_rows)}
 
+## Protocol Deviation Log
+
+{protocol_deviation_log_section(protocol_deviation_rows)}
+
 ## Statistical Analysis Plan
 
 {statistical_analysis_plan_section(statistical_design_rows, wilson_precision_rows)}
@@ -2766,6 +2809,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/failure_label_review_audit.md`: single-review smoke transcript adjudication audit.
 - `reports/analysis_decision_register.md`: preregistered inclusion, endpoint, exact-k, subgroup, scaffold-delta, failure-label, timing, and freeze decisions for future sweeps.
 - `reports/evidence_strength_matrix.md`: evidence-grade ledger separating local, provider-smoke, independent-review, hosted-QA, and freeze support for report claims.
+- `reports/protocol_deviation_log.md`: protocol-deviation ledger separating unresolved full-benchmark blockers from intentional v0.1 scope and claim-control decisions.
 - `reports/statistical_analysis_plan.md`: claim-tier evidence thresholds and Wilson precision ledger for future model-result reporting.
 - `reports/figure_manifest.md`: source-data and claim-boundary ledger for generated figures and blocked performance plots.
 - `reports/threat_coverage_audit.md`: mapping from open blockers and non-allowed claims to threats-to-validity rows.

@@ -4,10 +4,10 @@ This generated packet converts the local validation and report-generation surfac
 
 ## Summary
 
-- steps: `22`
-- phases: `{"external_evidence": 3, "local_replay": 19}`
-- statuses: `{"blocked_external_evidence": 3, "ready": 19}`
-- local replay steps ready: `19/19`
+- steps: `23`
+- phases: `{"external_evidence": 3, "local_replay": 20}`
+- statuses: `{"blocked_external_evidence": 3, "ready": 20}`
+- local replay steps ready: `20/20`
 - local replay problem rows: `0`
 - external evidence rows still blocked: `3`
 
@@ -27,6 +27,7 @@ Run the local replay steps in order after dependency setup. Treat any nonzero ex
 | `run_integrity` | local_replay | ready | `python scripts/audit_run_integrity.py` | run_results rows are internally consistent with transcripts, pass@k arithmetic, and failure labels. | Passing integrity checks do not imply adequate provider sample size. |
 | `analysis_decision_register` | local_replay | ready | `python scripts/generate_analysis_decision_register.py` | The planned model analysis has explicit preregistered inclusion, endpoint, coverage, subgroup, failure-label, timing, and freeze decisions. | The register fixes analysis rules but does not create provider rows or unlock performance claims. |
 | `evidence_strength_matrix` | local_replay | ready | `python scripts/generate_evidence_strength_matrix.py` | Major report claims are graded by evidence type so local, provider-smoke, independent-review, hosted-QA, and freeze evidence are not conflated. | The matrix classifies evidence strength; it does not create independent review, exact-k provider sweeps, hosted QA, or freeze evidence. |
+| `protocol_deviation_log` | local_replay | ready | `python scripts/generate_protocol_deviation_log.py` | Protocol deviations from the intended full benchmark target are recorded as open blockers or intentional scope/claim-control decisions. | The log documents deviations and blockers; it does not resolve accepted-count, timing, provider-sweep, or hosted-QA gaps. |
 | `peer_review_matrix` | local_replay | ready | `python scripts/generate_peer_review_matrix.py` | Skeptical reviewer questions, defensible answers, residual risks, and upgrade evidence are synthesized from committed audits. | The matrix is a synthesis of existing evidence and does not resolve blocked external-evidence gaps. |
 | `model_sweep_coverage` | local_replay | ready | `python scripts/audit_model_sweep_coverage.py` | Planned accepted-core task/scaffold/pass@k cells are mapped to committed provider rows with smoke-only cells separated from pass@k-ready cells. | This audit does not create new model evidence; it only classifies coverage of existing rows. |
 | `passk_claim_boundaries` | local_replay | ready | `python scripts/audit_passk_claim_boundaries.py` | Report artifacts keep exact-k pass@k-ready cells separate from smoke-only or missing planned cells. | This audit prevents wording drift; it does not create additional provider attempts or performance evidence. |

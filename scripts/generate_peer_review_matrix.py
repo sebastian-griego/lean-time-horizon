@@ -108,12 +108,13 @@ def build_rows() -> list[dict[str, str]]:
             "pass",
             "Does the report clearly state what the artifact is and is not?",
             "Yes. The authorized wording is a local v0.1 research artifact with explicit blockers; locked-benchmark wording remains blocked.",
-            f"{claim_text(claims, 'local_artifact_validity')}; {claim_text(claims, 'locked_benchmark_status')}; {req_text(reqs, 'report_claim_conformance_audit')}",
+            f"{claim_text(claims, 'local_artifact_validity')}; {claim_text(claims, 'locked_benchmark_status')}; {req_text(reqs, 'protocol_deviation_log')}; {req_text(reqs, 'report_claim_conformance_audit')}",
             "A reader could still skim past caveats, so the bottom line and claim ledger must remain prominent.",
             "No stronger scope wording until every locked-benchmark blocker is supported.",
             [
                 "reports/concise_metr_report.md",
                 "reports/claim_authorization_matrix.md",
+                "reports/protocol_deviation_log.md",
                 "reports/report_claim_conformance_audit.md",
             ],
         ),
@@ -125,13 +126,14 @@ def build_rows() -> list[dict[str, str]]:
             "No. The accepted core is useful for local artifact review but below the 20-50 task target and has no accepted T4 row.",
             (
                 f"accepted={len(accepted)}; calibration={len(calibration)}; rejected={len(rejected)}; "
-                f"{req_text(reqs, 'portfolio_accepted_count')}; {req_text(reqs, 'time_horizon_spread')}"
+                f"{req_text(reqs, 'portfolio_accepted_count')}; {req_text(reqs, 'time_horizon_spread')}; {req_text(reqs, 'protocol_deviation_log')}"
             ),
             "Family and capability summaries are singleton-heavy and should not be treated as stable population estimates.",
             "Reach 20-50 accepted tasks with independently reviewed T2/T3/T4 depth, including at least one T4 task.",
             [
                 "data/task_metadata.csv",
                 "reports/candidate_pruning_audit.md",
+                "reports/protocol_deviation_log.md",
                 "reports/freeze_readiness_roadmap.md",
             ],
         ),
@@ -306,15 +308,16 @@ def build_rows() -> list[dict[str, str]]:
             "roadmap",
             "pass",
             "Is there a concrete path from this artifact to a locked benchmark?",
-            "Yes. The gap matrix, release decision log, freeze roadmap, and final-delivery checklist name the missing evidence and exit criteria.",
+            "Yes. The deviation log, gap matrix, release decision log, freeze roadmap, and final-delivery checklist name the missing evidence and exit criteria.",
             (
-                f"{req_text(reqs, 'research_claim_gap_matrix')}; {req_text(reqs, 'release_decision_log')}; "
+                f"{req_text(reqs, 'protocol_deviation_log')}; {req_text(reqs, 'research_claim_gap_matrix')}; {req_text(reqs, 'release_decision_log')}; "
                 f"{req_text(reqs, 'freeze_readiness_roadmap')}; {req_text(reqs, 'final_delivery_checklist_audit')}"
             ),
             "The roadmap is not evidence that the blocked gates have been completed.",
             "Use the roadmap as the acceptance gate for future task additions, provider sweeps, independent reviews, and hosted QA.",
             [
                 "reports/research_claim_gap_matrix.md",
+                "reports/protocol_deviation_log.md",
                 "reports/release_decision_log.md",
                 "reports/freeze_readiness_roadmap.md",
                 "reports/final_delivery_checklist_audit.md",

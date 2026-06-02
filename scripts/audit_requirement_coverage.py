@@ -260,6 +260,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     model_sweep_plan = read_csv(ROOT / "data" / "model_sweep_plan.csv")
     analysis_decision_register = read_csv(ROOT / "data" / "analysis_decision_register.csv")
     evidence_strength_matrix = read_csv(ROOT / "data" / "evidence_strength_matrix.csv")
+    protocol_deviation_log = read_csv(ROOT / "data" / "protocol_deviation_log.csv")
     model_sweep_execution_commands = read_csv(ROOT / "data" / "model_sweep_execution_commands.csv")
     model_sweep_execution_checklist = read_csv(ROOT / "data" / "model_sweep_execution_checklist.csv")
     model_result_summary = read_csv(ROOT / "data" / "model_result_summary.csv")
@@ -647,6 +648,57 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(evidence_strength_ok, partial=bool(evidence_strength_matrix)),
         f"evidence rows: {len(evidence_strength_matrix)}; required rows covered: {len(required_evidence_strength_ids & evidence_strength_ids)}/{len(required_evidence_strength_ids)}; grades: {compact_json(dict(sorted(evidence_strength_grade_counts.items())))}; report exists: {(ROOT / 'reports' / 'evidence_strength_matrix.md').exists()}.",
         "No gap." if evidence_strength_ok else "Run scripts/generate_evidence_strength_matrix.py and inspect missing evidence-grade rows or over-broad current wording.",
+    ))
+
+    required_protocol_deviation_ids = {
+        "accepted_count_shortfall",
+        "time_horizon_depth_shortfall",
+        "family_singleton_groups",
+        "independent_timing_absent",
+        "independent_task_review_absent",
+        "scaffold_passk_sweeps_missing",
+        "provider_evidence_smoke_only",
+        "failure_distribution_unavailable",
+        "performance_plots_omitted",
+        "hosted_qa_not_run",
+        "non_core_rows_retained_but_excluded",
+    }
+    protocol_deviation_ids = {row_data.get("deviation_id", "") for row_data in protocol_deviation_log}
+    protocol_deviation_fields = set(protocol_deviation_log[0].keys()) if protocol_deviation_log else set()
+    required_protocol_deviation_fields = {
+        "deviation_id",
+        "protocol_area",
+        "planned_standard",
+        "current_state",
+        "deviation_status",
+        "rationale",
+        "claim_impact",
+        "current_disposition",
+        "required_resolution",
+        "source_artifacts",
+    }
+    protocol_deviation_status_counts = Counter(
+        row_data.get("deviation_status", "unknown")
+        for row_data in protocol_deviation_log
+    )
+    protocol_deviation_ok = (
+        bool(protocol_deviation_log)
+        and required_protocol_deviation_ids.issubset(protocol_deviation_ids)
+        and required_protocol_deviation_fields.issubset(protocol_deviation_fields)
+        and protocol_deviation_status_counts.get("open_blocker", 0) >= 1
+        and (
+            protocol_deviation_status_counts.get("resolved_by_claim_control", 0)
+            + protocol_deviation_status_counts.get("resolved_by_quality_control", 0)
+        ) >= 1
+        and (ROOT / "reports" / "protocol_deviation_log.md").exists()
+    )
+    requirement_rows.append(row(
+        "protocol_deviation_log",
+        "reporting",
+        "Protocol deviation log should record where v0.1 diverges from the intended full benchmark protocol and distinguish open blockers from intentional scope or claim-control decisions.",
+        status_from_bool(protocol_deviation_ok, partial=bool(protocol_deviation_log)),
+        f"deviation rows: {len(protocol_deviation_log)}; required rows covered: {len(required_protocol_deviation_ids & protocol_deviation_ids)}/{len(required_protocol_deviation_ids)}; statuses: {compact_json(dict(sorted(protocol_deviation_status_counts.items())))}; report exists: {(ROOT / 'reports' / 'protocol_deviation_log.md').exists()}.",
+        "No gap." if protocol_deviation_ok else "Run scripts/generate_protocol_deviation_log.py and inspect missing deviation rows or unresolved status classification.",
     ))
 
     analysis_ok = (ROOT / "reports" / "model_run_analysis.md").exists() and bool(model_result_summary)

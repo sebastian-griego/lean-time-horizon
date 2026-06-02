@@ -111,6 +111,17 @@ STEPS = [
         "next_action": "Run after requirement coverage, claim authorization, model-coverage, timing, independent-review, or hosted-readiness changes.",
     },
     {
+        "step_id": "protocol_deviation_log",
+        "phase": "local_replay",
+        "command": "python scripts/generate_protocol_deviation_log.py",
+        "expected_artifacts": "data/protocol_deviation_log.csv;reports/protocol_deviation_log.md",
+        "claim_supported": "Protocol deviations from the intended full benchmark target are recorded as open blockers or intentional scope/claim-control decisions.",
+        "evidence_basis": "Task metadata, model-sweep coverage, run results, human-timing rows, independent-review rows, hosted-readiness rows, statistical/figure audits, and claim authorization.",
+        "failure_interpretation": "A missing or stale deviation log weakens research transparency and can hide why v0.1 is not a locked benchmark.",
+        "limitation": "The log documents deviations and blockers; it does not resolve accepted-count, timing, provider-sweep, or hosted-QA gaps.",
+        "next_action": "Run after task status, model coverage, timing/review data, hosted readiness, or claim authorization changes.",
+    },
+    {
         "step_id": "peer_review_matrix",
         "phase": "local_replay",
         "command": "python scripts/generate_peer_review_matrix.py",

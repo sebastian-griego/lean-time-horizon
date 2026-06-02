@@ -42,6 +42,7 @@ REQUIRED_COMMANDS = {
     "python scripts/audit_model_sweep_coverage.py",
     "python scripts/generate_analysis_decision_register.py",
     "python scripts/generate_evidence_strength_matrix.py",
+    "python scripts/generate_protocol_deviation_log.py",
     "python scripts/audit_passk_claim_boundaries.py",
     "python scripts/audit_statistical_reporting.py",
     "python scripts/audit_report_source_traceability.py",
