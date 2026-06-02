@@ -197,6 +197,7 @@ def build_rows() -> list[dict[str, str]]:
             "reports/clean_workspace_replay.md",
             "reports/validation_manifest.json",
             "reports/passk_claim_boundary_audit.md",
+            "reports/peer_review_matrix.md",
         ],
     ))
     rows.append(row(

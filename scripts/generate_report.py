@@ -295,6 +295,37 @@ Partial or unmet requirements:
 """
 
 
+def peer_review_matrix_section(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return (
+            "`reports/peer_review_matrix.md` has not been generated yet. Run "
+            "`python scripts/generate_peer_review_matrix.py` after requirement and claim "
+            "audits, then regenerate this report."
+        )
+    verdict_counts = Counter(row.get("verdict", "unknown") for row in rows)
+    area_counts = Counter(row.get("review_area", "unknown") for row in rows)
+    lines = [
+        "| question | area | verdict | current answer | residual risk |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            f"| `{row.get('question_id', '')}` | {row.get('review_area', '')} | {row.get('verdict', '')} | "
+            f"{row.get('current_answer', '').replace('|', '/')} | "
+            f"{row.get('residual_risk', '').replace('|', '/')} |"
+        )
+    return f"""`reports/peer_review_matrix.md` and `data/peer_review_matrix.csv` convert the audit surface into skeptical reviewer questions, current defensible answers, residual risks, and required upgrade evidence. `block` rows are claim boundaries, not script failures.
+
+- reviewer questions: `{len(rows)}`
+- verdicts: `{compact_json(dict(sorted(verdict_counts.items())))}`
+- review areas: `{compact_json(dict(sorted(area_counts.items())))}`
+
+Peer-review matrix:
+
+{chr(10).join(lines)}
+"""
+
+
 def evaluation_protocol_section(plan_rows: list[dict[str, str]]) -> str:
     if not plan_rows:
         return (
@@ -1909,6 +1940,7 @@ def main() -> int:
     report_claim_conformance_rows = read_csv(ROOT / "data" / "report_claim_conformance_audit.csv")
     report_shape_rows = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_count_consistency_rows = read_csv(ROOT / "data" / "report_count_consistency_audit.csv")
+    peer_review_matrix_rows = read_csv(ROOT / "data" / "peer_review_matrix.csv")
     data_schema_manifest_rows = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     reviewer_reproduction_rows = read_csv(ROOT / "data" / "reviewer_reproduction_steps.csv")
     clean_workspace_replay_rows = read_csv(ROOT / "data" / "clean_workspace_replay.csv")
@@ -2093,6 +2125,10 @@ Accepted core families:
 Release human-time buckets:
 
 {bullets(Counter(row["human_time_bucket"] for row in release))}
+
+## Peer Review Matrix
+
+{peer_review_matrix_section(peer_review_matrix_rows)}
 
 ## What The Tasks Measure
 
@@ -2474,6 +2510,10 @@ Acceptance requires more than a passing reference solution: wrong submissions mu
 
 {report_count_consistency_section(report_count_consistency_rows)}
 
+## Peer Review Matrix
+
+{peer_review_matrix_section(peer_review_matrix_rows)}
+
 ## What The Tasks Measure
 
 The accepted core tasks are intended to test library/API search, theorem decomposition, semantic formalization, proof debugging, codebase navigation, invariant design, and small library construction. The calibration-only rows are retained to verify the harness, establish lower time-bucket behavior, and catch regressions in simple Lean proof generation.
@@ -2568,6 +2608,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
+- `reports/peer_review_matrix.md`: skeptical reviewer question matrix with current defensible answers, residual risks, and upgrade evidence.
 - `reports/final_delivery_checklist_audit.md`: strict playbook final-delivery checklist mapped to committed evidence, with pass@k, hosted QA, and version-freeze blockers kept visible.
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.

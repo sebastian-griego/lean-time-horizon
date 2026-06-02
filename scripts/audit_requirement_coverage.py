@@ -244,6 +244,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
     data_schema_manifest = read_csv(ROOT / "data" / "data_schema_manifest.csv")
     report_shape = read_csv(ROOT / "data" / "report_shape_audit.csv")
     report_count_consistency = read_csv(ROOT / "data" / "report_count_consistency_audit.csv")
+    peer_review_matrix = read_csv(ROOT / "data" / "peer_review_matrix.csv")
     final_delivery_checklist = read_csv(ROOT / "data" / "final_delivery_checklist_audit.csv")
     report_source_traceability = read_csv(ROOT / "data" / "report_source_traceability.csv")
     regeneration_command_consistency = read_csv(ROOT / "data" / "regeneration_command_consistency.csv")
@@ -1198,6 +1199,52 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         status_from_bool(count_consistency_ok, partial=bool(report_count_consistency)),
         f"count-consistency rows: {len(report_count_consistency)}; required checks covered: {len(required_count_consistency_ids & count_consistency_ids)}/{len(required_count_consistency_ids)}; failures: {len(count_consistency_failures)}; report exists: {(ROOT / 'reports' / 'report_count_consistency_audit.md').exists()}.",
         "No gap." if count_consistency_ok else "Regenerate scripts/audit_report_count_consistency.py after report generation and inspect stale top-line counts.",
+    ))
+
+    required_peer_review_questions = {
+        "scope_status",
+        "task_portfolio_scale",
+        "diagnostic_task_quality",
+        "grader_semantic_validity",
+        "run_data_and_passk_semantics",
+        "model_performance_evidence",
+        "statistical_reporting",
+        "human_time_evidence",
+        "hosted_qa_and_public_export",
+        "local_reproducibility",
+        "claim_control_system",
+        "upgrade_path",
+    }
+    peer_review_ids = {row_data.get("question_id", "") for row_data in peer_review_matrix}
+    peer_review_fields = set(peer_review_matrix[0].keys()) if peer_review_matrix else set()
+    required_peer_review_fields = {
+        "question_id",
+        "review_area",
+        "verdict",
+        "reviewer_question",
+        "current_answer",
+        "evidence",
+        "residual_risk",
+        "required_upgrade_evidence",
+        "source_artifacts",
+    }
+    peer_review_verdicts = Counter(row_data.get("verdict", "unknown") for row_data in peer_review_matrix)
+    peer_review_ok = (
+        bool(peer_review_matrix)
+        and required_peer_review_questions.issubset(peer_review_ids)
+        and required_peer_review_fields.issubset(peer_review_fields)
+        and peer_review_verdicts.get("pass", 0) >= 1
+        and peer_review_verdicts.get("caution", 0) >= 1
+        and peer_review_verdicts.get("block", 0) >= 1
+        and (ROOT / "reports" / "peer_review_matrix.md").exists()
+    )
+    requirement_rows.append(row(
+        "peer_review_matrix",
+        "reporting",
+        "Peer review matrix should summarize skeptical reviewer questions current defensible answers residual risks and upgrade evidence from committed audits.",
+        status_from_bool(peer_review_ok, partial=bool(peer_review_matrix)),
+        f"peer-review rows: {len(peer_review_matrix)}; required questions covered: {len(required_peer_review_questions & peer_review_ids)}/{len(required_peer_review_questions)}; verdicts: {compact_json(dict(sorted(peer_review_verdicts.items())))}; report exists: {(ROOT / 'reports' / 'peer_review_matrix.md').exists()}.",
+        "No gap." if peer_review_ok else "Run scripts/generate_peer_review_matrix.py after requirement and claim audits, then inspect missing reviewer questions.",
     ))
 
     requirement_rows.append(row(
@@ -2525,6 +2572,7 @@ def build_rows(public_export: Path | None) -> list[dict[str, str]]:
         "difficulty_review",
         "local_qa_rows",
         "run_integrity",
+        "peer_review_matrix",
         "passk_claim_boundaries",
         "grader_hardening",
         "public_export",

@@ -55,6 +55,7 @@ REQUIRED_COMMANDS = {
     "python scripts/audit_report_claim_conformance.py",
     "python scripts/audit_report_shape.py",
     "python scripts/audit_report_count_consistency.py",
+    "python scripts/generate_peer_review_matrix.py",
     "python scripts/audit_final_delivery_checklist.py",
     "python scripts/audit_regeneration_commands.py",
     "python scripts/write_validation_manifest.py --public-export public_tasks",

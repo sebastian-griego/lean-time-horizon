@@ -99,6 +99,7 @@ def post_run_commands() -> str:
         "python scripts/generate_concise_report.py",
         "python scripts/audit_report_claim_conformance.py",
         "python scripts/audit_report_shape.py",
+        "python scripts/generate_peer_review_matrix.py",
         "python scripts/generate_release_decision_log.py",
         "python scripts/generate_freeze_readiness_roadmap.py",
         "python scripts/generate_report.py",

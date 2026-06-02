@@ -261,6 +261,24 @@ SECTION_SPECS = [
         "next_action": "Regenerate this audit after report, manifest, task, run, claim, or gate count changes.",
     },
     {
+        "section_id": "peer_review_matrix",
+        "heading": "Peer Review Matrix",
+        "source_artifacts": [
+            "data/peer_review_matrix.csv",
+            "reports/peer_review_matrix.md",
+            "data/requirement_coverage.csv",
+            "data/claim_authorization_matrix.csv",
+        ],
+        "required_phrases": [
+            "skeptical reviewer questions",
+            "current defensible answers",
+            "residual risks",
+            "upgrade evidence",
+        ],
+        "limitation": "The peer-review matrix synthesizes existing audits; it does not resolve blocked evidence gaps.",
+        "next_action": "Regenerate the matrix after requirement, claim, validation, model-result, or roadmap evidence changes.",
+    },
+    {
         "section_id": "capabilities",
         "heading": "What The Tasks Measure",
         "source_artifacts": [
@@ -553,6 +571,7 @@ SECTION_SPECS = [
             "reports/requirement_coverage.md",
             "reports/report_source_traceability.md",
             "reports/report_count_consistency_audit.md",
+            "reports/peer_review_matrix.md",
             "reports/data_schema_manifest.md",
             "reports/reviewer_reproduction_packet.md",
             "reports/clean_workspace_replay.md",
@@ -575,6 +594,7 @@ SECTION_SPECS = [
             "concise_metr_report.md",
             "requirement_coverage.md",
             "report_count_consistency_audit.md",
+            "peer_review_matrix.md",
             "data_schema_manifest.md",
             "reviewer_reproduction_packet.md",
             "clean_workspace_replay.md",

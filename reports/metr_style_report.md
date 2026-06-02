@@ -44,7 +44,7 @@ Data schema ledger:
 | `human_time_observations` | empty_ready | 0 | `data/human_time_observations_schema.json` | Author/reviewer estimates remain uncalibrated by independent timed solves. | Collect non-author timing rows before strengthening time-horizon claims. |
 | `independent_task_reviews` | empty_ready | 0 | `data/independent_task_review_schema.json` | Empty review data cannot support independent acceptance, time-bucket, hidden-pin, or wrong-submission adequacy claims. | Collect non-author review rows for every accepted_v0 task before strengthening benchmark-grade task-quality claims. |
 | `failure_label_codebook` | codebook_valid | 13 | `data/failure_label_schema.json` | The codebook is a taxonomy definition, not evidence that those failures dominate. | Update the codebook and downstream audits together if labels change. |
-| `derived_reporting_csv_inventory` | inventory_documented | 65 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
+| `derived_reporting_csv_inventory` | inventory_documented | 66 | `` | Most generated audit CSVs are governed by their producer scripts and manifest hashes rather than standalone JSON schemas. | Add standalone schemas only for files that become external data contracts or model-run inputs. |
 
 
 ## Task Selection Protocol
@@ -167,7 +167,7 @@ Independent review status:
 - acceptance statuses: `{"accepted_v0": 6, "calibration_only": 8, "rejected_duplicate": 2, "rejected_too_easy": 10}`
 - accepted core families: `{"algorithm_correctness": 1, "direct_theorem_proving": 1, "informal_spec_to_formal": 1, "invariant_verification_ml_optimization": 1, "proof_repair_codebase": 1, "small_formal_library_construction": 1}`
 - release human-time buckets: `{"T1": 8, "T2": 5, "T3": 1}`
-- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 68}`
+- requirement statuses: `{"not_met": 3, "partial": 4, "supported": 69}`
 - claim authorizations: `{"allowed": 1, "allowed_with_caveat": 6, "blocked": 5}`
 - release-decision gates: `{"block": 4, "caution": 2, "pass": 2}`
 - freeze-readiness gates: `{"block": 8, "caution": 1, "ready": 1}`
@@ -192,6 +192,32 @@ Count-consistency checks:
 | `run_and_manifest_counts` | manifest_counts | pass | Run-result counts are checked against the validation manifest and the appendix manifest summary. | Regenerate local QA rows, validation manifest, and report appendix after run-result changes. |
 | `locked_benchmark_blocker_counts` | blocker_counts | pass | Locked-benchmark blocker identifiers are checked against requirement coverage, the claim-gap row, and report blocker tables. | Regenerate requirement coverage, claim gap matrix, and reports when locked-benchmark blockers change. |
 | `public_export_counts` | manifest_counts | pass | Public-export task and hidden/wrong-path counts are checked against the manifest and appendix summary. | Regenerate public export, validation manifest, and report appendix after public task export changes. |
+
+
+## Peer Review Matrix
+
+`reports/peer_review_matrix.md` and `data/peer_review_matrix.csv` convert the audit surface into skeptical reviewer questions, current defensible answers, residual risks, and required upgrade evidence. `block` rows are claim boundaries, not script failures.
+
+- reviewer questions: `12`
+- verdicts: `{"block": 4, "caution": 3, "pass": 5}`
+- review areas: `{"calibration": 1, "claims": 1, "grading": 1, "model_results": 1, "operational_validity": 1, "reproducibility": 1, "roadmap": 1, "run_data": 1, "scope": 1, "statistics": 1, "task_quality": 1, "task_set": 1}`
+
+Peer-review matrix:
+
+| question | area | verdict | current answer | residual risk |
+| --- | --- | --- | --- | --- |
+| `scope_status` | scope | pass | Yes. The authorized wording is a local v0.1 research artifact with explicit blockers; locked-benchmark wording remains blocked. | A reader could still skim past caveats, so the bottom line and claim ledger must remain prominent. |
+| `task_portfolio_scale` | task_set | block | No. The accepted core is useful for local artifact review but below the 20-50 task target and has no accepted T4 row. | Family and capability summaries are singleton-heavy and should not be treated as stable population estimates. |
+| `diagnostic_task_quality` | task_quality | caution | Partially. The accepted core spans six families and multiple diagnostic capabilities, but several rows retain caveats and independent non-author review is still missing. | Internal review and local validation are not substitutes for independent task-quality review. |
+| `grader_semantic_validity` | grading | caution | Mostly for local review. Lean compilation, forbidden-construct scans, axiom audit, wrong submissions, and hidden pins are in place; hidden pins remain finite probes. | Finite semantic pins cannot prove full equivalence, and proof-only tasks rely more heavily on fixed theorem signatures. |
+| `run_data_and_passk_semantics` | run_data | pass | Yes for the current data. Run integrity and pass@k semantics pass, and exact-k pass@k-ready cells remain separated from smoke-only rows. | This proves data hygiene, not adequate model sample size. |
+| `model_performance_evidence` | model_results | block | No. The provider rows are smoke provenance only; there are zero exact-k pass@k-ready accepted-core scaffold cells. | Any pass-rate, ranking, scaffold-effect, family, or time-bucket performance interpretation would overclaim. |
+| `statistical_reporting` | statistics | block | No. The statistical plan exists and correctly blocks performance plots under current coverage. | Descriptive task-count figures are supported, but performance figures would imply nonexistent coverage. |
+| `human_time_evidence` | calibration | block | No. Accepted tasks have manual review fields but no independent timed solve observations. | Time-horizon claims remain author/reviewer-estimate-only. |
+| `hosted_qa_and_public_export` | operational_validity | caution | Local public export is clean, but hosted QA, Env Linter, problem-version mapping, and uploaded-image evidence are absent. | Local wrapper and export checks do not prove hosted filesystem-tool isolation or final problem-version behavior. |
+| `local_reproducibility` | reproducibility | pass | Yes for the local role. The README gate, reviewer packet, clean-workspace replay, regeneration-command audit, and manifest audit are synchronized and passing. | This is local reproducibility, not hosted QA or clean remote CI proof. |
+| `claim_control_system` | claims | pass | Yes. Claim authorization, claim conformance, count consistency, source traceability, and pass@k boundary audits are present and passing. | Text audits are guardrails; they do not create missing provider, timing, task-review, or hosted evidence. |
+| `upgrade_path` | roadmap | pass | Yes. The gap matrix, release decision log, freeze roadmap, and final-delivery checklist name the missing evidence and exit criteria. | The roadmap is not evidence that the blocked gates have been completed. |
 
 
 ## What The Tasks Measure
@@ -459,6 +485,7 @@ The long generated evidence tables are intentionally outside this main report:
 - `reports/requirement_coverage.md`: requirement-by-requirement evidence.
 - `reports/report_source_traceability.md`: section-by-section source map for this main report.
 - `reports/report_count_consistency_audit.md`: top-line count drift detector across reports, manifests, and committed CSV/JSON sources.
+- `reports/peer_review_matrix.md`: skeptical reviewer question matrix with current defensible answers, residual risks, and upgrade evidence.
 - `reports/final_delivery_checklist_audit.md`: strict playbook final-delivery checklist mapped to committed evidence, with pass@k, hosted QA, and version-freeze blockers kept visible.
 - `reports/regeneration_command_consistency.md`: synchronization check for README, manifest, manifest-source, and reviewer local-replay commands.
 - `reports/taiga_wrapper_isolation_audit.md`: local hidden-bundle wrapper smoke audit; mitigation evidence only, not hosted filesystem-tool isolation evidence.
@@ -484,9 +511,9 @@ The long generated evidence tables are intentionally outside this main report:
 
 `reports/reviewer_reproduction_packet.md` and `data/reviewer_reproduction_steps.csv` turn the local replay and external-evidence surface into an ordered reviewer workflow.
 
-- reproduction steps: `18`
-- phase counts: `{"external_evidence": 3, "local_replay": 15}`
-- status counts: `{"blocked_external_evidence": 3, "ready": 15}`
+- reproduction steps: `19`
+- phase counts: `{"external_evidence": 3, "local_replay": 16}`
+- status counts: `{"blocked_external_evidence": 3, "ready": 16}`
 - local replay problem rows: `0`
 - external-evidence rows still blocked: `3`
 
@@ -500,6 +527,7 @@ Reviewer reproduction ledger:
 | `difficulty_review` | local_replay | ready | `python scripts/audit_difficulty.py` | The audit combines static heuristics with human judgment; it is not independent human timing. |
 | `local_qa_rows` | local_replay | ready | `python scripts/record_local_qa_results.py` | Local QA rows must stay excluded from model-performance estimates. |
 | `run_integrity` | local_replay | ready | `python scripts/audit_run_integrity.py` | Passing integrity checks do not imply adequate provider sample size. |
+| `peer_review_matrix` | local_replay | ready | `python scripts/generate_peer_review_matrix.py` | The matrix is a synthesis of existing evidence and does not resolve blocked external-evidence gaps. |
 | `model_sweep_coverage` | local_replay | ready | `python scripts/audit_model_sweep_coverage.py` | This audit does not create new model evidence; it only classifies coverage of existing rows. |
 | `passk_claim_boundaries` | local_replay | ready | `python scripts/audit_passk_claim_boundaries.py` | This audit prevents wording drift; it does not create additional provider attempts or performance evidence. |
 | `grader_hardening` | local_replay | ready | `python scripts/audit_grader_hardening.py` | The scanner remains lexical source scanning, not a complete Lean parser. |

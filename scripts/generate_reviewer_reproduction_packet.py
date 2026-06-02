@@ -89,6 +89,17 @@ STEPS = [
         "next_action": "Run after any provider sweep or local QA regeneration.",
     },
     {
+        "step_id": "peer_review_matrix",
+        "phase": "local_replay",
+        "command": "python scripts/generate_peer_review_matrix.py",
+        "expected_artifacts": "data/peer_review_matrix.csv;reports/peer_review_matrix.md",
+        "claim_supported": "Skeptical reviewer questions, defensible answers, residual risks, and upgrade evidence are synthesized from committed audits.",
+        "evidence_basis": "Requirement coverage, claim authorization, model-sweep coverage, validation, hosted-readiness, and roadmap artifacts.",
+        "failure_interpretation": "A missing or stale matrix weakens reviewer-facing report quality but does not by itself create or invalidate model evidence.",
+        "limitation": "The matrix is a synthesis of existing evidence and does not resolve blocked external-evidence gaps.",
+        "next_action": "Run after requirement coverage and claim authorization regenerate.",
+    },
+    {
         "step_id": "model_sweep_coverage",
         "phase": "local_replay",
         "command": "python scripts/audit_model_sweep_coverage.py",
