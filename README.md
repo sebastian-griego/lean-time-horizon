@@ -16,6 +16,11 @@ The accepted core set is intentionally smaller than the original target of 20. T
 
 ## Validate
 
+CI runs a bounded smoke gate on pull requests: Lean build, Python syntax
+compilation, and `scripts/run_local_smoke.py --limit 1`. The full local
+acceptance gate below is intentionally longer because it regenerates audit
+tables, reports, public exports, and reviewer packets.
+
 Run the local acceptance gate from the repo root:
 
 ```powershell
