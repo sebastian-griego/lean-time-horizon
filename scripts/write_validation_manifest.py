@@ -50,6 +50,7 @@ REGENERATION_COMMANDS = [
     "python scripts/audit_report_source_traceability.py",
     "python scripts/export_public_tasks.py --out public_tasks",
     "python scripts/validate_public_export.py --out public_tasks",
+    "python scripts/audit_benchmark_package.py --public-export public_tasks",
     "python scripts/audit_security_leakage.py",
     "python scripts/audit_data_schema_manifest.py",
     "python scripts/generate_taiga_problem_metadata.py",
@@ -178,6 +179,7 @@ HASHED_ARTIFACTS = [
     "data/independent_task_review_template.csv",
     "data/independent_review_status_audit.csv",
     "data/task_asset_manifest.csv",
+    "data/benchmark_package_audit.csv",
     "data/prompt_contract_audit.csv",
     "data/pin_coverage_audit.csv",
     "data/run_integrity_audit.csv",
@@ -212,6 +214,7 @@ HASHED_ARTIFACTS = [
     "reports/independent_task_review_packet.md",
     "reports/independent_review_status_audit.md",
     "reports/task_asset_manifest.md",
+    "reports/benchmark_package_audit.md",
     "reports/prompt_contract_audit.md",
     "reports/pin_coverage_audit.md",
     "reports/run_integrity_audit.md",
@@ -277,6 +280,7 @@ HASHED_ARTIFACTS = [
     "scripts/generate_independent_review_packet.py",
     "scripts/audit_independent_review_status.py",
     "scripts/generate_task_asset_manifest.py",
+    "scripts/audit_benchmark_package.py",
     "scripts/audit_prompt_contracts.py",
     "scripts/audit_pin_coverage.py",
     "scripts/audit_run_integrity.py",
@@ -467,12 +471,12 @@ def public_export_summary(public_export: Path | None) -> dict[str, object]:
     metadata_files = list(path.rglob("metadata.json")) if path.exists() else []
     hidden_paths = [p for p in path.rglob("*") if "hidden" in p.parts or "wrong" in p.parts] if path.exists() else []
     try:
-        relative_path = str(path.relative_to(ROOT))
+        relative_path = path.relative_to(ROOT).as_posix()
     except ValueError:
-        relative_path = str(path)
+        relative_path = path.as_posix()
     return {
         "configured": True,
-        "path": str(path),
+        "path": relative_path,
         "relative_path": relative_path,
         "exists": path.exists(),
         "task_count": len(metadata_files),

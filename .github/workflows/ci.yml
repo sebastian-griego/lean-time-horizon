@@ -26,5 +26,13 @@ jobs:
       - name: Compile Python sources
         run: python -m compileall -q scripts harness taiga
 
+      - name: Run Python unit tests
+        run: python -m unittest discover -s tests
+
       - name: Run bounded local smoke validation
         run: python scripts/run_local_smoke.py --limit 1
+
+      - name: Audit benchmark package and public export
+        run: |
+          python scripts/export_public_tasks.py --out public_tasks
+          python scripts/audit_benchmark_package.py --public-export public_tasks

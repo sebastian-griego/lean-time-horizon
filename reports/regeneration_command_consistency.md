@@ -12,9 +12,9 @@ This generated audit checks that the README validation block, the validation-man
 
 | check | area | status | evidence | mismatches | required action |
 | --- | --- | --- | --- | --- | --- |
-| `readme_matches_manifest_source` | command_sequence | pass | readme_commands=104; source_commands=104; first_readme=['lake exe cache get', 'lake build', 'python scripts/validate_all.py']; last_readme=['python scripts/write_validation_manifest.py --public-export public_tasks', 'python scripts/audit_validation_manifest.py', 'python scripts/generate_report.py'] | `[]` | Update README.md and scripts/write_validation_manifest.py together whenever the local gate changes. |
-| `json_manifest_matches_source` | command_sequence | pass | manifest_commands=104; source_commands=104; manifest_present=True | `[]` | Run scripts/write_validation_manifest.py after editing the regeneration command list. |
-| `required_commands_in_public_gate` | required_command_coverage | pass | required=45; missing_readme=0; missing_source=0; missing_manifest=0 | `[]` | Keep the required-command set visible in both the README gate and validation manifest command list. |
+| `readme_matches_manifest_source` | command_sequence | pass | readme_commands=105; source_commands=105; first_readme=['lake exe cache get', 'lake build', 'python scripts/validate_all.py']; last_readme=['python scripts/write_validation_manifest.py --public-export public_tasks', 'python scripts/audit_validation_manifest.py', 'python scripts/generate_report.py'] | `[]` | Update README.md and scripts/write_validation_manifest.py together whenever the local gate changes. |
+| `json_manifest_matches_source` | command_sequence | pass | manifest_commands=105; source_commands=105; manifest_present=True | `[]` | Run scripts/write_validation_manifest.py after editing the regeneration command list. |
+| `required_commands_in_public_gate` | required_command_coverage | pass | required=46; missing_readme=0; missing_source=0; missing_manifest=0 | `[]` | Keep the required-command set visible in both the README gate and validation manifest command list. |
 | `reviewer_packet_local_subset` | reviewer_reproduction | pass | reviewer_rows=23; local_reviewer_commands=22; missing_from_full_gate=0 | `[]` | Keep reviewer local-replay commands as a subset of the full local regeneration gate. |
 
 ## Interpretation

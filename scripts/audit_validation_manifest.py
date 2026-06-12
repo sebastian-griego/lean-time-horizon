@@ -48,6 +48,7 @@ REQUIRED_COMMANDS = {
     "python scripts/audit_report_source_traceability.py",
     "python scripts/export_public_tasks.py --out public_tasks",
     "python scripts/validate_public_export.py --out public_tasks",
+    "python scripts/audit_benchmark_package.py --public-export public_tasks",
     "python scripts/audit_security_leakage.py",
     "python scripts/generate_taiga_problem_metadata.py",
     "python scripts/audit_taiga_wrapper_isolation.py",
