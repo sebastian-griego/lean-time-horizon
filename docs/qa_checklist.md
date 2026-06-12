@@ -15,6 +15,8 @@ For release:
 
 - `python scripts/validate_all.py`
 - `python scripts/audit_difficulty.py`
+- `python scripts/export_public_tasks.py --out public_tasks`
+- `python scripts/audit_benchmark_package.py --public-export public_tasks`
 - `python scripts/generate_report.py`
 - generated figures and report are committed
 - README commands match the current scripts

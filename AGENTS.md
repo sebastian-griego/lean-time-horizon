@@ -2,11 +2,13 @@
 
 This repo is for building a Lean-based time-horizon evaluation benchmark.
 
-Before doing substantive work, read:
+Before doing substantive work, read the public project guidance:
 
-- docs/lean_eval_project_playbook.md
+- README.md
+- docs/qa_checklist.md
+- docs/axiom_policy.md
 
-Treat that document as the source of truth.
+Treat those documents, task metadata, and generated audit reports as the source of truth. Private notes may exist locally, but they are not required to work from a fresh clone.
 
 Optimize for a serious final benchmark, not a small demo. It is acceptable to generate many candidate tasks and prune aggressively.
 

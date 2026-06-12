@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Lean project
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          test: false
+
+      - name: Compile Python sources
+        run: python -m compileall -q scripts harness taiga
+
+      - name: Run Python unit tests
+        run: python -m unittest discover -s tests
+
+      - name: Run bounded local smoke validation
+        run: python scripts/run_local_smoke.py --limit 1
+
+      - name: Audit benchmark package and public export
+        run: |
+          python scripts/export_public_tasks.py --out public_tasks
+          python scripts/audit_benchmark_package.py --public-export public_tasks
